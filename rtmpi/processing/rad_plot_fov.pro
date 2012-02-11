@@ -79,7 +79,7 @@ for ir=0,n_elements(radar)-1 do begin
 	if ir eq 0 then begin
 		xrange = txrange
 		yrange = tyrange
-	endif else
+	endif else begin
 		if abs(txrange[0]) gt abs(xrange[0]) then $
 			xrange[0] = txrange[0]
 		if abs(txrange[1]) gt abs(xrange[1]) then $
@@ -88,7 +88,7 @@ for ir=0,n_elements(radar)-1 do begin
 			yrange[0] = tyrange[0]
 		if abs(tyrange[1]) gt abs(yrange[1]) then $
 			yrange[1] = tyrange[1]
-	endif
+	endelse
 
 endfor
 
@@ -100,7 +100,6 @@ clear_page
 loadct, 0
 map_plot_panel, 1, 1, 0, 0, coords=coords, /iso, yrange=yrange, xrange=xrange, hemi=hemi, $
 	coast_linecolor=150, grid_linecolor=200, lake_fillcolor=255
-overlay_radar, name=radar[ir], /anno, coords=coords
 	
 ; Calculate stereographic projection and plot
 loadct,8
@@ -108,6 +107,7 @@ xx = fltarr(4)
 yy = fltarr(4)
 ibeam = 0L
 for ir=0,n_elements(radar)-1 do begin
+	overlay_radar, name=radar[ir], /anno, coords=coords
 	for ib=0,(*radptr[ir]).nbeams-1 do begin
 		for ig=0,(*radptr[ir]).ngates-1 do begin
 			xx = reform((*radptr[ir]).fov_loc_full[0,*,ib,ig])
