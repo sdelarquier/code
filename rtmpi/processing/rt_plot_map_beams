@@ -1,0 +1,14 @@
+pro rt_plot_map_beams, date
+
+common rt_data_blk
+common radarinfo
+
+; radar list
+radar = ['wal','bks','fhe','fhw','cve','cvw']
+radar = 'bks'
+
+; Set plot area
+set_format, /landscape
+clear_page
+position = define_panel(2,1,0,0, /bar)
+map_plot_panel, 2, 1, 0, 0, date=date, coords='magn', /bar, /iso, /no_fill, xrange=[-50., 20.], yrange=[-50., 0.], coast_linecolor=1
