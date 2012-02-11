@@ -26,7 +26,7 @@ for ir=1,n_elements(network)-1 do begin
 			which_beam = [which_beam, min_ind]
 			which_radar = [which_radar, network[ir].code[0]]
 			nr = nr + 1
-			; print, which_radar[nr], which_beam[nr], az, radaz[min_ind], sradaz, fradaz
+			print, which_radar[nr], which_beam[nr], dist
 		endif
 	endif
 endfor
