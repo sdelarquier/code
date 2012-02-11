@@ -74,7 +74,7 @@ for ir=0,n_elements(radar)-1 do begin
 	endif else if abs(txrange[1]-txrange[0]) lt abs(tyrange[1]-tyrange[0]) then begin
 		txrange[1] = txrange[1] + ext/2.
 		txrange[0] = txrange[0] - ext/2.
-	endif
+	endelse
 
 	if ir eq 0 then begin
 		xrange = txrange
@@ -125,14 +125,14 @@ for ir=0,n_elements(radar)-1 do begin
 					plots, xx[1:2], yy[1:2], thick=2
 					plots, [xx[0],xx[3]], [yy[0],yy[3]], thick=2
 				endif
-			endif else if n_elements(beam) gt 1 then begin
+			endelse else if n_elements(beam) gt 1 then begin
 				if (ib eq beam[ibeam]) then begin
 					polyfill, xx, yy, col=220
 					plots, xx[1:2], yy[1:2], thick=2
 					plots, [xx[0],xx[3]], [yy[0],yy[3]], thick=2
 					ibeam = ibeam + 1
 				endif
-			endif
+			endelse
 			if keyword_set(grid) then $
 				plots, [xx, xx[0]], [yy, yy[0]], thick=.25
 			; Plot fov limits
