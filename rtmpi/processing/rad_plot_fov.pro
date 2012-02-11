@@ -3,6 +3,7 @@ pro	rad_plot_fov, radar, date=date, beam=beam, coords=coords, $
 
 common radarinfo
 
+radptr = PTRARR(n_elements(radar), /allocate_heap)
 for ir=0,n_elements(radar)-1 do begin
 	; First find radar site structure
 	radID = where(network.code[0,*] eq radar[ir], cc)
@@ -58,22 +59,38 @@ for ir=0,n_elements(radar)-1 do begin
 			endfor
 		endfor
 	endfor
-endfor
+	*radptr[ir] = {fov_loc_full: fov_loc_full, nbeams: nbeams, ngates:ngates}
 	
-; Set plot limits
-if ~keyword_set(xrange) then $
-	xrange = [min(fov_loc_full[0,*,*,*],xmin)-5, max(fov_loc_full[0,*,*,*],xmax)+5]
-if ~keyword_set(yrange) then $
-	yrange = [min(fov_loc_full[1,*,*,*],ymin)-5, max(fov_loc_full[1,*,*,*],ymax)+5]
-; Adjust plot limits so that they cover the same extent
-ext = abs(abs(xrange[1]-xrange[0]) - abs(yrange[1]-yrange[0]))
-if abs(xrange[1]-xrange[0]) gt abs(yrange[1]-yrange[0]) then begin
-	yrange[1] = yrange[1] + ext/2.
-	yrange[0] = yrange[0] - ext/2.
-endif else if abs(xrange[1]-xrange[0]) lt abs(yrange[1]-yrange[0]) then begin
-	xrange[1] = xrange[1] + ext/2.
-	xrange[0] = xrange[0] - ext/2.
-endif
+	; Set plot limits
+	if ~keyword_set(xrange) then $
+		txrange = [min(fov_loc_full[0,*,*,*],xmin)-5, max(fov_loc_full[0,*,*,*],xmax)+5]
+	if ~keyword_set(yrange) then $
+		tyrange = [min(fov_loc_full[1,*,*,*],ymin)-5, max(fov_loc_full[1,*,*,*],ymax)+5]
+	; Adjust plot limits so that they cover the same extent
+	ext = abs(abs(txrange[1]-txrange[0]) - abs(tyrange[1]-tyrange[0]))
+	if abs(txrange[1]-txrange[0]) gt abs(tyrange[1]-tyrange[0]) then begin
+		tyrange[1] = tyrange[1] + ext/2.
+		tyrange[0] = tyrange[0] - ext/2.
+	endif else if abs(txrange[1]-txrange[0]) lt abs(tyrange[1]-tyrange[0]) then begin
+		txrange[1] = txrange[1] + ext/2.
+		txrange[0] = txrange[0] - ext/2.
+	endif
+
+	if ir eq 0 then begin
+		xrange = txrange
+		yrange = tyrange
+	endif else
+		if abs(txrange[0]) gt abs(xrange[0]) then $
+			xrange[0] = txrange[0]
+		if abs(txrange[1]) gt abs(xrange[1]) then $
+			xrange[1] = txrange[1]
+		if abs(tyrange[0]) gt abs(yrange[0]) then $
+			yrange[0] = tyrange[0]
+		if abs(tyrange[1]) gt abs(yrange[1]) then $
+			yrange[1] = tyrange[1]
+	endif
+
+endfor
 
 ; Set plot area
 set_format, /landscape
@@ -89,17 +106,31 @@ overlay_radar, name=radar[ir], /anno, coords=coords
 loadct,8
 xx = fltarr(4)
 yy = fltarr(4)
+ibeam = 0L
 for ir=0,n_elements(radar)-1 do begin
-	for ib=0,nbeams-1 do begin
-		for ig=0,ngates-1 do begin
-			xx = reform(fov_loc_full[0,*,ib,ig])
-			yy = reform(fov_loc_full[1,*,ib,ig])
-			; Highlight selected beam
+	for ib=0,(*radptr[ir]).nbeams-1 do begin
+		for ig=0,(*radptr[ir]).ngates-1 do begin
+			xx = reform((*radptr[ir]).fov_loc_full[0,*,ib,ig])
+			yy = reform((*radptr[ir]).fov_loc_full[1,*,ib,ig])
+			; Highlight selected beam(s)
 			if n_elements(beam) eq 1 then begin
 				if (ib eq beam) then begin
 					polyfill, xx, yy, col=220
 					plots, xx[1:2], yy[1:2], thick=2
 					plots, [xx[0],xx[3]], [yy[0],yy[3]], thick=2
+				endif
+			endif else if n_elements(beam) eq n_elements(radar) then begin
+				if (ib eq beam[ir]) then begin
+					polyfill, xx, yy, col=220
+					plots, xx[1:2], yy[1:2], thick=2
+					plots, [xx[0],xx[3]], [yy[0],yy[3]], thick=2
+				endif
+			endif else if n_elements(beam) gt 1 then begin
+				if (ib eq beam[ibeam]) then begin
+					polyfill, xx, yy, col=220
+					plots, xx[1:2], yy[1:2], thick=2
+					plots, [xx[0],xx[3]], [yy[0],yy[3]], thick=2
+					ibeam = ibeam + 1
 				endif
 			endif
 			if keyword_set(grid) then $
@@ -107,9 +138,9 @@ for ir=0,n_elements(radar)-1 do begin
 			; Plot fov limits
 			if ib eq 0 then $
 				plots, [xx[0],xx[3]], [yy[0],yy[3]], thick=2
-			if (ib eq nbeams-1) then $
+			if (ib eq (*radptr[ir]).nbeams-1) then $
 				plots, xx[1:2], yy[1:2], thick=2
-			if (ig eq ngates-1) then $
+			if (ig eq (*radptr[ir]).ngates-1) then $
 				plots, xx[2:3], yy[2:3], thick=2
 			if (ig eq 0) then $
 				plots, xx[0:1], yy[0:1], thick=2
