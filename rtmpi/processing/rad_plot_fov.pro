@@ -1,5 +1,5 @@
 pro	rad_plot_fov, radar, date=date, beam=beam, coords=coords, $
-		grid=grid, ps=ps
+		grid=grid, ps=ps, no_fill_beam=no_fill_beam
 
 common radarinfo
 
@@ -113,19 +113,22 @@ for ir=0,n_elements(radar)-1 do begin
 			; Highlight selected beam(s)
 			if n_elements(beam) eq 1 then begin
 				if (ib eq beam) then begin
-					polyfill, xx, yy, col=220
+					if ~keyword_set(no_fill_beam) then begin $
+						polyfill, xx, yy, col=220
 					plots, xx[1:2], yy[1:2], thick=2
 					plots, [xx[0],xx[3]], [yy[0],yy[3]], thick=2
 				endif
 			endif else if n_elements(beam) eq n_elements(radar) then begin
 				if (ib eq beam[ir]) then begin
-					polyfill, xx, yy, col=220
+					if ~keyword_set(no_fill_beam) then begin $
+						polyfill, xx, yy, col=220
 					plots, xx[1:2], yy[1:2], thick=2
 					plots, [xx[0],xx[3]], [yy[0],yy[3]], thick=2
 				endif
 			endif else if n_elements(beam) gt 1 then begin
 				if (ib eq beam[ibeam]) then begin
-					polyfill, xx, yy, col=220
+					if ~keyword_set(no_fill_beam) then begin $
+						polyfill, xx, yy, col=220
 					plots, xx[1:2], yy[1:2], thick=2
 					plots, [xx[0],xx[3]], [yy[0],yy[3]], thick=2
 					ibeam = ibeam + 1
