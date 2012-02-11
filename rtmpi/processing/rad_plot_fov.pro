@@ -1,5 +1,5 @@
 pro	rad_plot_fov, radar, date=date, beam=beam, coords=coords, $
-		yrange=yrange, xrange=xrange, grid=grid, ps=ps
+		grid=grid, ps=ps
 
 common radarinfo
 
@@ -62,10 +62,8 @@ for ir=0,n_elements(radar)-1 do begin
 	*radptr[ir] = {fov_loc_full: fov_loc_full, nbeams: nbeams, ngates:ngates}
 	
 	; Set plot limits
-	if ~keyword_set(xrange) then $
-		txrange = [min(fov_loc_full[0,*,*,*],xmin)-5, max(fov_loc_full[0,*,*,*],xmax)+5]
-	if ~keyword_set(yrange) then $
-		tyrange = [min(fov_loc_full[1,*,*,*],ymin)-5, max(fov_loc_full[1,*,*,*],ymax)+5]
+	txrange = [min(fov_loc_full[0,*,*,*],xmin)-5, max(fov_loc_full[0,*,*,*],xmax)+5]
+	tyrange = [min(fov_loc_full[1,*,*,*],ymin)-5, max(fov_loc_full[1,*,*,*],ymax)+5]
 	; Adjust plot limits so that they cover the same extent
 	ext = abs(abs(txrange[1]-txrange[0]) - abs(tyrange[1]-tyrange[0]))
 	if abs(txrange[1]-txrange[0]) gt abs(tyrange[1]-tyrange[0]) then begin
