@@ -21,7 +21,7 @@ for ir=1,n_elements(network)-1 do begin
 		sradaz = b0 + (0 - offset)*radarsite.bmsep
 		fradaz = b0 + (radarsite.maxbeam-1 - offset)*radarsite.bmsep
 		radaz = b0 + (indgen(radarsite.maxbeam) - offset)*radarsite.bmsep
-		if dist ge 200. and dist le 5000.  and az ge sradaz-1. and az le fradaz+1. then begin
+		if dist ge 200. and dist le 3500.  and az ge sradaz-1. and az le fradaz+1. then begin
 			minaz = min(abs(az-radaz), min_ind)
 			which_beam = [which_beam, min_ind]
 			which_radar = [which_radar, network[ir].code[0]]
