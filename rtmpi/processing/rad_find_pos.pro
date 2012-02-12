@@ -1,3 +1,53 @@
+;+
+; NAME:
+; RAD_FIND_POS
+;
+; PURPOSE:
+; This procedure finds radars that can 'see' a user provided position
+; It also outputs beam and ground distance for each radar.
+;
+; CATEGORY:
+; misc
+;
+; CALLING SEQUENCE:
+; rad_find_pos, lat, lon, 
+; 		which_radar=which_radar, which_beam=which_beam, which_dist=which_dist, 
+;		coords=coords
+;
+; INPUTS:
+; LAT: latitude of location
+;
+; LON: longitude of location
+;
+; WHICH_RADAR: radars that 'see' the given location
+;
+; WHICH_BEAM: beam of each radar that passes the closest over the given location
+;
+; WHICH_DIST: distance of given location to radars
+;
+; COORDS: coordinates in which the user location is given. Default is 'geog'
+; for geographic coordinated, but you should specify coords='magn' if you provide
+; a position in magnetic coordinates
+;
+; KEYWORD PARAMETERS:
+;
+; COMMON BLOCKS:
+;
+; EXAMPLE:
+; 
+; COPYRIGHT:
+; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+; THE SOFTWARE.
+;
+;
+; MODIFICATION HISTORY:
+; Written by Sebastien de Larquier 02/2012
+; -
 pro rad_find_pos, lat, lon, which_radar=which_radar, which_beam=which_beam, which_dist=which_dist, coords=coords
 
 common radarinfo
