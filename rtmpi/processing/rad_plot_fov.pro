@@ -1,3 +1,43 @@
+;+
+; NAME:
+; RAD_PLOT_FOV
+;
+; PURPOSE:
+; This procedure plots radar field of views and highlight one or more beams if desired
+;
+; CATEGORY:
+; misc
+;
+; CALLING SEQUENCE:
+; rad_plot_fov, radar, date=date, beam=beam, coords=coords, $
+; 		grid=grid, ps=ps, no_fill_beam=no_fill_beam
+;
+; INPUTS:
+; RADAR: radar code(s)
+;
+; DATE: by default the current date, but since radar configurations change with time, you can provide a team
+;
+; COORDS: Default if 'magn', but you can also use 'geog'
+;
+; KEYWORD PARAMETERS:
+;
+; COMMON BLOCKS:
+;
+; EXAMPLE:
+;
+; COPYRIGHT:
+; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+; THE SOFTWARE.
+;
+;
+; MODIFICATION HISTORY:
+; Written by Sebastien de Larquier 02/2012
+; -
 pro	rad_plot_fov, radar, date=date, beam=beam, coords=coords, $
 		grid=grid, ps=ps, no_fill_beam=no_fill_beam
 
@@ -113,21 +153,21 @@ for ir=0,n_elements(radar)-1 do begin
 			; Highlight selected beam(s)
 			if n_elements(beam) eq 1 then begin
 				if (ib eq beam) then begin
-					if ~keyword_set(no_fill_beam) then begin $
+					if ~keyword_set(no_fill_beam) then $
 						polyfill, xx, yy, col=220
 					plots, xx[1:2], yy[1:2], thick=2
 					plots, [xx[0],xx[3]], [yy[0],yy[3]], thick=2
 				endif
 			endif else if n_elements(beam) eq n_elements(radar) then begin
 				if (ib eq beam[ir]) then begin
-					if ~keyword_set(no_fill_beam) then begin $
+					if ~keyword_set(no_fill_beam) then $
 						polyfill, xx, yy, col=220
 					plots, xx[1:2], yy[1:2], thick=2
 					plots, [xx[0],xx[3]], [yy[0],yy[3]], thick=2
 				endif
 			endif else if n_elements(beam) gt 1 then begin
 				if (ib eq beam[ibeam]) then begin
-					if ~keyword_set(no_fill_beam) then begin $
+					if ~keyword_set(no_fill_beam) then $
 						polyfill, xx, yy, col=220
 					plots, xx[1:2], yy[1:2], thick=2
 					plots, [xx[0],xx[3]], [yy[0],yy[3]], thick=2
