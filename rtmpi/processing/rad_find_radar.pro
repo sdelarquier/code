@@ -1,6 +1,6 @@
 ;+
 ; NAME:
-; RAD_FIND_POS
+; RAD_FIND_RADAR
 ;
 ; PURPOSE:
 ; This procedure finds radars that can 'see' a user provided position
@@ -48,7 +48,7 @@
 ; MODIFICATION HISTORY:
 ; Written by Sebastien de Larquier 02/2012
 ; -
-pro rad_find_radar, lat, lon, which_radar=which_radar, which_beam=which_beam, which_dist=which_dist, coords=coords
+pro rad_find_radar, lat, lon, which_radar=which_radar, which_beam=which_beam, which_dist=which_dist, coords=coords, ignore_radar=ignore_radar
 
 common radarinfo
 
@@ -71,6 +71,12 @@ which_beam = 0
 which_dist = 0.
 nr = 0L
 for ir=1,n_elements(network)-1 do begin
+	if keyword_set(ignore_radar) then $
+		ign = where(ignore_radar eq network[ir].code[0], ccign) $
+	else $
+		ccign = -1
+	if ccign gt 0 then $
+		continue
 	radarsite = network[ir].site[where(network[ir].site.tval eq -1)]
 	; Only look at radars in the same hemisphere
 	if radarsite.geolat*hemisphere gt 0. then begin
@@ -92,7 +98,7 @@ for ir=1,n_elements(network)-1 do begin
 		endif
 		; check if the radar is close enough, and if the point is within its fov
 		; then determine which beam is the closest to the point
-		print, network[ir].code[0], dist, sradaz, fradaz, b0, az
+; 		print, network[ir].code[0], dist, sradaz, fradaz, b0, az
 		if dist ge 200. and dist le 3500.  and az  ge sradaz-1. and az le fradaz+1. then begin
 			minaz = min(abs(az-radaz), min_ind)
 			which_beam = [which_beam, min_ind]
