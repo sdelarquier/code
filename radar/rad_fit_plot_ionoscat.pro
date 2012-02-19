@@ -69,7 +69,7 @@ if keyword_set(rt) then begin
 	map_plot_panel, xmaps, 1, 2, 0, date=date, coords='magn', /bar, /iso, /no_fill, yrange=yrange, xrange=xrange, coast_linecolor=1
 	
 	hist = fltarr(nbeams,71)
-	rt_run, date, radar
+	rt_run, date, radar, /no_rays
 	
 	; Find midnight
 	rad_calc_sunset, date, radar, 7, 70, $
@@ -113,10 +113,10 @@ if keyword_set(rt) then begin
 		endfor
 	endfor
 	
-	plot_colorbar, xmaps, 1, 2, 0, /vert, charthick=charthick, /continuous, $
+	plot_colorbar, xmaps, 1, 2, 0, charthick=charthick, /continuous, $
 		nlevels=4, scale=[0,1], charsize=charsize, $
 		legend='Scatter distribution', /no_rotate, $
-		level_format='(F4.2)', /keep_first_last_label
+		level_format='(F4.2)', /keep_first_last_label, /horizontal
 endif
 
 
@@ -180,7 +180,7 @@ endfor
 map_plot_panel, xmaps, 1, 0, 0, date=date, coords='magn', /bar, /iso, /no_fill, yrange=yrange, xrange=xrange, coast_linecolor=1
 overlay_radar, name=radar, /anno, coords='magn', charsize=.5
 
-plot_colorbar, xmaps, 1, 0, 0, /vert, charthick=charthick, /continuous, $
+plot_colorbar, xmaps, 1, 0, 0, charthick=charthick, /continuous, $
 	nlevels=4, scale=[0,1], charsize=charsize, $
 	legend='Scatter distribution', /no_rotate, $
 	level_format='(F4.2)', /keep_first_last_label, /horizontal
@@ -230,7 +230,7 @@ for ib=0,nbeams-1 do begin
 endfor
 
 ; Plot beam-range grid
-loadct, 4, file='/tmp/colors2.tbl'
+;loadct, 4, file='/tmp/colors2.tbl'
 for ib=0,nbeams-1 do begin
 	for ig=0,ngates do begin
 		xx = fov_loc_full[0,*,ib,ig]
@@ -248,18 +248,18 @@ for ib=0,nbeams-1 do begin
 			plots, xx[2:3], yy[2:3];, thick=2, col=200
 	endfor
 endfor
-loadct, 0, file='/tmp/colors2.tbl'
+;loadct, 0, file='/tmp/colors2.tbl'
 
 ; Plot map
 map_plot_panel, xmaps, 1, 1, 0, date=date, coords='magn', /bar, /iso, /no_fill, yrange=yrange, xrange=xrange, coast_linecolor=1
 overlay_radar, name=radar, /anno, coords='magn', charsize=.5
 
-loadct, 4, file='/tmp/colors2.tbl'
-plot_colorbar, xmaps, 1, 1, 0, /vert, charthick=charthick, /continuous, $
+;loadct, 4, file='/tmp/colors2.tbl'
+plot_colorbar, xmaps, 1, 1, 0, charthick=charthick, /continuous, $
 	nlevels=4, scale=vscale, charsize=charsize, $
 	legend='Velocity [m/s]', /no_rotate, $
-	level_format='(F6.2)', /keep_first_last_label, /horizontal
-loadct, 0, file='/tmp/colors2.tbl'
+	level_format='(F6.1)', /keep_first_last_label, /horizontal
+;loadct, 0, file='/tmp/colors2.tbl'
 
 if keyword_set(ps) then $
 	ps_close, /no_f
