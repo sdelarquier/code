@@ -183,7 +183,7 @@ overlay_radar, name=radar, /anno, coords='magn', charsize=.5
 plot_colorbar, xmaps, 1, 0, 0, /vert, charthick=charthick, /continuous, $
 	nlevels=4, scale=[0,1], position=bpos, charsize=charsize, $
 	legend='Scatter distribution', /no_rotate, $
-	level_format='(F4.2)', /keep_first_last_label
+	level_format='(F4.2)', /keep_first_last_label, /horizontal
 
 
 ;*******************************************
@@ -254,10 +254,12 @@ loadct, 0, file='/tmp/colors2.tbl'
 map_plot_panel, xmaps, 1, 1, 0, date=date, coords='magn', /bar, /iso, /no_fill, yrange=yrange, xrange=xrange, coast_linecolor=1
 overlay_radar, name=radar, /anno, coords='magn', charsize=.5
 
+loadct, 4, file='/tmp/colors2.tbl'
 plot_colorbar, xmaps, 1, 1, 0, /vert, charthick=charthick, /continuous, $
 	nlevels=6, scale=vscale, position=bpos, charsize=charsize, $
 	legend='Velocity [m/s]', /no_rotate, $
-	level_format='(F6.2)', /keep_first_last_label
+	level_format='(F6.2)', /keep_first_last_label, /horizontal
+loadct, 0, file='/tmp/colors2.tbl'
 
 if keyword_set(ps) then $
 	ps_close, /no_f
