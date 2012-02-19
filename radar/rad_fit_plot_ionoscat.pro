@@ -256,10 +256,9 @@ overlay_radar, name=radar, /anno, coords='magn', charsize=.5
 
 loadct, 4, file='/tmp/colors2.tbl'
 plot_colorbar, xmaps, 1, 1, 0, /vert, charthick=charthick, /continuous, $
-	nlevels=4, scale=vscale, position=bpos, charsize=charsize, $
+	nlevels=4, scale=vscale, charsize=charsize, $
 	legend='Velocity [m/s]', /no_rotate, $
 	level_format='(F6.2)', /keep_first_last_label, /horizontal
-print, bpos
 loadct, 0, file='/tmp/colors2.tbl'
 
 if keyword_set(ps) then $
