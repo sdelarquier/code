@@ -5,14 +5,14 @@ common rad_data_blk
 
 if keyword_set(ps) then $
 	ps_open, '~/Desktop/ionoscat_'+radar+'_'+strtrim(date,2)+'.ps'
-set_format, /portrait, /sardines, /tokyo
+set_format, /landscape, /sardines, /tokyo
 clear_page
 
 ; Parse date
 parse_date, date, yy, mm, dd
 
 ; Find range-gate locations
-yrsec = 0.d
+yrsec = (julday(mm,dd,yy) - julday(1,1,yy))*86400.d
 radID = where(network.code[0,*] eq radar)
 tval = TimeYMDHMSToEpoch(yy, mm, dd, 0, 0, 0)
 for s=0,31 do begin
@@ -22,7 +22,7 @@ endfor
 radarsite = network[radID].site[s]
 nbeams = network[radID].site[s].maxbeam
 ngates = 75
-rad_define_beams, network[radID].id, nbeams, ngates, year, yrsec, coords='magn', $
+rad_define_beams, network[radID].id, nbeams, ngates, yy, yrsec, coords='magn', $
 		/normal, fov_loc_full=fov_loc_full
 
 ; Calculate stereographic projection
