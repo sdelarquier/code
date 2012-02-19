@@ -235,7 +235,7 @@ for ib=0,nbeams-1 do begin
 	for ig=0,ngates do begin
 		xx = fov_loc_full[0,*,ib,ig]
 		yy = fov_loc_full[1,*,ib,ig]
-		if velhist[ib,ng] ne 10000. then $
+		if velhist[ib,ig] ne 10000. then $
 			polyfill, xx, yy, col=bytscl(velhist[ib,ig], min=vscale[0], max=vscale[1], top=252)+2b
 ; 		plots, [xx, xx[0]], [yy, yy[0]], thick=1
 		if (ib eq nbeams-1) then $
