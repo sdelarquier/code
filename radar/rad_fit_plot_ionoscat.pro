@@ -152,7 +152,9 @@ for ib=0,nbeams-1 do begin
 	for ng=0,70 do begin
 		pinds = where(power[*,ng] ne 10000. and power[*,ng] ge 6. and scat[*,ng] eq 0b, ccpinds)
 		if ccpinds gt 0 then $
-			hist[ib,ng] = hist[ib,ng] + ccpinds;total(power[pinds,ng])
+			hist[ib,ng] = hist[ib,ng] + ccpinds;total(power[pinds,ng]) $
+		else $
+			hist[ib,ng] = 10000.
 	endfor
 endfor
 hist = hist/max(hist, /nan)
@@ -162,7 +164,7 @@ for ib=0,nbeams-1 do begin
 	for ig=0,ngates do begin
 		xx = fov_loc_full[0,*,ib,ig]
 		yy = fov_loc_full[1,*,ib,ig]
-		if hist[ib,ig] gt 0. then $
+		if hist[ib,ig] ne 10000. then $
 			polyfill, xx, yy, col=bytscl(hist[ib,ig], min=0, max=1, top=252)+2b
 ; 		plots, [xx, xx[0]], [yy, yy[0]], thick=1
 		if (ib eq nbeams-1) then $
@@ -171,12 +173,12 @@ for ib=0,nbeams-1 do begin
 			plots, [xx[0],xx[3]], [yy[0],yy[3]];, thick=2, col=200
 		if ~(ig mod 5) then $
 			plots, xx[0:1], yy[0:1];, thick=2, col=200
-		if (ig eq ngates) then $
+		if (ig eq ngates-1) then $
 			plots, xx[2:3], yy[2:3];, thick=2, col=200
 	endfor
 endfor
 
-; Plot histogram
+; Plot map
 map_plot_panel, xmaps, 1, 0, 0, date=date, coords='magn', /bar, /iso, /no_fill, yrange=yrange, xrange=xrange, coast_linecolor=1
 overlay_radar, name=radar, /anno, coords='magn', charsize=.5
 
@@ -190,7 +192,6 @@ plot_colorbar, xmaps, 1, 0, 0, /vert, charthick=charthick, /continuous, $
 ; Radar: VELOCITY
 ;*******************************************
 vscale = [-50,50]
-loadct, 4, file='/tmp/colors2.tbl'
 map_plot_panel, xmaps, 1, 1, 0, date=date, coords='magn', /bar, /iso, /no_fill, yrange=yrange, xrange=xrange, coast_linecolor=1
 
 rad_fit_read, date, radar, time=[0,1200], /filter, /ajground, /catfile, catpath='/tmp/'
@@ -229,6 +230,7 @@ for ib=0,nbeams-1 do begin
 endfor
 
 ; Plot beam-range grid
+loadct, 4, file='/tmp/colors2.tbl'
 for ib=0,nbeams-1 do begin
 	for ig=0,ngates do begin
 		xx = fov_loc_full[0,*,ib,ig]
@@ -242,12 +244,13 @@ for ib=0,nbeams-1 do begin
 			plots, [xx[0],xx[3]], [yy[0],yy[3]];, thick=2, col=200
 		if ~(ig mod 5) then $
 			plots, xx[0:1], yy[0:1];, thick=2, col=200
-		if (ig eq ngates) then $
+		if (ig eq ngates-1) then $
 			plots, xx[2:3], yy[2:3];, thick=2, col=200
 	endfor
 endfor
+loadct, 0, file='/tmp/colors2.tbl'
 
-; Plot histogram
+; Plot map
 map_plot_panel, xmaps, 1, 1, 0, date=date, coords='magn', /bar, /iso, /no_fill, yrange=yrange, xrange=xrange, coast_linecolor=1
 overlay_radar, name=radar, /anno, coords='magn', charsize=.5
 
@@ -258,7 +261,5 @@ plot_colorbar, xmaps, 1, 1, 0, /vert, charthick=charthick, /continuous, $
 
 if keyword_set(ps) then $
 	ps_close, /no_f
-
-loadct, 0, file='/tmp/colors2.tbl'
 
 end
