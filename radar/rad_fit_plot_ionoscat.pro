@@ -170,7 +170,7 @@ for ib=0,nbeams-1 do begin
 			plots, [xx[0],xx[3]], [yy[0],yy[3]];, thick=2, col=200
 		if ~(ig mod 5) then $
 			plots, xx[0:1], yy[0:1];, thick=2, col=200
-		if (ig eq rt_info.ngates-1) then $
+		if (ig eq ngates) then $
 			plots, xx[2:3], yy[2:3];, thick=2, col=200
 	endfor
 endfor
@@ -238,7 +238,7 @@ for ib=0,nbeams-1 do begin
 			plots, [xx[0],xx[3]], [yy[0],yy[3]];, thick=2, col=200
 		if ~(ig mod 5) then $
 			plots, xx[0:1], yy[0:1];, thick=2, col=200
-		if (ig eq rt_info.ngates-1) then $
+		if (ig eq ngates) then $
 			plots, xx[2:3], yy[2:3];, thick=2, col=200
 	endfor
 endfor
