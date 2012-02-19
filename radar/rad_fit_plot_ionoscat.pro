@@ -152,9 +152,7 @@ for ib=0,nbeams-1 do begin
 	for ng=0,70 do begin
 		pinds = where(power[*,ng] ne 10000. and power[*,ng] ge 6. and scat[*,ng] eq 0b, ccpinds)
 		if ccpinds gt 0 then $
-			hist[ib,ng] = hist[ib,ng] + ccpinds $;total(power[pinds,ng])
-		else $
-			hist[ib,ng] = 10000.
+			hist[ib,ng] = hist[ib,ng] + ccpinds
 	endfor
 endfor
 hist = hist/max(hist, /nan)
@@ -164,7 +162,7 @@ for ib=0,nbeams-1 do begin
 	for ig=0,ngates do begin
 		xx = fov_loc_full[0,*,ib,ig]
 		yy = fov_loc_full[1,*,ib,ig]
-		if hist[ib,ig] ne 10000. then $
+		if hist[ib,ig] gt 0. then $
 			polyfill, xx, yy, col=bytscl(hist[ib,ig], min=0, max=1, top=252)+2b
 ; 		plots, [xx, xx[0]], [yy, yy[0]], thick=1
 		if (ib eq nbeams-1) then $
@@ -214,13 +212,15 @@ for ib=0,nbeams-1 do begin
 				(*rad_fit_data[data_index]).juls le julmidnight+0.5d/24.d and $
 				(*rad_fit_data[data_index]).tfreq ge 10e3 and $
 				(*rad_fit_data[data_index]).tfreq le 12e3, ccinds)
-	if ccinds le 0 then $
+	if ccinds le 0 then begin
+		velhist[ib,*] = 10000.
 		continue
+	endif
 
 	velocity = (*rad_fit_data[data_index]).velocity[binds,*]
 	power = (*rad_fit_data[data_index]).power[binds,*]
 	scat = (*rad_fit_data[data_index]).gscatter[binds,*]
-	for ng=0,70 do begin
+	for ng=0,ngates do begin
 		pinds = where(velocity[*,ng] ne 10000. and power[*,ng] ge 6. and scat[*,ng] eq 0b, ccpinds)
 		if ccpinds gt 0 then $
 			velhist[ib,ng] = MEDIAN(velocity[pinds]) $
