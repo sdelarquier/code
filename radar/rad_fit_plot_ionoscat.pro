@@ -5,7 +5,7 @@ common rad_data_blk
 
 if keyword_set(ps) then $
 	ps_open, '~/Desktop/ionoscat_'+radar+'_'+strtrim(date,2)+'.ps'
-set_format, /landscape, /sardines, /tokyo
+set_format, /landscape
 clear_page
 
 ; Parse date
@@ -162,7 +162,8 @@ for ib=0,nbeams-1 do begin
 	for ig=0,ngates do begin
 		xx = fov_loc_full[0,*,ib,ig]
 		yy = fov_loc_full[1,*,ib,ig]
-		polyfill, xx, yy, col=bytscl(hist[ib,ig], min=0, max=1, top=252)+2b
+		if hist[ib,ig] gt 0. then $
+			polyfill, xx, yy, col=bytscl(hist[ib,ig], min=0, max=1, top=252)+2b
 ; 		plots, [xx, xx[0]], [yy, yy[0]], thick=1
 		if (ib eq nbeams-1) then $
 			plots, xx[1:2], yy[1:2];, thick=2, col=200
@@ -221,7 +222,9 @@ for ib=0,nbeams-1 do begin
 	for ng=0,70 do begin
 		pinds = where(velocity[*,ng] ne 10000. and power[*,ng] ge 6. and scat[*,ng] eq 0b, ccpinds)
 		if ccpinds gt 0 then $
-			velhist[ib,ng] = MEDIAN(velocity[pinds])
+			velhist[ib,ng] = MEDIAN(velocity[pinds]) $
+		else $
+			velhist[ib,ng] = 10000.
 	endfor
 endfor
 
@@ -230,7 +233,8 @@ for ib=0,nbeams-1 do begin
 	for ig=0,ngates do begin
 		xx = fov_loc_full[0,*,ib,ig]
 		yy = fov_loc_full[1,*,ib,ig]
-		polyfill, xx, yy, col=bytscl(velhist[ib,ig], min=vscale[0], max=vscale[1], top=252)+2b
+		if velhist[ib,ng] ne 10000. then $
+			polyfill, xx, yy, col=bytscl(velhist[ib,ig], min=vscale[0], max=vscale[1], top=252)+2b
 ; 		plots, [xx, xx[0]], [yy, yy[0]], thick=1
 		if (ib eq nbeams-1) then $
 			plots, xx[1:2], yy[1:2];, thick=2, col=200
@@ -248,9 +252,9 @@ map_plot_panel, xmaps, 1, 1, 0, date=date, coords='magn', /bar, /iso, /no_fill, 
 overlay_radar, name=radar, /anno, coords='magn', charsize=.5
 
 plot_colorbar, xmaps, 1, 1, 0, /vert, charthick=charthick, /continuous, $
-	nlevels=4, scale=vscale, position=bpos, charsize=charsize, $
+	nlevels=6, scale=vscale, position=bpos, charsize=charsize, $
 	legend='Velocity [m/s]', /no_rotate, $
-	level_format='(F4.2)', /keep_first_last_label
+	level_format='(F6.2)', /keep_first_last_label
 
 if keyword_set(ps) then $
 	ps_close, /no_f
