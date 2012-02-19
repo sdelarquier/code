@@ -152,7 +152,7 @@ for ib=0,nbeams-1 do begin
 	for ng=0,70 do begin
 		pinds = where(power[*,ng] ne 10000. and power[*,ng] ge 6. and scat[*,ng] eq 0b, ccpinds)
 		if ccpinds gt 0 then $
-			hist[ib,ng] = hist[ib,ng] + ccpinds;total(power[pinds,ng]) $
+			hist[ib,ng] = hist[ib,ng] + ccpinds $;total(power[pinds,ng])
 		else $
 			hist[ib,ng] = 10000.
 	endfor
