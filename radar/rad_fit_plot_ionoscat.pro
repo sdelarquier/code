@@ -128,7 +128,7 @@ map_plot_panel, xmaps, 1, 0, 0, date=date, coords='magn', /bar, /iso, /no_fill, 
 rad_fit_read, date, radar, time=[0,1200], /filter, /ajground, /catfile, catpath='/tmp/'
 data_index = rad_fit_get_data_index()
 if data_index eq -1 then $
-	continue
+	return
 
 ; Find midnight
 rad_calc_sunset, date, radar, 7, 70, $
@@ -195,7 +195,7 @@ map_plot_panel, xmaps, 1, 0, 1, date=date, coords='magn', /bar, /iso, /no_fill, 
 rad_fit_read, date, radar, time=[0,1200], /filter, /ajground, /catfile, catpath='/tmp/'
 data_index = rad_fit_get_data_index()
 if data_index eq -1 then $
-	continue
+	return
 
 ; Find midnight
 rad_calc_sunset, date, radar, 7, 70, $
