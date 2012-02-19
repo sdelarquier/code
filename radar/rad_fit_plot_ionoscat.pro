@@ -136,7 +136,7 @@ rad_calc_sunset, date, radar, 7, 70, $
 julmidnight = solnoon[20] - 0.5d
 
 ; Histogram construction
-hist = fltarr(nbeams,71)
+hist = fltarr(nbeams,ngates+1)
 for ib=0,nbeams-1 do begin
 	; scatter histogram
 	binds = where((*rad_fit_data[data_index]).beam eq ib and $
@@ -203,8 +203,8 @@ rad_calc_sunset, date, radar, 7, 70, $
 julmidnight = solnoon[20] - 0.5d
 
 ; Histogram construction
-nvel = fltarr(nbeams,71)
-velhist = fltarr(nbeams,71)
+nvel = fltarr(nbeams,ngates+1)
+velhist = fltarr(nbeams,ngates+1)
 for ib=0,nbeams-1 do begin
 	; velocity median
 	binds = where((*rad_fit_data[data_index]).beam eq ib and $
