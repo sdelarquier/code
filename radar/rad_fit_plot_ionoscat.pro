@@ -66,7 +66,7 @@ if keyword_set(rt) then begin
 	; Ray-tracing
 	;*******************************************
 	; Set plot area
-	map_plot_panel, xmaps, 1, 0, 2, date=date, coords='magn', /bar, /iso, /no_fill, yrange=yrange, xrange=xrange, coast_linecolor=1
+	map_plot_panel, xmaps, 1, 2, 0, date=date, coords='magn', /bar, /iso, /no_fill, yrange=yrange, xrange=xrange, coast_linecolor=1
 	
 	hist = fltarr(nbeams,71)
 	rt_run, date, radar
@@ -113,7 +113,7 @@ if keyword_set(rt) then begin
 		endfor
 	endfor
 	
-	plot_colorbar, xmaps, 1, 0, 2, /vert, charthick=charthick, /continuous, $
+	plot_colorbar, xmaps, 1, 2, 0, /vert, charthick=charthick, /continuous, $
 		nlevels=4, scale=[0,1], position=bpos, charsize=charsize, $
 		legend='Scatter distribution', /no_rotate, $
 		level_format='(F4.2)', /keep_first_last_label
@@ -190,7 +190,7 @@ plot_colorbar, xmaps, 1, 0, 0, /vert, charthick=charthick, /continuous, $
 ;*******************************************
 vscale = [-50,50]
 loadct, 4, file='/tmp/colors2.tbl'
-map_plot_panel, xmaps, 1, 0, 1, date=date, coords='magn', /bar, /iso, /no_fill, yrange=yrange, xrange=xrange, coast_linecolor=1
+map_plot_panel, xmaps, 1, 1, 0, date=date, coords='magn', /bar, /iso, /no_fill, yrange=yrange, xrange=xrange, coast_linecolor=1
 
 rad_fit_read, date, radar, time=[0,1200], /filter, /ajground, /catfile, catpath='/tmp/'
 data_index = rad_fit_get_data_index()
@@ -244,10 +244,10 @@ for ib=0,nbeams-1 do begin
 endfor
 
 ; Plot histogram
-map_plot_panel, xmaps, 1, 0, 1, date=date, coords='magn', /bar, /iso, /no_fill, yrange=yrange, xrange=xrange, coast_linecolor=1
+map_plot_panel, xmaps, 1, 1, 0, date=date, coords='magn', /bar, /iso, /no_fill, yrange=yrange, xrange=xrange, coast_linecolor=1
 overlay_radar, name=radar, /anno, coords='magn', charsize=.5
 
-plot_colorbar, xmaps, 1, 0, 1, /vert, charthick=charthick, /continuous, $
+plot_colorbar, xmaps, 1, 1, 0, /vert, charthick=charthick, /continuous, $
 	nlevels=4, scale=vscale, position=bpos, charsize=charsize, $
 	legend='Velocity [m/s]', /no_rotate, $
 	level_format='(F4.2)', /keep_first_last_label
