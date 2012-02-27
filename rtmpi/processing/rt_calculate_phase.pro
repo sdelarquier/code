@@ -1,5 +1,5 @@
-pro rad_fit_calculate_phase, $
-	date=date, time=time, long=long, jul=jul, $$
+pro rt_calculate_phase, $
+	date=date, time=time, jul=jul, $
 	tdiff=tdiff, phidiff=phidiff, $
 	interfer_pos=interfer_pos, scan_boresite_offset=scan_boresite_offset, $
 	theta=theta, chi_max=chi_max, phi_temp=phi_temp, psi=psi, phi0=phi0
@@ -22,7 +22,7 @@ if n_elements(time) ne 0 then $
 
 ; calculate julian day if not given
 if ~keyword_set(jul) then $
-	sfjul, date, _time, jul, long=long
+	sfjul, date, _time, jul
 
 ; get time
 caldat, jul, month, day, year, hour, minute, second
@@ -90,7 +90,7 @@ c_phi = cos( phi )
 c_phi = rebin(c_phi, sz[0], sz[1], sz[2])
 
 ; wave number; 1/m
-k = 2. * !PI * rt_data.tfreq * 1000.0 / 2.99792458e8
+k = 2. * !PI * rt_data.tfreq * 1.0e6/ 2.99792458e8
 ; replicate k to match dimensions of phi0
 k = rebin(k, sz[0], sz[1], sz[2])
 
@@ -102,7 +102,7 @@ k = rebin(k, sz[0], sz[1], sz[2])
 ; antenna arrives earlier. tdiff < 0  --> dchi_cable > 0
 
 ; phase shift caused by cables; rad
-dchi_cable = -2. * !PI * rt_data.tfreq * 1000.0 * tdiff * 1.0e-6
+dchi_cable = -2. * !PI * rt_data.tfreq * 1.0e6 * tdiff * 1.0e-6
 ; replicate dchi_cable to match dimensions of phi0
 dchi_cable = rebin(dchi_cable, sz[0], sz[1], sz[2])
 
@@ -121,12 +121,13 @@ chi_max = rebin(chi_max, sz[0], sz[1], sz[2])
 
 ; Get uncorrected elevation
 theta = rt_data.elevation*!dtor
-inds = where(theta lt 0. or abs(theta) gt 1., ni, complement=ninds, ncomplement=nn)
-if nn gt 0L then begin
-	theta[ninds] = (sin(theta[ninds] - elev_corr) )^2
-
-	theta[ninds] = sqrt(theta[ninds] + c_phi*c_phi)
+inds = where(rt_data.elevation eq 10000., ni, complement=ninds, ncomplement=nn)
+if ni gt 0L then begin
+	theta[inds] = 20.*!dtor
 endif
+theta = (sin(theta - elev_corr) )^2
+theta = sqrt(c_phi*c_phi - theta)
+
 ; Get actual phase angle (no cable)
 psi = theta * (k * antenna_separation)
 
@@ -135,15 +136,16 @@ phi_temp = psi + dchi_cable
 
 ; Get phi0 between -pi and pi
 if phi_sign lt 0.0 then $
-	phi0 = (phi_temp - chi_max) - !pi $
+	phi0 = ( (phi_temp - chi_max) mod !pi ) $
 else $
-	phi0 = (phi_temp - chi_max) + !pi
+	phi0 = ( (phi_temp - chi_max) mod !pi )
 
 ; Gets rid of bad values
 if ni gt 0L then begin
 	theta[inds] = 10000.
 	phi_temp[inds] = 10000.
 	psi[inds] = 10000.
+	phi0[inds] = 10000.
 endif
-stop
+
 end

@@ -147,9 +147,9 @@ for nh=0,nhour-1 do begin
 								reform(nrsave[nh,na,nel,0:nrstepsave[nh,na,nel]-1])
 			endif
 		endfor
+	    free_lun, tmpout
 	endfor
 
-	free_lun, tmpout
 endfor
 
 

@@ -96,7 +96,7 @@ function rtFileName, date, time, radar, beam=beam, freq=freq, nhop=nhop, back=ba
 	if n_elements(beam) eq 1 then $
 		strsupl = strsupl + '.'  + strtrim(string(beam, format='(I02)'), 2)
 	if n_elements(freq) eq 1 then $
-		strsupl = strsupl + '.'  + strtrim(string(freq, format='(I02)'), 2)
+		strsupl = strsupl + '.'  + strtrim(string(freq, format='(I3)'), 2)
 	if n_elements(nhop) eq 1 then $
 		strsupl = strsupl + '.'  + strtrim(string(nhop, format='(I1)'), 2) + 'hop'
 	if n_elements(ground) eq 1 then $
@@ -110,7 +110,7 @@ function rtFileName, date, time, radar, beam=beam, freq=freq, nhop=nhop, back=ba
 		file = strdate + '.' + strtime + '.' + radar + strsupl + '.rays'
 
 	filename = dir + file
- 	print, filename
+;   	print, filename
 
 	return, filename
 	
@@ -145,10 +145,10 @@ pro	rtWriteStruct, rt_data, rt_info, rt_rays, ground=ground, code=code, outdir=o
 
 		for nb=0,nazim-1 do begin
 			beam = rt_data.beam[nh,nb] 
-			freq = rt_data.tfreq[nh,nb]
+			freq = rt_data.tfreq[nh]
 
 			; name fit file
-			output = rtFileName(year*10000L+month*100L+day, hour*100L+minute, rt_info.name, beam=rt_data.beam[nh,nb], freq=rt_data.tfreq[nh,nb], nhop=rt_info.nhop, ground=ground, outdir=outdir)
+			output = rtFileName(year*10000L+month*100L+day, hour*100L+minute, rt_info.name, beam=rt_data.beam[nh,nb], freq=rt_data.tfreq[nh], nhop=rt_info.nhop, ground=ground, outdir=outdir)
 
 			; open fit file
 			openw, unit, output, /get_lun
@@ -167,7 +167,7 @@ pro	rtWriteStruct, rt_data, rt_info, rt_rays, ground=ground, code=code, outdir=o
 			for n=0,ntags_data-1 do begin
 				writeu, unit, size(rt_data.(n), /type), size(rt_data.(n), /n_dimensions)
 				writeu, unit, size(rt_data.(n), /dimensions)
-				case size(rt_data.(n), /n_dimensions) of
+                                case size(rt_data.(n), /n_dimensions) of
 					1: writeu, unit, rt_data.(n)[nh]
 					2: writeu, unit, rt_data.(n)[nh,nb]
 					3: writeu, unit, rt_data.(n)[nh,nb,*]
@@ -265,6 +265,8 @@ pro	rtReadStruct, date, time, radar, beams, freq, rt_data, rt_info, dhour=dhour,
 				tnelem = lonarr(ndims)
 				readu, unit, tnelem
 				tnelem[0] = 1
+                                if ndims gt 1 then $
+				    tnelem[1] = 1
 				temp = make_array(tnelem, type=ttype)
 				readu, unit, temp
 				case ndims of
@@ -330,7 +332,7 @@ pro rtFileTest, date, time, radar, beam=beam, freq=freq, dhour=dhour, nhop=nhop,
 	endif else $
 		nfiles = 1
 	
-	; cycle through files
+        ; cycle through files
 	tdate = date
 	nh = 0L
 	hour = shour
@@ -343,12 +345,12 @@ pro rtFileTest, date, time, radar, beam=beam, freq=freq, dhour=dhour, nhop=nhop,
 			if ~code then $
 				return
 
-			hour = hour + dhour
-			if hour ge 24. then begin
-				hour = hour - 24.
-				tdate = calc_date(tdate, 1)
-			endif
 		endfor
+		hour = hour + dhour
+		if hour ge 24. then begin
+			hour = hour - 24.
+			tdate = calc_date(tdate, 1)
+	    	endif
 	endfor
 
 end

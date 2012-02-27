@@ -113,25 +113,20 @@ beaminds = where(rt_data.beam[0,*] eq beam)
 nb = beaminds[0]
 
 ; Find range-gate locations
-if rt_info.name ne 'custom' then begin
-	ajul = (sjul+fjul)/2.d
-	caldat, ajul, mm, dd, year
-	yrsec = (ajul-julday(1,1,year,0,0,0))*86400.d
-	radID = where(network.ID eq rt_info.id)
-	tval = TimeYMDHMSToEpoch(year, mm, dd, 0, 0, 0)
-	for s=0,31 do begin
-		if (network[radID].site[s].tval eq -1) then break
-		if (network[radID].site[s].tval ge tval) then break
-	endfor
-	radarsite = network[radID].site[s]
-	nbeams = network[radID].site[s].maxbeam
-	rad_define_beams, rt_info.id, nbeams, rt_info.ngates, year, yrsec, coords=coords, $
-			/normal, fov_loc_center=fov_loc_center
-	fov_loc_center = reform(fov_loc_center[0,beam,*])
-endif else begin
-	nbeams = n_elements(rt_data.beam[0,*])
-	fov_loc_center = findgen(rt_info.ngates+1)
-endelse
+ajul = (sjul+fjul)/2.d
+caldat, ajul, mm, dd, year
+yrsec = (ajul-julday(1,1,year,0,0,0))*86400.d
+radID = where(network.ID eq rt_info.id)
+tval = TimeYMDHMSToEpoch(year, mm, dd, 0, 0, 0)
+for s=0,31 do begin
+	if (network[radID].site[s].tval eq -1) then break
+	if (network[radID].site[s].tval ge tval) then break
+endfor
+radarsite = network[radID].site[s]
+nbeams = network[radID].site[s].maxbeam
+rad_define_beams, rt_info.id, nbeams, rt_info.ngates, year, yrsec, coords=coords, $
+		/normal, fov_loc_center=fov_loc_center
+fov_loc_center = reform(fov_loc_center[0,beam,*])
 
 ; Determine maximum width to plot scan - to decide how big a 'data gap' has to
 ; be before it really is a data gap.  Default to 5 minutes

@@ -103,7 +103,7 @@
 ;-
 PRO	rt_plot_rays, time, date=date, beam=beam, blines=blines, refl=refl, gates=gates, hm=hm, $
 			rthick=rthick, ps=ps, scale=scale, scatter=scatter, gscatter=gscatter, nhop=nhop, back=back, $
-			dirname=dirname
+			maxr=maxr, dirname=dirname
 
 common rt_data_blk
 
@@ -123,8 +123,13 @@ if ~keyword_set(beam) then begin
 	ib = 0
 	beam = rt_data.beam[0,ib]
 endif
-binds = where(rt_data.beam[0,*] eq beam)
-ib = binds[0]
+binds = where(rt_data.beam[0,*] eq beam, cc)
+if cc gt 0 then $
+	ib = binds[0] $
+else begin
+	ib = 0
+	beam = rt_data.beam[0,ib]
+endelse
 
 ; Retrieve raytracing parameters from structure
 radar = rt_info.name
@@ -163,7 +168,8 @@ endif else begin
 endelse
 
 ; Generate plotting area
-maxr = 2000.
+if ~keyword_set(maxr) then $
+    maxr = 2000.
 maxh = 500.
 tht0 = maxr/Rav/2.
 xmin = -(Rav + maxh) * sin (tht0)
@@ -235,7 +241,9 @@ for nr=0,nrays-1,10 do begin
 			oplot, xx, yy, thick=rthick, color=100
         endfor
 	; finds ray touching ground and max reflection altitude
-	if min(radpos[nr,2:nrsteps-1]*1e-3) le Rav+0.1 and max(radpos[nr,2:nrsteps-1]*1e-3) gt hmax then begin
+        if nrsteps le 3 then $
+            continue
+        if min(radpos[nr,2:nrsteps-1]*1e-3) le Rav+0.1 and max(radpos[nr,2:nrsteps-1]*1e-3) gt hmax then begin
 		hmax = max(radpos[nr,2:nrsteps-1]*1e-3)
 		indmax = [nr, where(radpos[nr,2:nrsteps-1]*1e-3 eq hmax)]
 		cc = cc + 1
@@ -470,14 +478,14 @@ xyouts, .5 * (xmin + xmax), ymin - .1 * (ymax - ymin), 'Range [km]', $
 ; Date and time
 caldat, rt_data.juls[timeind], mm, dd, yy, hr, mn
 radarlt = ( (hr + mn/60.) + ((360.+rt_info.glon) mod 360.)*24./360. ) mod 24.
-print, radarlt, ((360.+rt_info.glon) mod 360.), (hr + mn/60.)
+; print, radarlt, ((360.+rt_info.glon) mod 360.), (hr + mn/60.)
 xyouts, .5 * (xmin + xmax), ymax + .2*(ymax - ymin), $
 	STRMID(format_juldate(rt_data.juls[timeind]),0,17)+' UT'+ $
-	' ('+strtrim(floor(radarlt),2)+':'+strtrim(round((radarlt-floor(radarlt))*6.)*10,2)+' LT)', $
+	' ('+strtrim(string(floor(radarlt),format='(I02)'),2)+':'+strtrim(string(round((radarlt-floor(radarlt))*6.)*10,format='(I02)'),2)+' LT)', $
 	align=0.5, charsize=charsize, charthick=charthick
 ; Radar info
 subtitle = '(IRI-2011) - Radar: '+rt_info.name+', Beam '+STRTRIM(beam,2)+', Freq. '+$
-	STRTRIM(string(rt_data.tfreq[timeind],format='(F5.2)'),2)+' MHz'
+	STRTRIM(string(rt_data.tfreq[timeind],format='(F5.1)'),2)+' MHz'
 xyouts, .5 * (xmin + xmax), ymax + .1*(ymax - ymin), $
 	subtitle, align=0.5, charsize=charsize, charthick=charthick
 

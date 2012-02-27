@@ -94,7 +94,7 @@
 ; Written by Lasse Clausen, Nov, 30 2009
 ;-
 pro rt_plot_title, title, subtitle, no_date=no_date, $
-	param=param, date=date, time=time
+	param=param, date=date, time=time, voffset=voffset
 
 common rt_data_blk
 
@@ -103,6 +103,9 @@ if n_elements(title) eq 0 then $
 
 if n_elements(subtitle) eq 0 then $
 	subtitle = ''
+
+if n_elements(voffset) eq 0 then $
+	voffset = -0.14
 
 if strlen(title) eq 0 then $
 	title = 'Ray-tracing & IRI'
@@ -139,6 +142,6 @@ endif else begin
 		right_subtitle += ' - '+format_juldate(fjul, /date)
 endelse
 
-plot_title, title, subtitle, top_right_title=right_title, top_right_subtitle=right_subtitle, voffset=-.14
+plot_title, title, subtitle, top_right_title=right_title, top_right_subtitle=right_subtitle, voffset=voffset
 
 end

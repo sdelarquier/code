@@ -1,8 +1,8 @@
-pro calculate_aspect, radar
+pro calculate_aspect, radar, date
 
 common rt_data_blk
 
-rt_run, 20110101, radar
+rt_run, date, radar
 
 Rav = 6370.
 
