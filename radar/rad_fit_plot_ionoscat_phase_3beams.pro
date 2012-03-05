@@ -67,7 +67,7 @@ free_lun, unit
 ; Run ray tracing and set histogram
 hist = fltarr(3, 71, nelev_steps+1)
 rt_run, date, radar, time=[0,1200]
-rt_calculate_phase, phi0=phi0
+rt_calculate_phase, rt_data.juls[0], phi0=phi0, scan_boresite_offset=8.
 
 ; Find midnight
 rad_calc_sunset, date, radar, 7, 70, $
@@ -125,7 +125,7 @@ for ib=0,2 do begin
 	endelse
 	xtickname = replicate(' ',60)
 	xtitle = ''
-	plot, xrange, yrange, /nodata, xstyle=1, ystyle=1, position=pos, $
+	plot, xrange, yrange/!pi, /nodata, xstyle=1, ystyle=1, position=pos, $
 		xtickname=xtickname, ytickname=ytickname, xtitle=xtitle, ytitle=ytitle, $
 		xticklen=1, xgridstyle=1, yticklen=1, ygridstyle=1, charsize=charsize
 	for ir=0,70 do begin
@@ -134,12 +134,11 @@ for ib=0,2 do begin
 				col = bytscl(hist(ib,ir,iel), min=0, max=1, top=250) + 3b
 				
 				if col gt 3b then $
-					polyfill, 180.+[ir,ir+1,ir+1,ir]*45., elev_steps[iel]*[1,1,0,0] + elev_steps[iel+1]*[0,0,1,1], col=col
+					polyfill, 180.+[ir,ir+1,ir+1,ir]*45., (elev_steps[iel]*[1,1,0,0] + elev_steps[iel+1]*[0,0,1,1])/!pi, col=col
 			endif
 		endfor
 	endfor
-	contour, aspect[beams[ib],*,*], asparanges, aspaelev, /overplot, levels=[60.,70., 80., 85., 89.], c_labels=1b+bytarr(5), c_charsize=charsize
-	xyouts, pos[0]+(pos[2]-pos[0])/2., pos[3]*.97, 'Beam '+strtrim(beams[ib],2), /normal, charsize=charsize, align=.5
+	xyouts, pos[0]*1.01, pos[3]*.97, 'Beam '+strtrim(beams[ib],2), /normal, charsize=charsize
 endfor
 
 xyouts, .5, pos[3]*1.03, $
@@ -162,6 +161,7 @@ if data_index eq -1 then $
 rad_calc_sunset, date, radar, 7, 70, $
 	solnoon=solnoon
 julmidnight = solnoon[20] - 0.5d
+; julmidnight = julday(mm,dd,yy,9,0)
 
 beams = [0, (nbeams-1)/2, nbeams-1]
 for ib=0,2 do begin
@@ -201,7 +201,7 @@ for ib=0,2 do begin
 	endelse
 	xtickname = ''
 	xtitle = 'Slant range [km]'
-	plot, xrange, yrange, /nodata, xstyle=1, ystyle=1, position=position, $
+	plot, xrange, yrange/!pi, /nodata, xstyle=1, ystyle=1, position=position, $
 		xtickname=xtickname, ytickname=ytickname, xtitle=xtitle, ytitle=ytitle, $
 		xticklen=1, xgridstyle=1, yticklen=1, ygridstyle=1, charsize=charsize
 	for ir=0,70 do begin
@@ -210,11 +210,10 @@ for ib=0,2 do begin
 				col = bytscl(hist(ib,ir,iel), min=0, max=1, top=250) + 3b
 				
 				if col gt 3b then $
-					polyfill, 180.+[ir,ir+1,ir+1,ir]*45., elev_steps[iel]*[1,1,0,0] + elev_steps[iel+1]*[0,0,1,1], col=col
+					polyfill, 180.+[ir,ir+1,ir+1,ir]*45., (elev_steps[iel]*[1,1,0,0] + elev_steps[iel+1]*[0,0,1,1])/!pi, col=col
 			endif
 		endfor
 	endfor
-	contour, aspect[beams[ib],*,*], asparanges, aspaelev, /overplot, levels=[60.,70., 80., 85., 89.], c_labels=1b+bytarr(5), c_charsize=charsize
 endfor
 
 bpos = [.9,.3,.915,.65]

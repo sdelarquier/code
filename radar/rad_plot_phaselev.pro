@@ -1,16 +1,28 @@
-pro rt_calculate_phase, jul, $
-	tdiff=tdiff, phidiff=phidiff, $
-	interfer_pos=interfer_pos, scan_boresite_offset=scan_boresite_offset, $
-	theta=theta, chi_max=chi_max, phi_temp=phi_temp, psi=psi, phi0=phi0
+pro rad_plot_phaselev, radar, beam, date=date, tfreq=tfreq, $
+	tdiff=tdiff, phidiff=phidiff, interfer_pos=interfer_pos, $
+	scan_boresite_offset=scan_boresite_offset, phi0=phi0, ps=ps
 
-common rt_data_blk
 common radarinfo
 
-; get time
-caldat, jul, month, day, year, hour, minute, second
+; Set elevation values
+elevation = findgen(1001)*90./1000.
+
+; Set default frequency (MHz)
+if ~keyword_set(tfreq) then $
+	tfreq = 11.
+
+; get date from first datum
+if ~keyword_set(date) then $
+	caldat, systime(/julian, /utc), month, day, year, hour, minute, second $
+else begin
+	parse_date, date, year, month, day
+	jul = julday(month, day, year)
+	caldat, jul, month, day, year, hour, minute, second
+endelse
 
 ; get hardware configuration at the time
-radar = radargetradar(network, rt_info.id)
+radID = network[where(network.code[0,*] eq radar)].ID
+radar = radargetradar(network, radID)
 site = radarymdhmsgetsite(radar, year, month, day, hour, minute, second)
 
 ; get default tdiff from hardware file
@@ -40,7 +52,7 @@ if n_elements(scan_boresite_offset) eq 0 then $
 	scan_boresite_offset = 0.
 
 ; get dimensions of data array
-sz = size(rt_data.elevation, /dim)
+sz = size(elevation, /dim)
 
 ; antenna separation in meters
 antenna_separation = sqrt(total(interfer_pos^2))
@@ -62,19 +74,16 @@ elev_corr *= phi_sign
 ; offset in beam widths to the edge of the array
 offset = site.maxbeam/2.0 - 0.5
 
-
 ; beam direction off boresight; rad
-phi = ( site.bmsep*( rt_data.beam - offset ) + scan_boresite_offset ) * !dtor
+phi = ( site.bmsep*( beam - offset ) + scan_boresite_offset ) * !dtor
 
 ; cosine of phi
 c_phi = cos( phi )
 ; replicate c_phi to match dimensions of phi0
-c_phi = rebin(c_phi, sz[0], sz[1], sz[2])
+c_phi = c_phi
 
 ; wave number; 1/m
-k = 2. * !PI * rt_data.tfreq * 1.0e6/ 2.99792458e8
-; replicate k to match dimensions of phi0
-k = rebin(k, sz[0], sz[1], sz[2])
+k = 2. * !PI * tfreq * 1.0e6/ 2.99792458e8
 
 ; the phase difference phi0 is between -pi and +pi and gets positive,
 ; if the signal from the interferometer antenna arrives earlier at the
@@ -84,9 +93,7 @@ k = rebin(k, sz[0], sz[1], sz[2])
 ; antenna arrives earlier. tdiff < 0  --> dchi_cable > 0
 
 ; phase shift caused by cables; rad
-dchi_cable = -2. * !PI * rt_data.tfreq * 1.0e6 * tdiff * 1.0e-6
-; replicate dchi_cable to match dimensions of phi0
-dchi_cable = rebin(dchi_cable, sz[0], sz[1], sz[2])
+dchi_cable = 0.;-2. * !PI * tfreq * 1.0e6 * tdiff * 1.0e-6
 
 ; If the interferometer antenna is in front of the main antenna
 ; then lower elevation angles correspond to earlier arrival
@@ -97,43 +104,50 @@ dchi_cable = rebin(dchi_cable, sz[0], sz[1], sz[2])
 
 ; maximum phase shift possible; rad
 chi_max = phi_sign * k * antenna_separation * c_phi + dchi_cable
-; replicate chi_max to match dimensions of phi0
-chi_max = rebin(chi_max, sz[0], sz[1], sz[2])
 
 
-; Get uncorrected elevation
-theta = rt_data.elevation*!dtor
-vinds = where(rt_data.elevation eq 10000., ni, complement=ninds, ncomplement=nn)
-if ni gt 0L then begin
-	theta[vinds] = 20.*!dtor
-endif
-theta = theta - elev_corr
+; So now we calculate phase
+if keyword_set(ps) then $
+	ps_open, '~/Desktop/rad_phaselev.ps'
+xrange = [-6., 0.]
+yrange = [0.,90.]
+plot, xrange, yrange, /nodata, $
+	yrange=yrange, ystyle=1, ytitle='Elevation [deg]', $
+	xrange=xrange, xstyle=1, xtitle='Phase shift [x!4p!3]', charsize=get_charsize(1,1)
+col = indgen(6)*40
+for b=0,n_elements(beam)-1 do begin
+	; Get uncorrected elevation
+	theta = elevation*!dtor
+	theta = theta - elev_corr
 
-; Add off-boresite effect
-s_theta = sin(theta)
-c_theta = sqrt(c_phi*c_phi - s_theta*s_theta)
+	; Add off-boresite effect
+	s_theta = sin(theta)
+	c_theta = sqrt(c_phi[b]^2 - s_theta^2)
 
-; Get actual phase angle (no cable)
-psi = phi_sign * c_theta * (k * antenna_separation)
+	; Get actual phase angle (no cable)
+	psi =  phi_sign * c_theta * (k * antenna_separation)
 
-; Actual phase (incl. cable)
-phi_temp = psi + dchi_cable
+	; Actual phase (incl. cable)
+	phi_temp = psi + dchi_cable
 
-; Get phi0 between -pi and pi
-if phi_sign lt 0 then $
-	phi_temp = phi_temp - 2.*!pi
-phi0 = phi_temp - floor(chi_max/2./!pi)*2.*!pi
-inds = where(phi0 lt -!pi, cc)
-if cc gt 0 then phi0[inds] = ( (phi0[inds]-!pi) mod (2.*!pi) ) + !pi
-inds = where(phi0 gt !pi, cc)
-if cc gt 0 then phi0[inds] = ( (!pi+phi0[inds]) mod (2.*!pi) ) - !pi
+	; Get phi0 between -pi and pi
+	if phi_sign lt 0 then $
+		phi_temp = phi_temp - 2.*!pi
+	phi0 = phi_temp - floor(chi_max[b]/2./!pi)*2.*!pi
+	inds = where(phi0 lt -!pi, cc)
+	if cc gt 0 then phi0[inds] = ( (phi0[inds]-!pi) mod (2.*!pi) ) + !pi
+	inds = where(phi0 gt !pi, cc)
+	if cc gt 0 then phi0[inds] = ( (!pi+phi0[inds]) mod (2.*!pi) ) - !pi
 
-; Gets rid of bad values
-if ni gt 0L then begin
-	theta[vinds] = 10000.
-	phi_temp[vinds] = 10000.
-	psi[vinds] = 10000.
-	phi0[vinds] = 10000.
-endif
+	; Plot
+	oplot, (phi_temp)/!pi, elevation, color=col[b]
+	oplot, (chi_max[b])/!pi*[1,1], yrange, linestyle=2, color=col[b]
+	min = min( abs(phi_temp - chi_max[b] + phi_sign*2.*!pi) , minind)
+	print, min, minind, elevation[minind]
+	oplot, xrange, elevation[minind]*[1,1], linestyle=1, color=col[b]
+	oplot, (chi_max[b]-phi_sign*2.*!pi)/!pi*[1,1], yrange, linestyle=1, color=col[b]
+endfor
+if keyword_set(ps) then $
+	ps_close, /no_f
 
 end

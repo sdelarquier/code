@@ -153,7 +153,7 @@ xyouts, pos[0]+(pos[2]-pos[0])/2., ypos, $
 
 if keyword_set(freq_band) then begin
 	xyouts, pos[2]-0.01, ypos, $
-		'Freq. '+strjoin(string(freq_band, format='(F4.1)'), '-')+'MHz', $
+		'Freq. '+strjoin(string(freq_band, format='(F5.1)'), '-')+'MHz', $
 		/NORMAL, COLOR=foreground, SIZE=acharsize, align=1., charthick=charthick
 endif
 end

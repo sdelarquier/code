@@ -13,7 +13,7 @@ Rav = 6371.
 
 set_format, /landscape, /sardines, /tokyo
 if keyword_set(ps) then $
-	ps_open, '~/Desktop/ionoscat_elevation_'+radar+'_'+strtrim(date,2)+'.ps'
+	ps_open, '~/Desktop/ionoscat_elevation3b_'+radar+'_'+strtrim(date,2)+'.ps'
 set_format, /landscape
 clear_page
 
@@ -96,53 +96,18 @@ if nnighttimes gt 0 then begin
 
 		for nb=0,2 do begin
 			ib = beams[nb]
-
-			; Test for data availability
-			rt_read_rays, date, rt_info.name, ttime, beams[nb], rt_data.tfreq[indsmidnight[it]], radpos=radpos, thtpos=thtpos, grppth=grppth, raysteps=raysteps, code=code
-			if ~code then $
-				return
-			; Count element of matrix
-			nrays = n_elements(radpos[*,0])
-
-			for nr=0,nrays-1 do begin
-				telev = rt_info.elev_beg + nr*rt_info.elev_stp
-				nrsteps = raysteps[nr]
-				for ns=1,nrsteps-1 do begin
-					if grppth[nr,ns-1] gt 180e3 then begin
-						; Calculate k vector
-						kx = radpos[nr,ns]*sin(thtpos[nr,ns]-thtpos[nr,ns-1])
-						kz = radpos[nr,ns]*cos(thtpos[nr,ns]-thtpos[nr,ns-1]) - radpos[nr,ns-1]
-						kvect = sqrt( kx^2. + kz^2. )
-						
-						; Middle of the step: position and index in B grid
-						midtht = (thtpos[nr,ns]-thtpos[nr,ns-1])/2. + thtpos[nr,ns-1]
-						diff = min(midtht-thtdip, thtind, /abs)
-						
-						; Dip and declination at this position
-						middip = rt_data.dip[indsmidnight[it],ib,0,thtind]
-						middec = rt_data.dip[indsmidnight[it],ib,1,thtind]
-
-						; calculate vector magnetic field
-						Bx = cos(-middip*!dtor) * cos(rt_data.azim[indsmidnight[it],ib]*!dtor - middec*!dtor)
-						Bz = sin(-middip*!dtor)
-						
-						; calculate cosine of aspect angle
-						cos_aspect = (Bx*kx + Bz*kz)/kvect
-						
-						if abs(cos_aspect) le cos(!pi/2. - tol*!dtor) then begin
-							nel = round((telev - elrange[0])/elstep)
-							ng = round((grppth[nr,ns-1]*1e-3-180.)/45.)
-							hist[nb,ng,nel] = hist[nb,ng,nel] + 1./( rt_data.power[indsmidnight[it],ib,ng] / min(rt_data.power[indsmidnight,*,*]) )
-						endif
-
-					endif
-				; end ray steps loop
+			elev = rt_data.elevation[indsmidnight[it],ib,*]
+			power = rt_data.power[indsmidnight[it],ib,*]
+			scat = rt_data.gscatter[indsmidnight[it],ib,*]
+			for ng=2,50 do begin
+				for nel=0,nelev_steps-2 do begin
+					if (elev[ng] ge elev_steps[nel] and elev[ng] lt elev_steps[nel+1] and scat[ng] eq 2b) then $
+						hist[nb,ng,nel] = hist[nb,ng,nel] + 1./( rt_data.power[indsmidnight[it],ib,ng] / min(rt_data.power[indsmidnight,*,*]) )
 				endfor
-			; end rays loop
 			endfor
 		; end beam loop
 		endfor
-	; end time loop
+; 	end time loop
 	endfor
 endif
 hist = hist/max(hist[*,10:*,*])
@@ -173,7 +138,7 @@ for ib=0,2 do begin
 		endfor
 	endfor
 	contour, aspect[beams[ib],*,*], asparanges, aspaelev, /overplot, levels=[60.,70., 80., 85., 89.], c_labels=1b+bytarr(5), c_charsize=charsize
-	xyouts, pos[0]+(pos[2]-pos[0])/2., pos[3]*.97, 'Beam '+strtrim(beams[ib],2), /normal, charsize=charsize, align=.5
+	xyouts, pos[0]*1.01, pos[3]*.97, 'Beam '+strtrim(beams[ib],2), /normal, charsize=charsize
 endfor
 
 xyouts, .5, pos[3]*1.03, $

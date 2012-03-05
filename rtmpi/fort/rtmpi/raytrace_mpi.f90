@@ -41,7 +41,7 @@ program		rayDARN
 	integer::		hfrays, hfranges, hfedens, hfionos		! File handles
 	integer::		type_vec, type_param					! New data types
 	integer::		slice, ipar								! Misc.
-	
+
 
 
 	! Initialize MPI environment
@@ -119,7 +119,7 @@ program		rayDARN
 	endif
 
 
-! 	print*, rank, nhour, nazim, nelev
+ 	!print*, rank, nhour, nazim, nelev, slice
 	!**********************************************************
 	! Time loop
         nextday = 0
@@ -131,7 +131,6 @@ program		rayDARN
 		! Azimuth loop
 		azim = azim_0
 		do iaz=1,nazim
-			
 
 			! Generate electron density background
 			CALL IRI_ARR(params, hour, azim, edensARR, edensPOS, edensTHT, dip)
@@ -146,8 +145,8 @@ program		rayDARN
 			! Elevation loop
 			elev = elev_0
 			do iel=1,nelev
-
-				CALL TRACE_RKCK(params, hour, azim, elev, edensARR, edensTHT, dip, hfrays, hfranges, hfionos, &
+				
+                CALL TRACE_RKCK(params, hour, azim, elev, edensARR, edensTHT, dip, hfrays, hfranges, hfionos, &
 								mpi_size_int, mpi_size_real)
 
 				! Increment elevation value
@@ -160,11 +159,11 @@ program		rayDARN
 ! 			timeel = ( MPI_WTIME() - timeel)
 ! 			CALL MPI_REDUCE (timeel,time,1, MPI_DOUBLE_PRECISION , MPI_MAX ,0, MPI_COMM_WORLD ,code)
 ! 			if (rank.eq.0) print('("Time in elev loop ",I3,": ",f6.3, " s")'), iaz, time
-			
-			! Increment azimuth value 
-			azim = azim + params%azimstp
-			if (azim.gt.params%azimend) azim = params%azimend
 
+			! Increment azimuth value
+			azim = azim + params%azimstp
+			if (azim.gt.max(params%azimbeg,params%azimend)) azim = params%azimend
+			if (azim.lt.min(params%azimbeg,params%azimend)) azim = params%azimend
 		enddo
 		! End azimuth loop
 		!**********************************************************
@@ -238,7 +237,7 @@ SUBROUTINE MPI_RAYTYPES_INIT(type_vec, type_param)
 	CALL MPI_GET_ADDRESS(tparams%txlat, addr(1), code)
 	CALL MPI_GET_ADDRESS(tparams%nhop, addr(2), code)
 	CALL MPI_GET_ADDRESS(tparams%hourbeg, addr(3), code)
-	
+
 	do i=1,3
 		disp(i) = addr(i) - addr(1)
 	end do
@@ -272,9 +271,9 @@ SUBROUTINE READ_INP(params)
 	use constants
 	implicit none
 	type(prm),intent(out)::	params
-	
+
 	character(len=80)::		filename, dumA
-	
+
 	! read input file name
 	read(*,'(A)') filename
 
@@ -303,12 +302,12 @@ SUBROUTINE READ_INP(params)
 101		format(10X,I10)
 
 	close(10)
-	
+
 END SUBROUTINE READ_INP
 
 
 ! *************************************************************************
-! Ray-tracing subroutine: computes new ray position and elevation with an 
+! Ray-tracing subroutine: computes new ray position and elevation with an
 ! adaptative stepsize Runge-Kutta method
 ! The error is calculated on Q only for simplicity
 ! *************************************************************************
@@ -384,7 +383,7 @@ SUBROUTINE TRACE_RKCK(params, rayhour, rayazim, rayelev, edensARR, edensTHT, dip
 	ihop = 0		! hop counter
 	nrstep = 2		! number of steps per ray counter
 	naspstep = 1	! number of ionospheric scatter occurence counter
-	do while (ihop.lt.params%nhop.and.r.lt.(Rav + 500.)*1e3.and.theta.lt.edensTHT(500).and.nrstep.lt.5000)
+	do while (ihop.lt.params%nhop.and.r.lt.(Rav + 500.)*1e3.and.theta.lt.edensTHT(500).and.r.ge.Rav*1e3.and.nrstep.lt.5000)
 		! Current position
 		latiin = latiout
 		longiin = longiout
@@ -516,7 +515,6 @@ SUBROUTINE TRACE_RKCK(params, rayhour, rayazim, rayelev, edensARR, edensTHT, dip
 			! Reflection altitude, theta, grp range, hour, azimuth, elevation, true range, latitude, longitude
 			ranout = (/rrefl, thetatmp, grpran+h, rayhour, rayazim, rayelev, (ransave(nrstep-1) + sqrt(nr2)*h), latiout, longiout/)
 			CALL MPI_FILE_WRITE_SHARED(hfranges, ranout, 9, MPI_REAL, status, code)
-
 			! Counts number of hops
 			ihop = ihop + 1
 
@@ -535,7 +533,7 @@ SUBROUTINE TRACE_RKCK(params, rayhour, rayazim, rayelev, edensARR, edensTHT, dip
 										nr2, dnr2dr)
 
 		! Search current ray step for good aspect conditions
-		if (grpran.gt.180e3) then
+		if (grpran.gt.180e3.and.rtmp*1e-3.gt.(Rav+90.)) then
 			CALL CALC_ASPECT(edensTHT, dip, rayazim, theta, thetatmp, r, rtmp, aspectind, aspect)
 			if (aspectind.gt.0) then
 				! Calculate mean range
@@ -551,7 +549,7 @@ SUBROUTINE TRACE_RKCK(params, rayhour, rayazim, rayelev, edensARR, edensTHT, dip
 				asp_w = ( edensARR(nint(((rtmp-r)/2.+r)*1e-3 - 60. - Rav), aspectind) )**2. / asp_grpran**3.
 ! 				asp_w =  asp_w * (-0.9 * abs(90. - aspect) + 1.)
 ! 				asp_w = asp_w * exp(-8*pi**2.*(50.**2.*(pi/2.-aspect*dtor)**2. + 1.))
-			
+
 				! Write to file
 				! Reflection altitude, theta, grp range, true range, weights, refractive index, latitude, longitude, aspect
 				ionosout(1:9,naspstep) = (/asp_alt, asp_theta, asp_grpran, asp_ran, asp_w, sqrt(nr2), latiin, longiin, aspect/)
@@ -568,7 +566,7 @@ SUBROUTINE TRACE_RKCK(params, rayhour, rayazim, rayelev, edensARR, edensTHT, dip
 
 		! Calculate new position
 		call CALC_POS(latiin, longiin, r*1e-3-Rav, rayazim, h*1e-3, ranelev, latiout, longiout)
-		
+
 		! Save to arrays
 		rsave(nrstep) = r
 		thsave(nrstep) = theta
@@ -609,7 +607,7 @@ SUBROUTINE TRACE_RKCK(params, rayhour, rayazim, rayelev, edensARR, edensTHT, dip
 										(ionosout(7,n),n=1,naspstep-1), &
 										(ionosout(8,n),n=1,naspstep-1), &
 										(ionosout(9,n),n=1,naspstep-1)/), 1 + 3 + 9*(naspstep-1), MPI_REAL, status, code)
-	
+
 END SUBROUTINE TRACE_RKCK
 
 
@@ -647,18 +645,18 @@ SUBROUTINE CALC_INDEX(tht, edensTHT, edensARR, azim, freq, r, elev, h, &
 	! Finds electron density at current position
 	call IRI_INTERP(tht, r*1e-3-Rav, edensTHT, edensARR, edens)
 	call IRI_INTERP(tht, r*1e-3-Rav+1., edensTHT, edensARR, edensUP)
-	
+
 	! Calculates gradient
 	vedens = (edensUP-edens)/1e3
-	
+
 	! Calculates refractive index (sqaured) with Appleton-Hartree formula (no field, no colisions)
 	nr2 = (1. - 80.5e-12*edens/(freq**2.))
-	
+
 	! Calculates vertical gradient of the square of the refractive index
 	dnr2dr = -80.5e-12/(freq**2.)*vedens
 
 ! 	print*,'CALC_INDEX', tht*radeg, (r*1e-3 - Rav), edens, edensUP, nr2, dnr2dr
-	
+
 
 
 END SUBROUTINE CALC_INDEX
@@ -766,7 +764,7 @@ END SUBROUTINE CALC_GD2GC
 
 
 ! *************************************************************************
-! Calculates azimuth and elevation for oblate Earth. 
+! Calculates azimuth and elevation for oblate Earth.
 ! Input and output positions are in degrees
 ! *************************************************************************
 SUBROUTINE CALC_AZEL(lati, longi, azim, elev, gaz, gel)
@@ -804,7 +802,7 @@ END SUBROUTINE CALC_AZEL
 ! Calculates aspect angle and determines if it satisfies reflection conditions
 ! Calculations are performed in the propagation plane with:
 ! - Z axis directed upward.
-! - X axis in the direction of propagation, 
+! - X axis in the direction of propagation,
 !   tangential to the Earth at current position.
 ! *************************************************************************
 SUBROUTINE CALC_ASPECT(edensTHT, dip, azim, stht, ftht, salt, falt, aspind, aspect)
@@ -823,13 +821,13 @@ SUBROUTINE CALC_ASPECT(edensTHT, dip, azim, stht, ftht, salt, falt, aspind, aspe
 	! Calculate k vector for current ray step
 	kx = falt*sin(ftht - stht)
 	kz = falt*cos(ftht - stht) - salt
-	kvec = sqrt(kx**2. + kz**2.) 
+	kvec = sqrt(kx**2. + kz**2.)
 
 	! Middle of the step: position and index in B grid
 	midtht = (ftht-stht)/2. + stht
 	temp = minloc(abs(edensTHT - midtht))
 	aspind = temp(1)
-	
+
 	! Dip and declination at this position
 	temp = dip(aspind,1)
 	middip = temp(1)
@@ -839,10 +837,10 @@ SUBROUTINE CALC_ASPECT(edensTHT, dip, azim, stht, ftht, salt, falt, aspind, aspe
 	! calculate vector magnetic field
 	Bx = cos(-middip*dtor) * cos(azim*dtor - middec*dtor)
 	Bz = sin(-middip*dtor)
-	
+
 	! calculate cosine of aspect angle
 	aspect = (Bx*kx + Bz*kz)/kvec
-	
+
 	if (abs(aspect).le.cos(pi/2. - 1.*dtor)) then
 		aspect = acos(aspect)*radeg
 	else
@@ -867,7 +865,7 @@ SUBROUTINE IRI_ARR(params, hour, azim, edensARR, edensPOS, edensTHT, dip)
 	real*4,dimension(500,500),intent(out)::		edensARR
 	real*4,dimension(500,2),intent(out)::		edensPOS, dip
 	real*4,dimension(500),intent(out)::			edensTHT
-	
+
 	real*4::					old_hour, vbeg, vend, vstp
 	real*4::					lonDeg, latDeg, thtmp
 	integer::					jf(50), n, j
@@ -875,13 +873,13 @@ SUBROUTINE IRI_ARR(params, hour, azim, edensARR, edensPOS, edensTHT, dip)
 	real*4,dimension(20,1000)::	outf
 	real*4,dimension(500)::		dayNe
 
-	
-	
+
+
 ! Initialize position
 	vbeg = 60.
 	vend = 560.
 	vstp = (vend-vbeg)/500.
-	
+
 	! adjust to have latitude between -90 and 90
 	edensPOS(1,1) = params%txlat
 	IF(edensPOS(1,1).gt.90.OR.edensPOS(1,1).lt.-90)THEN
@@ -893,7 +891,7 @@ SUBROUTINE IRI_ARR(params, hour, azim, edensARR, edensPOS, edensTHT, dip)
 		edensPOS(1,2) = modulo(edensPOS(1,2), 360.)
 	ENDIF
 	edensTHT(1) = 0.
-	
+
 ! Initialize call for IRI
 	do n=1,50
 	   jf(n) = .true.
@@ -910,7 +908,7 @@ SUBROUTINE IRI_ARR(params, hour, azim, edensARR, edensPOS, edensTHT, dip)
 	jf(33) = .false.               ! Do not calcultae auroral boundary
 	jf(34) = .false.              ! Messages off
 	jf(35) = .false.              ! no foE storm updating
-		
+
 ! Calling IRI subroutine
 	call IRI_SUB(jf,0,edensPOS(1,1),edensPOS(1,2),params%year,params%mmdd,hour, &
                vbeg,vend,vstp,outf,oar)
@@ -919,7 +917,7 @@ SUBROUTINE IRI_ARR(params, hour, azim, edensARR, edensPOS, edensTHT, dip)
 	enddo
 	dip(1,1) = oar(25)
 	dip(1,2) = oar(27)
-	
+
 ! Lat/lon loop
 	do n=2,500
 		! Calculates new position after one step
@@ -938,7 +936,7 @@ SUBROUTINE IRI_ARR(params, hour, azim, edensARR, edensPOS, edensTHT, dip)
 		dip(n,1) = oar(25)
 		dip(n,2) = oar(27)
 	ENDDO
-	
+
 END SUBROUTINE IRI_ARR
 
 
@@ -946,18 +944,18 @@ END SUBROUTINE IRI_ARR
 ! Interpolates electron densities at a given position
 ! *************************************************************************
 SUBROUTINE IRI_INTERP(tht, alti, edensTHT, edensARR, edens)
-	
+
 	use constants
 	implicit none
 	real*4,intent(in)::							tht, alti
 	real*4,dimension(500),intent(in)::			edensTHT
 	real*4,dimension(500,500),intent(in)::		edensARR
 	real*4,intent(out)::						edens
-	
+
 	integer::	vind, thtind, i
 	real*4::	neazu, neazd
 	real*4::	dtht, tdiff
-	
+
 	if(alti.lt.60.or.alti.gt.560)then
 		edens = 0.
 	  return
@@ -987,7 +985,6 @@ SUBROUTINE IRI_INTERP(tht, alti, edensTHT, edensARR, edens)
 ! 	neazu = edensARR(vind+1,1)
 ! 	neazd = edensARR(vind,1)
 	edens = (alti - ((vind-1)*1.+60.))/1.*neazu + (vind*1.+60. - alti)/1.*neazd
-! 	edens = 2.*edens
 
 
 END SUBROUTINE IRI_INTERP

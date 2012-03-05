@@ -9,11 +9,12 @@ common rt_data_blk
 common radarinfo
 common rad_data_blk
 
+Rav = 6371.
 
-set_format, /landscape, /sardines, /tokyo
+
+set_format, /portrait, /sardines, /tokyo
 if keyword_set(ps) then $
 	ps_open, '~/Desktop/ionoscat_phase_'+radar+'_'+strtrim(date,2)+'.ps'
-set_format, /landscape
 clear_page
 
 ; Parse date
@@ -120,11 +121,11 @@ for ib=0,n_elements(beams)-1 do begin
 		ytitle = ''
 	endif else begin
 		ytickname = ''
-		ytitle = 'Phase'
+		ytitle = 'Phase (!4p!3)'
 	endelse
 	xtickname = replicate(' ',60)
 	xtitle = ''
-	plot, xrange, yrange, /nodata, xstyle=1, ystyle=1, position=pos, $
+	plot, xrange, yrange/!pi, /nodata, xstyle=1, ystyle=1, position=pos, $
 		xtickname=xtickname, ytickname=ytickname, xtitle=xtitle, ytitle=ytitle, $
 		xticklen=1, xgridstyle=1, yticklen=1, ygridstyle=1, charsize=charsize
 	for ir=0,70 do begin
@@ -133,7 +134,7 @@ for ib=0,n_elements(beams)-1 do begin
 				col = bytscl(hist(ib,ir,iel), min=0, max=1, top=250) + 3b
 				
 				if col gt 3b then $
-					polyfill, 180.+[ir,ir+1,ir+1,ir]*45., elev_steps[iel]*[1,1,0,0] + elev_steps[iel+1]*[0,0,1,1], col=col
+					polyfill, 180.+[ir,ir+1,ir+1,ir]*45., (elev_steps[iel]*[1,1,0,0] + elev_steps[iel+1]*[0,0,1,1])/!pi, col=col
 			endif
 		endfor
 	endfor
@@ -162,7 +163,7 @@ rad_calc_sunset, date, radar, 7, 70, $
 	solnoon=solnoon
 julmidnight = solnoon[20] - 0.5d
 
-beams = [0, (nbeams-1)/2, nbeams-1]
+; beams = [0, (nbeams-1)/2, nbeams-1]
 for ib=0,n_elements(beams)-1 do begin
 	binds = where((*rad_fit_data[data_index]).beam eq beams[ib] and $
 				(*rad_fit_data[data_index]).juls ge julmidnight-3.d/24.d and $
@@ -190,17 +191,17 @@ hist = hist/max(hist[*,10:*,*])
 
 ; Plot results
 for ib=0,n_elements(beams)-1 do begin
-	pos = define_panel(n_elements(beams),2,ib,0, /bar)
+	pos = define_panel(n_elements(beams),2,ib,1, /bar)
 	if ib ne 0 then begin
 		ytickname = replicate(' ',60)
 		ytitle = ''
 	endif else begin
 		ytickname = ''
-		ytitle = 'Phase'
+		ytitle = 'Phase (!4p!3)'
 	endelse
 	xtickname = ''
 	xtitle = 'Slant range [km]'
-	plot, xrange, yrange, /nodata, xstyle=1, ystyle=1, position=position, $
+	plot, xrange, yrange/!pi, /nodata, xstyle=1, ystyle=1, position=pos, $
 		xtickname=xtickname, ytickname=ytickname, xtitle=xtitle, ytitle=ytitle, $
 		xticklen=1, xgridstyle=1, yticklen=1, ygridstyle=1, charsize=charsize
 	for ir=0,70 do begin
@@ -209,7 +210,7 @@ for ib=0,n_elements(beams)-1 do begin
 				col = bytscl(hist(ib,ir,iel), min=0, max=1, top=250) + 3b
 				
 				if col gt 3b then $
-					polyfill, 180.+[ir,ir+1,ir+1,ir]*45., elev_steps[iel]*[1,1,0,0] + elev_steps[iel+1]*[0,0,1,1], col=col
+					polyfill, 180.+[ir,ir+1,ir+1,ir]*45., (elev_steps[iel]*[1,1,0,0] + elev_steps[iel+1]*[0,0,1,1])/!pi, col=col
 			endif
 		endfor
 	endfor
