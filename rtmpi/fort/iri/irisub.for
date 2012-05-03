@@ -152,8 +152,8 @@ C         IYYYY         Year as YYYY, e.g. 1985
 C         MMDD (-DDD)   DATE (OR DAY OF YEAR AS A NEGATIVE NUMBER)
 C         DHOUR         LOCAL TIME (OR UNIVERSAL TIME + 25) IN DECIMAL 
 C                          HOURS
-C         HEIBEG,       HEIGHT RANGE IN KM; maximal 1000 heights, i.e.
-C          HEIEND,HEISTP        int((heiend-heibeg)/heistp)+1.le.1000
+C         HEIBEG,       HEIGHT RANGE IN KM; maximal 100 heights, i.e.
+C          HEIEND,HEISTP        int((heiend-heibeg)/heistp)+1.le.100
 C
 C    JF switches to turn off/on (.true./.false.) several options
 C
@@ -317,9 +317,7 @@ C*****************************************************************
      &               NMF1,NME,NMD,MM,MLAT,MLONG
 !       CHARACTER  FILNAM*12
 c-web-for webversion
-c      CHARACTER FILNAM*53
-c-davit-for webversion
-      CHARACTER FILNAM*80
+      CHARACTER FILNAM*53
 
       DIMENSION  ARIG(3),RZAR(3),F(3),E(4),XDELS(4),DNDS(4),
      &  FF0(988),XM0(441),F2(13,76,2),FM3(9,49,2),ddens(5,11),
@@ -435,7 +433,7 @@ c-web- konsol=1 used in IRIFUN
         KONSOL=6
         if(.not.jf(12)) then
                 konsol=11
-                open(11,file='messages.txt')
+                open(11,file='/tmp/messages.txt')
                 endif
         if(.not.jf(34)) KONSOL=1
 c
@@ -969,7 +967,7 @@ c-binary-104   FORMAT('ccir',I2,'.bin')
 c-web- special for web-version:
 ! 104   FORMAT('/usr/local/etc/httpd/cgi-bin/models/IRI/ccir',I2,'.asc')
 c-davit- special for davit-version:
-104   FORMAT('/home/sebastien/Documents/IDL/rtmpi/fort/iri/ccir',I2,'.asc')
+104   FORMAT('/davit/lib/vt/fort/iri/ccir',I2,'.asc')
 c
         OPEN(IUCCIR,FILE=FILNAM,STATUS='OLD',ERR=8448,
      &          FORM='FORMATTED')
@@ -992,7 +990,7 @@ C
 c-web- special for web-version:
 ! 1144  FORMAT('/usr/local/etc/httpd/cgi-bin/models/IRI/ursi',I2,'.asc')
 c-davit- special for davit-version:
-1144   FORMAT('/home/sebastien/Documents/IDL/rtmpi/fort/iri/ursi',I2,'.asc')
+1144   FORMAT('/davit/lib/vt/fort/iri/ursi',I2,'.asc')
 c-binary- if binary files than use:
 c-binary-1144          FORMAT('ursi',I2,'.bin')
 
@@ -1617,7 +1615,7 @@ c              isa=0    ! solar activity correction off
 c              ise=0    ! season correction off
               do 3491 ijk=3,7
                  call igrf_sub(lati,longi,ryear,ahh(ijk),
-     &                xl,icode,dipl,babs)
+     &                xl,icode,dipl,babs,dip,dec)
                  if(xl.gt.10.) xl=10.
                  call elteik(1,1,invdip,xl,dimo,babs,dipl,
      &              xmlt,ahh(ijk),daynr,pf107,teh2,sdte)
@@ -1798,18 +1796,18 @@ c
 7108  IF(NOION) GOTO 7118
       IF((HEIGHT.GT.HNIE).OR.(HEIGHT.LT.HNIA)) GOTO 7118
 
-            ROX=-1.
-            RHX=-1.
-            RNX=-1.
-            RHEX=-1.
-            RNOX=-1.
-            RO2X=-1.
-            RCLUST=-1.
+			ROX=-1.
+			RHX=-1.
+			RNX=-1.
+			RHEX=-1.
+			RNOX=-1.
+			RO2X=-1.
+			RCLUST=-1.
       if(DY) then
         if (height.gt.300.) then
 c Triskova-Truhlik-Smilauer-2003 model
        		call igrf_sub(lati,longi,ryear,height,
-     &  	    xl,icode,dipl,babs)
+     &  	    xl,icode,dipl,babs,dip,dec)
         	if(xl.gt.10.) xl=10.
         	dimo=0.311653
 			call CALION(1,xinvdip,xl,dimo,babs,dipl,xmlt,
@@ -1824,20 +1822,18 @@ c Triskova-Truhlik-Smilauer-2003 model
 c Richards-Bilitza-Voglozin-2010 IDC model
             CALL GTD7(IYD,SEC,height,lati,longi,HOUR,f10781,f107y,
      &        IAPO,48,D_MSIS,T_MSIS)
-			XN4S = 0.5 * D_MSIS(8)
-			EDENS=ELEDE/1.e6
+						XN4S = 0.5 * D_MSIS(8)
+						EDENS=ELEDE/1.e6
             CALL CHEMION(0,height,F107Y,F10781,TEH,TIH,TNH,D_MSIS(2),
      &       	D_MSIS(4),D_MSIS(3),D_MSIS(1),-1.0,XN4S,EDENS,-1.0,xhi,
-     &       	ro,ro2,rno,rn2,rn,Den_NO,Den_N2D,INEWT)                              
-c			if(INEWT.gt.0) then
-				sumion = edens/100.
+     &       	ro,ro2,rno,rn2,rn,Den_NO,Den_N2D,INEWT)
+						sumion = edens/100.
         		rox=ro/sumion
-        	    rhx=0.
-        	    rhex=0.
+						rhx=0.
+						rhex=0.
         		rnx=rn/sumion
         		rnox=rno/sumion
         		ro2x=ro2/sumion
-c        		endif
         endif
       else
 c Danilov-Smirnova-1995 model and Danilov-Yaichnikov-1985 model (upper)

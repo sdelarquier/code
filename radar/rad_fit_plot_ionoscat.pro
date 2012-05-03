@@ -1,18 +1,29 @@
 ;- Plots a field of view representation of scatter distribution for a given radar and day for at midnight +/- 3 hours
 ; By defults, only radar power data is plotted (as a scatter distribution). But ray-tracing can also be added, 
-; as well as median velocities
+; as well as median velocities.
+; The time and dtime keywords can be used together to look at different time inervals centered on different times.
+; edges outputs the leading and trailing edge of the scatter distribution for each beam (threshold at 75% scatter)
 ;
 ; Last update: Feb, 23, 2012
-pro rad_fit_plot_ionoscat, date, radar, ps=ps, xrange=xrange, yrange=yrange, rt=rt, vel=vel
+pro rad_fit_plot_ionoscat, date, radar, ps=ps, xrange=xrange, yrange=yrange, rtrun=rtrun, vel=vel, time=time, dtime=dtime, edges=edges, radhist=radhist, rthist=rthist
 
 common rt_data_blk
 common radarinfo
 common rad_data_blk
 
-if keyword_set(ps) then $
-	ps_open, '~/Desktop/ionoscat_'+radar+'_'+strtrim(date,2)+'.ps'
+if keyword_set(ps) then begin
+	if size(ps,/type) eq 7 then $
+		ps_open, ps $
+	else $
+		ps_open, '~/Desktop/ionoscat_'+radar+'_'+strtrim(date,2)+'.ps'
+endif
 set_format, /landscape
 clear_page
+
+if ~keyword_set(dtime) then $
+	dtime = 4.d $
+else $
+	dtime = dtime*1.d
 
 ; Parse date
 parse_date, date, yy, mm, dd
@@ -30,6 +41,11 @@ nbeams = network[radID].site[s].maxbeam
 ngates = 65
 rad_define_beams, network[radID].id, nbeams, ngates, yy, yrsec, coords='magn', $
 		/normal, fov_loc_full=fov_loc_full
+
+
+; Set scatter edge finding
+scathresh = .75
+edges = fltarr(nbeams,2,2)
 
 ; Calculate stereographic projection
 for ib=0,nbeams do begin
@@ -62,9 +78,9 @@ endif else if abs(xrange[1]-xrange[0]) lt abs(yrange[1]-yrange[0]) then begin
 	xrange[0] = xrange[0] - ext/2.
 endif
 
-if keyword_set(rt) and keyword_set(vel) then $
+if keyword_set(rtrun) and keyword_set(vel) then $
 	xmaps = 3 $
-else if keyword_set(rt) or keyword_set(vel) then $
+else if keyword_set(rtrun) or keyword_set(vel) then $
 	xmaps = 2 $
 else $
 	xmaps = 1
@@ -72,20 +88,28 @@ else $
 xmap = 0
 
 
-if keyword_set(rt) then begin
+if keyword_set(rtrun) then begin
 	;*******************************************
 	; Ray-tracing
 	;*******************************************
 	; Set plot area
 	map_plot_panel, xmaps, 1, xmaps-xmap-1, 0, date=date, coords='magn', /iso, /no_fill, yrange=yrange, xrange=xrange, coast_linecolor=1
 	
-	hist = fltarr(nbeams,71)
-	rt_run, date, radar, time=[0,1200], /no_rays
+	hist = fltarr(nbeams,ngates+1)
+	rthist = hist
+	parse_date, date, tyy, tmm, tdd
+	rtdate = tyy*10000L+tmm*100L+01
+	rt_run, rtdate, radar, time=[0,1200], /no_rays
 	
 	; Find midnight
-	rad_calc_sunset, date, radar, 7, 70, $
+	rad_calc_sunset, rtdate, radar, 7, 70, $
 		solnoon=solnoon
 	julmidnight = solnoon[20] - 0.5d
+	if keyword_set(time) then begin
+		parse_date, date, yy, mm, dd
+		parse_time, time, hr, mn
+		julmidnight = julday(dd, mm, yy, hr, mn)
+	endif
 
 	; zeros power where undefined
 	pinds = where(rt_data.power eq 10000. and rt_data.gscatter ne 2b, ccpinds)
@@ -93,15 +117,20 @@ if keyword_set(rt) then begin
 		rt_data.power[pinds] = 0.
 
 	; Build histogram
-	indsmidnight = where(rt_data.juls ge julmidnight-3.d/24.d and $
-				rt_data.juls le julmidnight+3.d/24.d, nnighttimes)
+	indsmidnight = where(rt_data.juls ge julmidnight-dtime/24.d and $
+				rt_data.juls le julmidnight+dtime/24.d, nnighttimes)
 	if nnighttimes gt 0 then begin
 		for it=0,nnighttimes-1 do begin
-			hist = hist + 1./( rt_data.power[indsmidnight[it],*,*] / min(rt_data.power[indsmidnight,*,*]) )
-			; hist = hist + rt_data.lagpower[indsmidnight[it],*,*]
+			for ib=0,nbeams-1 do begin
+				for ig=0,ngates do begin
+					if rt_data.power[indsmidnight[it],ib,ig] lt 0. and rt_data.gscatter[indsmidnight[it],ib,ig] eq 2b then $
+						hist[ib,ig] = hist[ib,ig] + 1./( rt_data.power[indsmidnight[it],ib,ig] / min(rt_data.power[indsmidnight,*,*]) )
+				endfor
+			endfor
 		endfor
 		; print, transpose([[indgen(71)], [reform(hist[20,*]/max(hist))]]), indsmidnight
-		rt_data.power[0,*,*] = hist/max(hist)
+		rt_data.power[0,*,0:ngates] = hist/max(hist)
+		rthist = hist
 	endif
 	
 	; Plot histogram
@@ -124,6 +153,13 @@ if keyword_set(rt) then begin
 			if (ig eq rt_info.ngates-1) then $
 				plots, xx[2:3], yy[2:3];, thick=2, col=200
 		endfor
+		; Find scatter limits (within threshold)
+		beamhist = hist[ib,*]/max(hist)
+		thinds = where(beamhist gt scathresh, cc)
+		if cc gt 0 then begin
+			edges[ib,1,0] = thinds[0]
+			edges[ib,1,1] = thinds[cc-1]
+		endif
 	endfor
 	
 ; 	plot_colorbar, xmaps, 1, xmaps-xmap-1, 0, charthick=charthick, /continuous, $
@@ -155,6 +191,12 @@ if keyword_set(vel) then begin
 	rad_calc_sunset, date, radar, 7, 70, $
 		solnoon=solnoon
 	julmidnight = solnoon[20] - 0.5d
+	if keyword_set(time) then begin
+		parse_date, date, yy, mm, dd
+		parse_time, time, hr, mn
+		julmidnight = julday(dd, mm, yy, hr, mn)
+	endif
+		
 
 	; Histogram construction
 	nvel = fltarr(nbeams,ngates+1)
@@ -162,8 +204,8 @@ if keyword_set(vel) then begin
 	for ib=0,nbeams-1 do begin
 		; velocity median
 		binds = where((*rad_fit_data[data_index]).beam eq ib and $
-					(*rad_fit_data[data_index]).juls ge julmidnight-3.d/24.d and $
-					(*rad_fit_data[data_index]).juls le julmidnight+3.d/24.d and $
+					(*rad_fit_data[data_index]).juls ge julmidnight-dtime/24.d and $
+					(*rad_fit_data[data_index]).juls le julmidnight+dtime/24.d and $
 					(*rad_fit_data[data_index]).tfreq ge 10e3 and $
 					(*rad_fit_data[data_index]).tfreq le 12e3, ccinds)
 		if ccinds le 0 then begin
@@ -190,7 +232,7 @@ if keyword_set(vel) then begin
 			xx = fov_loc_full[0,*,ib,ig]
 			yy = fov_loc_full[1,*,ib,ig]
 			if velhist[ib,ig] ne 10000. then $
-				polyfill, xx, yy, col=(bytscl(-velhist[ib,ig], min=vscale[0], max=vscale[1], top=252)+126b mod 252)+2b
+				polyfill, xx, yy, col=(bytscl(-velhist[ib,ig], min=vscale[0], max=vscale[1], top=250)+125b mod 250)
 	; 		plots, [xx, xx[0]], [yy, yy[0]], thick=1
 			if (ib eq nbeams-1) then $
 				plots, xx[1:2], yy[1:2];, thick=2, col=200
@@ -221,9 +263,12 @@ endif
 ;*******************************************
 ; Radar: SCATTER 
 ;*******************************************
+hist = fltarr(nbeams,ngates+1)
+radhist = hist
 map_plot_panel, xmaps, 1, 0, 0, date=date, coords='magn', /iso, /no_fill, yrange=yrange, xrange=xrange, coast_linecolor=1
 
-rad_fit_read, date, radar, time=[0,1200], /filter, /ajground, /catfile, catpath='~/tmp/'
+
+rad_fit_read, date, radar, time=[0,1200], /filter, /ajground, /catfile, catpath='~/tmp/', /force
 data_index = rad_fit_get_data_index()
 if data_index eq -1 then $
 	return
@@ -232,14 +277,22 @@ if data_index eq -1 then $
 rad_calc_sunset, date, radar, 7, 70, $
 	solnoon=solnoon
 julmidnight = solnoon[20] - 0.5d
+caldat, julmidnight, mmm, ddd, yyy, hhh, mnn
+print, hhh, mnn
+if keyword_set(time) then begin
+	parse_date, date, yy, mm, dd
+	parse_time, time, hr, mn
+	julmidnight = julday(mm, dd, yy, hr, mn)
+endif
+; print, julmidnight, format='(f20.10)'
 
 ; Histogram construction
 hist = fltarr(nbeams,ngates+1)
 for ib=0,nbeams-1 do begin
 	; scatter histogram
 	binds = where((*rad_fit_data[data_index]).beam eq ib and $
-				(*rad_fit_data[data_index]).juls ge julmidnight-3.d/24.d and $
-				(*rad_fit_data[data_index]).juls le julmidnight+3.d/24.d and $
+				(*rad_fit_data[data_index]).juls ge julmidnight-dtime/24.d and $
+				(*rad_fit_data[data_index]).juls le julmidnight+dtime/24.d and $
 				(*rad_fit_data[data_index]).tfreq ge 10e3 and $
 				(*rad_fit_data[data_index]).tfreq le 12e3, ccinds)
 	if ccinds le 0 then $
@@ -253,6 +306,7 @@ for ib=0,nbeams-1 do begin
 			hist[ib,ng] = hist[ib,ng] + ccpinds
 	endfor
 endfor
+radhist = hist
 hist = hist/max(hist, /nan)
 
 ; Plot beam-range grid
@@ -261,7 +315,7 @@ for ib=0,nbeams-1 do begin
 		xx = fov_loc_full[0,*,ib,ig]
 		yy = fov_loc_full[1,*,ib,ig]
 		if hist[ib,ig] gt 0. then $
-			polyfill, xx, yy, col=bytscl(hist[ib,ig], min=0, max=1, top=252)+2b
+			polyfill, xx, yy, col=bytscl(hist[ib,ig], min=0, max=1, top=250)+2b
 ; 		plots, [xx, xx[0]], [yy, yy[0]], thick=1
 		if (ib eq nbeams-1) then $
 			plots, xx[1:2], yy[1:2];, thick=2, col=200
@@ -276,6 +330,14 @@ for ib=0,nbeams-1 do begin
 			plots, [xx[0],xx[3]], [yy[0],yy[3]], thick=2
 		endif
 	endfor
+	; Find scatter limits (within threshold)
+	beamhist = hist[ib,*]
+	thinds = where(beamhist gt scathresh, cc)
+	if cc gt 0 then begin
+		edges[ib,0,0] = thinds[0]
+		edges[ib,0,1] = thinds[cc-1]
+	endif
+; 	if ib eq 12 then print, date, edges[ib,0,0], edges[ib,0,1]
 endfor
 
 ; Plot map

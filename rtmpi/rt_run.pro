@@ -44,6 +44,10 @@
 ;
 ; OUTDIR: directory where ray-tracing files will be outputed: *.dat contain radar binned results, *.rays contain raw ray paths
 ;
+; NMF2: Electron density at the peak of the f2 layer in log scale [log10(m-3)]. The default value is computed by IRI.
+;
+; HMF2: Height of the f2 layer peak [km]. The default value is computed by IRI.
+;
 ; BACK
 ;
 ; SILENT
@@ -77,7 +81,7 @@
 ; Last modified 02-2012
 ;-
 pro 	RT_RUN, date, radar, dhour=dhour, ltime=ltime, $
-	time=time, beam=beam, nhop=nhop, azim=azim, $
+	time=time, beam=beam, nhop=nhop, azim=azim, nmf2=nmf2, hmf2=hmf2, $
 	freq=freq, elev=elev, geopos=geopos, no_weights=no_weights, $
 	back=back, bin=bin, nprocs=nprocs, outdir=outdir, $
 	silent=silent,  force=force, no_ionos=no_ionos, no_rays=no_rays
@@ -177,7 +181,7 @@ endelse
 if n_elements(azim) ne 3 then begin
 	azim = [azim, azim, 1.]
 endif
-print, azim
+
 if ~keyword_set(nhop) then $
 	nhop = 1L
 
@@ -225,6 +229,11 @@ if ~keyword_set(outdir) then begin
 endif else $
 	dirname = outdir
 
+if keyword_set(nmf2) or keyword_set(hmf2) then begin
+	outdir = '/tmp/'
+	dirname = outdir
+endif
+
 ;**************************************************************************************
 ; Get to the ray-tracing part of this all thing
 ;**************************************************************************************
@@ -239,11 +248,11 @@ IF ~code OR ~rcode OR keyword_set(force) THEN BEGIN
 
 	; Generate input file for fortran code
 	rt_write_input, radarsite.geolat, radarsite.geolon, azim, date[0], hour, $
-			freq=freq, elev=elev, nhop=nhop, $
+			freq=freq, elev=elev, nhop=nhop, nmf2=nmf2, hmf2=hmf2, $
 			outdir=inputdir, filename=filename, silent=silent
 
 	spawn, 'echo "'+inputdir+filename+'" > /tmp/rt_inp_file'
-	spawn, 'mpiexec -n '+strtrim(nprocs, 2)+' '+davit_lib+'/vt/fort/rtmpi/raydarn < /tmp/rt_inp_file'
+	spawn, 'mpiexec -n '+strtrim(nprocs, 2)+' raydarn < /tmp/rt_inp_file'
 
 	; Read data from files to be saved in common block
 ; 	time_mark = systime(/julian, /utc)
@@ -431,12 +440,15 @@ IF ~code OR ~rcode OR keyword_set(force) THEN BEGIN
 	; Binning parameter
 	rt_info.nhop = nhop
 
+	; Output directory
+	rt_info.outdir = dirname
+
 	; Normalize power distributions
 	if ~keyword_set(no_ionos) then begin
 		ionosinds = where(rt_data.gscatter eq 2b, ccionos)
 		if ccionos gt 0 then begin
 			rt_data.power[ionosinds] = 10.*alog10( rt_data.lagpower[ionosinds]/max(rt_data.lagpower[ionosinds]) )
-			rt_data.power[ionosinds] = rt_data.power[ionosinds]*30./45;abs(min(rt_data.power[ionosinds]))
+			rt_data.power[ionosinds] = rt_data.power[ionosinds]*30./45.;abs(min(rt_data.power[ionosinds]))
 		endif
 	endif
 	ginds = where(rt_data.gscatter eq 1b, ccgnd)

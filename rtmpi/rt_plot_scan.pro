@@ -39,7 +39,7 @@
 pro rt_plot_scan, time, date=date, $
 	param=param, coords=coords, rotate=rotate, $
 	xrange=xrange, yrange=yrange, scale=scale, $
-	silent=silent, ground=ground, $
+	silent=silent, ground=ground, grange=grange, $
 	charthick=charthick, charsize=charsize, $
 	no_title=no_title, ionos=ionos, grid=grid, ps=ps
 
@@ -131,7 +131,7 @@ if ~keyword_set(charsize) then $
 
 ; clear output area
 if keyword_set(ps) then $
-	ps_open, '~/Desktop/rt_scan'+rt_info.name+'.ps', /no_init
+	ps_open, '~/Desktop/rt_scan'+rt_info.name+'.ps'
 clear_page
 
 ; loop through panels
@@ -174,7 +174,7 @@ for p=0,npanels-1 do begin
 
 	; plot an rti panel
 	rt_plot_scan_panel, time, xmaps, ymaps, xmap, ymap, /bar, $
-		date=date, xrange=xrange, yrange=yrange, $
+		date=date, xrange=xrange, yrange=yrange, grange=grange, $
 		param=param[p], coords=coords, scale=ascale, $
 		silent=silent, ground=ground, ionos=ionos, $
 		charthick=charthick, charsize=charsize, $
@@ -184,7 +184,7 @@ for p=0,npanels-1 do begin
 endfor
 
 ; plot a title for the page
-strtim = strmid(strtrim(time,2),0,2)+':'+strmid(strtrim(time,2),2,2)+' UT'
+strtim = strmid(strtrim(string(time,format='(I04)'),2),0,2)+':'+strmid(strtrim(string(time,format='(I04)'),2),2,2)+' UT'
 strdat = format_juldate(rt_info.sjul, /date)
 strrad = rt_info.name+'@'+strtrim(string(rt_data.tfreq[0],format='(I3)'),2)+'MHz'
 xyouts, .1, .94, 'RAY-TRACING & IRI', align=0, /normal, charsize=2
@@ -195,7 +195,7 @@ xyouts, .101, .901, strrad+' - '+strdat, align=0, /normal, charsize=1.5
 xyouts, .101, .861, strtim, align=0, /normal, charsize=1.5
 
 if keyword_set(ps) then $
-	ps_close, /no_init
+	ps_close, /no_f
 
 end
 

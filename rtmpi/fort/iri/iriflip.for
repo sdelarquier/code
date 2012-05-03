@@ -112,6 +112,7 @@ C-------------------------------------------------------------------------------
       DATA PNO,LNO,PDNOSR,PLYNOP,N2A/5*0.0/
       DATA DISN2D,UVDISN/0.0,0.0/
       DATA HEPLUS/0.0/
+!       print*, JPRINT,ALT,F107,F107A,TE,TI,TN,OXN,O2N,N2N,HEN,USER_NO,N4S,NE,USER_NPLUS,SZAD
 
       ALTCHEM=150  !.. Initial altitude for O+ for imposing chemistry
       JITER=0      !.. Counts the number of Newton iterations

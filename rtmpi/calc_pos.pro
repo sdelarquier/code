@@ -90,8 +90,13 @@ function calc_azdist, start_pos, end_pos, azimuth=azimuth
 	endif
 	if abs(90.-abs(sglon)) le .01 then begin
 		coslon = 0.
-		sinlon = 1.
+		sinlon = eglon/abs(eglon)*1.
 	endif
+	if abs(270.-abs(sglon)) le .01 then begin
+		coslon = 0.
+		sinlon = -eglon/abs(eglon)*1.
+	endif
+		print, sglon, coslon, sinlon
 
 ; ! Convert from glabal spherical to global cartesian
 	srx = (sRe) * coslat * coslon
@@ -113,9 +118,13 @@ function calc_azdist, start_pos, end_pos, azimuth=azimuth
 	endif
 	if abs(90.-abs(eglon)) le .01 then begin
 		coslon = 0.
-		sinlon = 1.
+		sinlon = eglon/abs(eglon)*1.
 	endif
-		
+	if abs(270.-abs(eglon)) le .01 then begin
+		coslon = 0.
+		sinlon = -eglon/abs(eglon)*1.
+	endif
+		print, eglon, coslon, sinlon
 
 ; ! Convert from glabal spherical to global cartesian
 	erx = (eRe) * coslat * coslon

@@ -47,7 +47,7 @@ C 2011.00 10/05/11    array size change jf(50) outf(20,1000), oarr(100).
 C
 C 
         subroutine igrf_sub(xlat,xlong,year,height,
-     &          xl,icode,dipl,babs)
+     &          xl,icode,dipl,babs,dip,dec)
 c-----------------------------------------------------------------------        
 c INPUT:
 c    xlat      geodatic latitude in degrees
@@ -75,8 +75,9 @@ c
         CALL FELDCOF(YEAR,DIMO)
         CALL FELDG(LATI,LONGI,HEIGHT,BNORTH,BEAST,BDOWN,BABS)
         CALL SHELLG(LATI,LONGI,HEIGHT,DIMO,XL,ICODE,BAB1)
-c        DIP=ASIN(BDOWN/BABS)/UMR
-c       DEC=ASIN(BEAST/SQRT(BEAST*BEAST+BNORTH*BNORTH))/UMR
+! 				print*,LATI,LONGI,HEIGHT,DIMO,XL,ICODE,BAB1,BNORTH,BEAST,BDOWN,BABS,UMR
+        DIP=ASIN(BDOWN/BABS)/UMR
+				DEC=ASIN(BEAST/SQRT(BEAST*BEAST+BNORTH*BNORTH))/UMR
 c        DIPL=ATAN(0.5*TAN(DIP*UMR))/UMR
        DIPL=ATAN(BDOWN/2.0/sqrt(BNORTH*BNORTH+BEAST*BEAST))/umr
       RETURN
@@ -693,8 +694,8 @@ C ---------------------------------------------------------------
         WRITE(FOUT,667) FSPEC
 !  667    FORMAT(A13)
 !  667    FORMAT('/var/www/omniweb/cgi/vitmo/IRI/',A13)
- 667    FORMAT('/home/sebastien/Documents/IDL/rtmpi/fort/igrf/',A13)
-        OPEN (IU, FILE=FOUT, STATUS='OLD', IOSTAT=IER, ERR=999)
+ 667    FORMAT('/davit/lib/vt/fort/igrf/',A13)
+        OPEN (IU, FILE=FOUT, STATUS='OLD', IOSTAT=IER, ERR=999)     
         READ (IU, *, IOSTAT=IER, ERR=999)                            
         READ (IU, *, IOSTAT=IER, ERR=999) NMAX, ERAD, XMYEAR 
         nm=nmax*(nmax+2)                
@@ -702,7 +703,7 @@ C ---------------------------------------------------------------
         goto 888 
                
 999     if (konsol.gt.1) write(konsol,100) FOUT
-100     FORMAT('Error while reading ',A80)
+100     FORMAT('Error while reading ',A13)
 
 888     CLOSE (IU)                                                                                                                                   
         RETURN                                                       

@@ -59,6 +59,7 @@ program		rayDARN
 
 	! Read parameters
 	if (rank.eq.0) CALL READ_INP(params)
+! 	if (rank.eq.0) print*, params
 	! Bcast parameters
 	CALL MPI_BCAST(params, 1, type_param, 0, MPI_COMM_WORLD, code)
 
@@ -78,7 +79,7 @@ program		rayDARN
 	nelev = nint((params%elevend - params%elevbeg)/params%elevstp)+1
 	nazim = nint((params%azimend - params%azimbeg)/params%azimstp)+1
 	nhour = nint((params%hourend - params%hourbeg)/params%hourstp)+1
-        if (params%hourend.eq.params%hourbeg) nhour = nint(24./params%hourstp)+1
+	if (params%hourend.eq.params%hourbeg) nhour = nint(24./params%hourstp)+1
 	if (rank.eq.0) then
 		CALL MPI_FILE_WRITE_SHARED(hfrays, params, 1, type_param, status, code)
 		CALL MPI_FILE_WRITE_SHARED(hfrays, (/nhour, nazim, nelev/), 3, MPI_INTEGER, status, code)
@@ -119,19 +120,19 @@ program		rayDARN
 	endif
 
 
- 	!print*, rank, nhour, nazim, nelev, slice
+!  	print*, rank, nhour, nazim, nelev, slice
 	!**********************************************************
 	! Time loop
-        nextday = 0
+	nextday = 0
 	hour = hour_0
 	do ihr=1,nhour
-
+! 		print*, rank, 'hour',hour
 ! 		timeaz = MPI_WTIME()
 		!**********************************************************
 		! Azimuth loop
 		azim = azim_0
 		do iaz=1,nazim
-
+! 			print*, rank, 'azim',hour,azim
 			! Generate electron density background
 			CALL IRI_ARR(params, hour, azim, edensARR, edensPOS, edensTHT, dip)
 			CALL MPI_FILE_WRITE_SHARED(hfedens, (/hour, azim, &
@@ -145,8 +146,8 @@ program		rayDARN
 			! Elevation loop
 			elev = elev_0
 			do iel=1,nelev
-				
-                CALL TRACE_RKCK(params, hour, azim, elev, edensARR, edensTHT, dip, hfrays, hfranges, hfionos, &
+! 				print*, rank, 'elev',hour,azim,elev
+					CALL TRACE_RKCK(params, hour, azim, elev, edensARR, edensTHT, dip, hfrays, hfranges, hfionos, &
 								mpi_size_int, mpi_size_real)
 
 				! Increment elevation value
@@ -232,7 +233,7 @@ SUBROUTINE MPI_RAYTYPES_INIT(type_vec, type_param)
 
 	! Parameters type
 	types = (/MPI_REAL, MPI_INTEGER, MPI_REAL/)
-	lblocks = (/9, 3, 3/)
+	lblocks = (/9, 3, 5/)
 
 	CALL MPI_GET_ADDRESS(tparams%txlat, addr(1), code)
 	CALL MPI_GET_ADDRESS(tparams%nhop, addr(2), code)
@@ -298,6 +299,8 @@ SUBROUTINE READ_INP(params)
 	read(10, 100) params%hourbeg
 	read(10, 100) params%hourend
 	read(10, 100) params%hourstp
+	read(10, 100) params%hmf2
+	read(10, 100) params%nmf2
 100		format(10X,F10.2)
 101		format(10X,I10)
 
@@ -565,7 +568,7 @@ SUBROUTINE TRACE_RKCK(params, rayhour, rayazim, rayelev, edensARR, edensTHT, dip
 		theta = thetatmp
 
 		! Calculate new position
-		call CALC_POS(latiin, longiin, r*1e-3-Rav, rayazim, h*1e-3, ranelev, latiout, longiout)
+		call CALC_POS(latiin, longiin, r*1e-3-Rav, rayazim, h*1e-3*sqrt(nr2), ranelev, latiout, longiout)
 
 		! Save to arrays
 		rsave(nrstep) = r
@@ -675,13 +678,17 @@ SUBROUTINE CALC_POS(lati, longi, alti, azim, dist, elev, latiout, longiout)
 
 	real*4::	Re, glat, glon, rho, gaz, gel
 	real*4::	rx, ry, rz, sx, sy, sz, tx, ty, tz
-	real*4::	coslat, sinlat, coslon, sinlon
+	real*4::	coslat, sinlat, coslon, sinlon, tlat, tlon
+
+! use temp variable to store latitude and longitude
+	tlat = lati
+	tlon = longi
 
 ! Converts from geodetic to geocentric and find Earth radius
-	CALL CALC_GD2GC(1, lati, longi, Re, glat, glon)
+	CALL CALC_GD2GC(1, tlat, tlon, Re, glat, glon)
 
 ! Adjusts azimuth and elevation for the oblateness of the Earth
-	CALL CALC_AZEL(lati, longi, azim, elev, gaz, gel)
+	CALL CALC_AZEL(tlat, tlon, azim, elev, gaz, gel)
 
 ! Pre-calculate sin and cos of lat and lon
 	coslat = cos(glat*dtor)
@@ -733,10 +740,10 @@ SUBROUTINE CALC_GD2GC(iopt, gdlat, gdlon, rho, glat, glon)
 	use constants
 	implicit none
 	integer,intent(in)::		iopt
-	real*4,intent(inout)::	gdlat, gdlon, glat, glon
+	real*4,intent(inout)::		gdlat, gdlon, glat, glon
 	real*4,intent(out)::		rho
 
-	real*4::								b, e2
+	real*4::					b, e2
 
 ! semi-minor axis (polar radius)
 	b = a*(1. - f)
@@ -774,12 +781,16 @@ SUBROUTINE CALC_AZEL(lati, longi, azim, elev, gaz, gel)
 	real*4,intent(in)::			lati, longi, azim, elev
 	real*4,intent(out)::		gaz, gel
 
-	real*4::	Re, glat, glon, del
+	real*4::	Re, glat, glon, del, tlat, tlon
 	real*4::	kxg, kyg, kzg, kxr, kyr, kzr
 
+! use temp variable to store latitude and longitude
+	tlat = lati
+	tlon = longi
+
 ! Converts from geodetic to geocentric and find Earth radius
-	CALL CALC_GD2GC(1, lati, longi, Re, glat, glon)
-	del = lati - glat
+	CALL CALC_GD2GC(1, tlat, tlon, Re, glat, glon)
+	del = tlat - glat
 
 ! Ray k-vector
 	kxg = cos(elev*dtor) * sin(azim*dtor)
@@ -862,13 +873,14 @@ SUBROUTINE IRI_ARR(params, hour, azim, edensARR, edensPOS, edensTHT, dip)
 	implicit none
 	real*4,intent(in)::							azim, hour
 	type(prm),intent(in)::						params
-	real*4,dimension(500,500),intent(out)::		edensARR
+	real*4,dimension(500,500),intent(out)::	edensARR
 	real*4,dimension(500,2),intent(out)::		edensPOS, dip
-	real*4,dimension(500),intent(out)::			edensTHT
+	real*4,dimension(500),intent(out)::		edensTHT
 
 	real*4::					old_hour, vbeg, vend, vstp
 	real*4::					lonDeg, latDeg, thtmp
-	integer::					jf(50), n, j
+	integer::					n, j
+	logical::					jf(50)
 	real*4,dimension(100)::		oar
 	real*4,dimension(20,1000)::	outf
 	real*4,dimension(500)::		dayNe
@@ -896,6 +908,14 @@ SUBROUTINE IRI_ARR(params, hour, azim, edensARR, edensPOS, edensTHT, dip)
 	do n=1,50
 	   jf(n) = .true.
 	enddo
+	if (params%hmf2.gt.0.) then
+		jf(9) = .false.
+		oar(2) = params%hmf2
+	endif
+	if (params%nmf2.gt.0.) then
+		jf(8) = .false.
+		oar(1) = 10.**(params%nmf2)
+	endif
 	jf(2) = .false.               ! no temperatures
 	jf(3) = .false.               ! no ion composition
 	jf(5) = .false.               ! URSI foF2 model
@@ -912,6 +932,7 @@ SUBROUTINE IRI_ARR(params, hour, azim, edensARR, edensPOS, edensTHT, dip)
 ! Calling IRI subroutine
 	call IRI_SUB(jf,0,edensPOS(1,1),edensPOS(1,2),params%year,params%mmdd,hour, &
                vbeg,vend,vstp,outf,oar)
+
 	do j=1,500
 		edensARR(j,1) = outf(1,j)
 	enddo

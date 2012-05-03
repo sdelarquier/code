@@ -73,7 +73,8 @@ pro	rtStructInit, nhour, nazim, ngates, rt_data, rt_info
 		elev_end: 0., $
 		elev_stp: 0., $
 		bin: '', $
-		nhop: 0L $
+		nhop: 0L, $
+		outdir: ''$
 	}
 
 end
@@ -190,7 +191,7 @@ end
 ; ********************************************************************
 pro	rtReadStruct, date, time, radar, beams, freq, rt_data, rt_info, dhour=dhour, nhop=nhop, back=back, ground=ground, code=code, outdir=outdir
 
-	parse_date, date, year, month, day
+	parse_date, date[0], year, month, day
 	parse_time, time, shour, sminute, fhour, fminute
 
 	if ~keyword_set(dhour) then $
@@ -199,11 +200,12 @@ pro	rtReadStruct, date, time, radar, beams, freq, rt_data, rt_info, dhour=dhour,
 	; find number of files
 	if fhour gt 0 then begin
 		if fhour le shour then $
-			nfiles = ceil( (fhour+fminute/60.)/dhour + (24. - (shour+sminute/60.)/dhour) ) $
+			nfiles = ceil( (fhour+fminute/60.)/dhour + (24./dhour - (shour+sminute/60.)/dhour) ) $
 		else $
 			nfiles = ceil( (fhour+fminute/60. - shour+sminute/60.)/dhour )
 	endif else $
 		nfiles = 1
+	print, nfiles
 
 	; calculate maximum number of time steps (each file can contain 2 hours with a max resolution of 1 min)
 	maxnh = nfiles
@@ -226,7 +228,7 @@ pro	rtReadStruct, date, time, radar, beams, freq, rt_data, rt_info, dhour=dhour,
 	nelem = 0L
 
 	; cycle through files
-	tdate = date
+	tdate = date[0]
 	nh = 0L
 	hour = shour
 	for nf=1,nfiles do begin
@@ -238,8 +240,8 @@ pro	rtReadStruct, date, time, radar, beams, freq, rt_data, rt_info, dhour=dhour,
 
 		for nb=0,nazim-1 do begin
 			; name fit file
-			input = rtFileName(date, floor(hour)*100L+round((hour-floor(hour))*60.), radar, beam=beams[nb], freq=freq, nhop=nhop, back=back, ground=ground, outdir=outdir)
-		
+			input = rtFileName(tdate, floor(hour)*100L+round((hour-floor(hour))*60.), radar, beam=beams[nb], freq=freq, nhop=nhop, back=back, ground=ground, outdir=outdir)
+			print, input
 			; test for file
 			code = file_test(input, /read)
 			if ~code then $
@@ -320,25 +322,25 @@ pro rtFileTest, date, time, radar, beam=beam, freq=freq, dhour=dhour, nhop=nhop,
 	if ~keyword_set(dhour) then $
 		dhour = .5
 
-	parse_date, date, year, month, day
+	parse_date, date[0], year, month, day
 	parse_time, time, shour, sminute, fhour, fminute
 
 	; find number of files
 	if fhour gt 0 then begin
 		if fhour le shour then $
-			nfiles = ceil( (fhour+fminute/60.)/dhour + (24. - (shour+sminute/60.)/dhour) ) $
+			nfiles = ceil( (fhour+fminute/60.)/dhour + (24./dhour - (shour+sminute/60.)/dhour) ) $
 		else $
 			nfiles = ceil( (fhour+fminute/60. - shour+sminute/60.)/dhour )
 	endif else $
 		nfiles = 1
-	
-        ; cycle through files
-	tdate = date
+
+	; cycle through files
+	tdate = date[0]
 	nh = 0L
 	hour = shour
 	for nf=1,nfiles do begin
 		for nb=0,n_elements(beam)-1 do begin
-			input = rtFileName(date, floor(hour)*100L+round((hour-floor(hour))*60.), radar, beam=beam[nb], freq=freq, nhop=nhop, back=back, ground=ground, rays=rays, outdir=outdir)
+			input = rtFileName(tdate, floor(hour)*100L+round((hour-floor(hour))*60.), radar, beam=beam[nb], freq=freq, nhop=nhop, back=back, ground=ground, rays=rays, outdir=outdir)
 
 			; test for file
 			code = file_test(input, /read)

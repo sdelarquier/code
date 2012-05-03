@@ -21,8 +21,11 @@ if n_elements(infout) le 2 then begin
 	return
 endif
 
+if ~keyword_set(param) then $
+	param = 'power'
+
 if ~keyword_set(coords) then $
-	coords = get_coordinates()
+	coords = 'rang'
 
 if ~keyword_set(beam) then $
 	beam = rt_data.beam[0,0]
@@ -127,6 +130,7 @@ nbeams = network[radID].site[s].maxbeam
 rad_define_beams, rt_info.id, nbeams, rt_info.ngates, year, yrsec, coords=coords, $
 		/normal, fov_loc_center=fov_loc_center
 fov_loc_center = reform(fov_loc_center[0,beam,*])
+; print, coords, fov_loc_center
 
 ; Determine maximum width to plot scan - to decide how big a 'data gap' has to
 ; be before it really is a data gap.  Default to 5 minutes
@@ -193,12 +197,14 @@ FOR nt=0, tsteps-1 DO BEGIN
 				continue
 			if keyword_set(ionos) and rt_data.gscatter[nt,nb,r] eq 1b then $
 				continue
+			if rt_data.gscatter[nt,nb,r] eq 0b then $
+				continue
 
 			if ~keyword_set(data) and ~keyword_set(contour) then begin
 				; get color
 				color_ind = (MAX(where(lvl le ((ydata[nt,nb,r] > scale[0]) < scale[1]))) > 0)
 				col = cin[color_ind]
-
+				
 				; finally plot the point
 				POLYFILL,[start_time,start_time,end_time,end_time], $
 						[fov_loc_center[r],fov_loc_center[r+1], $
@@ -245,8 +251,8 @@ FOR nt=0, tsteps-1 DO BEGIN
 
 ENDFOR
 ; Plot first range gate
-loadct, 0
-oplot, [xdata[0],xdata[tsteps-1]], fov_loc_center[0]*[1,1], linestyle=0, col=0, thick=2
+; loadct, 0
+; oplot, [xdata[0],xdata[tsteps-1]], fov_loc_center[0]*[1,1], linestyle=0, col=0, thick=2
 loadct, 0, file='/tmp/colors2.tbl'
 
 if keyword_set(data) or keyword_set(contour) then begin
@@ -319,10 +325,13 @@ endif
 
 ; Overlay grid if required
 if keyword_set(grid) then begin
-	_gridstyle = 2
+	_gridstyle = 1
 	_xticklen = 1.
 	_yticklen = 1.
-endif
+endif else begin
+	_xticklen = -.02
+	_yticklen = -.02
+endelse
 
 ; "over"plot axis
 plot, [0,0], /nodata, position=position, $

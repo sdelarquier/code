@@ -1,5 +1,5 @@
 pro rt_plot_scan_panel, time, xmaps, ymaps, xmap, ymap, bar=bar, $
-		date=date, xrange=xrange, yrange=yrange, $
+		date=date, xrange=xrange, yrange=yrange, grange=grange, $
 		param=param, coords=coords, scale=scale, $
 		silent=silent, ground=ground, ionos=ionos, $
 		charthick=charthick, charsize=charsize, $
@@ -64,7 +64,10 @@ for s=0,31 do begin
 endfor
 radarsite = network[radID].site[s]
 nbeams = radarsite.maxbeam
-ngates = rt_info.ngates
+if ~keyword_set(grange) then $
+	ngates = rt_info.ngates $
+else $
+	ngates = rt_info.ngates * grange/2000./2.
 hbw = radarsite.bmsep/2.	; Set coordinate system
 ;rotate = -rt_info.glon
 rad_define_beams, network[radID].id, nbeams, ngates, tyear, yrsec, coords=coords, $
@@ -142,7 +145,8 @@ proj = calc_stereo_coords(magco[0], magco[1], rotate=rotate)
 ; Start plotting
 map_plot_panel, position=position, date=date, coords=coords, charsize=charsize, grid_linecolor=1, $
 		hemisphere=hemisphere, coast_linecolor=0, /iso, /no_fill, yrange=yrange, xrange=xrange, rotate=rotate, grid_charsize=charsize, /no_label
-overlay_radar, rotate=rotate, charsize=charsize, coords=coords, names=radar, /annotate
+overlay_radar, rotate=rotate, charsize=charsize, coords=coords, names=radar
+xyouts, proj[0]*1.01, proj[1]*1.01, 'Buenos Aires', charsize=charsize, charthick=2
 
 lati = rt_info.glat
 longi = rt_info.glon
