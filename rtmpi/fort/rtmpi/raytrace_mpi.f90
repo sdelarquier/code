@@ -799,8 +799,8 @@ SUBROUTINE CALC_AZEL(lati, longi, azim, elev, gaz, gel)
 
 ! Correction to the k-vector due to oblateness
 	kxr = kxg
-	kyr = kyg * cos(del*dtor) + kzg * cos(del*dtor)
-	kzr = -kyg * sin(del*dtor) + kzg * sin(del*dtor)
+	kyr = kyg * cos(del*dtor) + kzg * sin(del*dtor)
+	kzr = -kyg * sin(del*dtor) + kzg * cos(del*dtor)
 
 ! Finally compute corrected elevation and azimuth
 	gaz = atan2(kxr,kyr) * radeg
