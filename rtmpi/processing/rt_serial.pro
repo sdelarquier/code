@@ -56,8 +56,8 @@ radarsite = network[radID].site[s]
 
 
 
-juls = timegen(start=julday(02,01,2008), final=julday(06,01,2011), units='days')
-; juls = timegen(start=julday(01,01,2011), final=julday(01,01,2012), units='days')
+; juls = timegen(start=julday(02,01,2008), final=julday(06,01,2011), units='days')
+juls = timegen(start=julday(01,01,2011), final=julday(01,01,2012), units='days')
 caldat, juls, month, day, year
 date = year*10000L+month*100L+day
 

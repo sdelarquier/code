@@ -177,7 +177,54 @@ if keyword_set(trend) AND param eq 'power' then begin
 	trendARR = dindgen(tsteps,2)
 endif
 
-; aspect = abs(90. - median(reform(rt_data.aspect[*,nb,*]),2))
+
+if keyword_set(sun) then begin
+	sunlinecol = 190
+	; plot sunrise/sunset/solar noon
+	loadct, 0
+	rad_calc_sunset, date, rt_info.name, beam, rt_info.ngates, $
+		risetime=risetime, settime=settime
+
+	toverflow = where(risetime lt sjul, cc, complement=tunderflow, ncomplement=cccomp)
+	if cc gt 0 then $
+		risetime[toverflow] = risetime[toverflow]+1.d
+	toverflow = where(settime gt fjul, cc, complement=tunderflow, ncomplement=cccomp)
+	if cc gt 0 then $
+		settime[toverflow] = settime[toverflow]-1.d
+	toutbound = where(risetime gt fjul, cc)
+	if cc gt 0 then $
+		risetime[toutbound] = 0.
+	toutbound = where(settime lt sjul, cc)
+	if cc gt 0 then $
+		settime[toutbound] = 0.
+
+
+	for ig=0,n_elements(risetime)-2 do begin
+		if fov_loc_center[ig+1] le yrange[1] and fov_loc_center[ig] ge yrange[0] then begin
+			ylims_night = fov_loc_center[ig]*[1,0,0,1] + fov_loc_center[ig+1]*[0,1,1,0]
+
+			if settime[ig+1] lt risetime[ig+1] then begin
+				if settime[ig] ge risetime[ig] then continue
+				xlims_night = [settime[ig:ig+1], reverse(risetime[ig:ig+1])]
+				if settime[ig+1] eq 0. or settime[ig] eq 0. then $
+					xlims_night = [xrange[0]*[1,1], reverse(risetime[ig:ig+1])]
+				if risetime[ig+1] ne 0. and risetime[ig] ne 0. then $
+					polyfill, xlims_night, ylims_night , col=sunlinecol*1.2
+			endif
+			if settime[ig+1] gt risetime[ig+1] then begin
+				if settime[ig] le risetime[ig] then continue
+				xlims_night = [xrange[0]*[1,1], reverse(risetime[ig:ig+1])]
+				if risetime[ig] ne 0. and risetime[ig+1] ne 0. then $
+					polyfill, xlims_night, ylims_night , col=sunlinecol*1.2
+				xlims_night = [settime[ig:ig+1], xrange[1]*[1,1]]
+				polyfill, xlims_night, ylims_night , col=sunlinecol*1.2
+			endif
+		endif
+	endfor
+
+	nleg = 0
+	loadct, 0, file='/tmp/colors2.tbl'
+endif
 
 ; overplot data
 FOR nt=0, tsteps-1 DO BEGIN
@@ -252,7 +299,7 @@ FOR nt=0, tsteps-1 DO BEGIN
 ENDFOR
 ; Plot first range gate
 ; loadct, 0
-; oplot, [xdata[0],xdata[tsteps-1]], fov_loc_center[0]*[1,1], linestyle=0, col=0, thick=2
+oplot, xrange, fov_loc_center[0]*[1,1], linestyle=0, col=0, thick=2
 loadct, 0, file='/tmp/colors2.tbl'
 
 if keyword_set(data) or keyword_set(contour) then begin
@@ -264,37 +311,19 @@ if keyword_set(data) or keyword_set(contour) then begin
 endif
 
 if keyword_set(sun) then begin
-        sunlinecol = 190
 	; plot sunrise/sunset/solar noon
 	loadct, 0
-	rad_calc_sunset, date, rt_info.name, beam, rt_info.ngates, $
-		risetime=risetime, settime=settime
-		
-	toverflow = where(risetime lt sjul, cc, complement=tunderflow, ncomplement=cccomp)
-	if cc gt 0 then begin
-		risetime[toverflow] = risetime[toverflow]+1.d
-		oplot, risetime[toverflow], fov_loc_center[toverflow], linestyle=2, thick=3, col=sunlinecol
-		if cccomp gt 0. then $
-			oplot, risetime[tunderflow], fov_loc_center[tunderflow], linestyle=2, thick=3, col=sunlinecol
-	endif else $
-		oplot, risetime, fov_loc_center, linestyle=2, thick=3, col=sunlinecol
-	toverflow = where(settime gt fjul, cc, complement=tunderflow, ncomplement=cccomp)
-	if cc gt 0 then begin
-		settime[toverflow] = settime[toverflow]-1.d
-		oplot, settime[toverflow], fov_loc_center[toverflow], linestyle=2, thick=3, col=sunlinecol
-		if cccomp gt 0. then $
-			oplot, settime[tunderflow], fov_loc_center[tunderflow], linestyle=2, thick=3, col=sunlinecol
-	endif else $
-		oplot, settime, fov_loc_center, linestyle=2, thick=3, col=sunlinecol
 
-	nleg = 0
-	xyouts, risetime[nleg], fov_loc_center[nleg]-(fov_loc_center[nleg+1]-fov_loc_center[nleg])*2., 'Sunrise', align=.5, col=sunlinecol, charsize=charsize
-	xyouts, settime[nleg], fov_loc_center[nleg]-(fov_loc_center[nleg+1]-fov_loc_center[nleg])*2., 'Sunset', align=.5, col=sunlinecol, charsize=charsize
-; 	caldat, risetime[nleg], month, day, year, hour, minute
-; 	print, 'Rise: ', year*10000L+month*100L+day, hour*100L+minute
-; 	caldat, settime[nleg], month, day, year, hour, minute
-; 	print, 'Set: ', year*10000L+month*100L+day, hour*100L+minute
-	
+	tinbound = where(risetime ne 0., cc)
+	if cc gt 0. then $
+		oplot, risetime[tinbound], fov_loc_center[tinbound], linestyle=2, thick=3, col=sunlinecol
+	tinbound = where(settime ne 0., cc)
+	if cc gt 0. then $
+		oplot, settime[tinbound], fov_loc_center[tinbound], linestyle=2, thick=3, col=sunlinecol
+
+; 	xyouts, risetime[nleg], fov_loc_center[nleg]-(fov_loc_center[nleg+1]-fov_loc_center[nleg])*2., 'Sunrise', align=.5, col=sunlinecol, charsize=charsize
+; 	xyouts, settime[nleg], fov_loc_center[nleg]-(fov_loc_center[nleg+1]-fov_loc_center[nleg])*2., 'Sunset', align=.5, col=sunlinecol, charsize=charsize
+
 	loadct, 0, file='/tmp/colors2.tbl'
 endif
 

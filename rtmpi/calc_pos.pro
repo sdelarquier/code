@@ -54,11 +54,13 @@ function CALC_AZEL, lati, longi, azim, elev, gaz, gel
 	kxg = cos(elev*!dtor) * sin(azim*!dtor)
 	kyg = cos(elev*!dtor) * cos(azim*!dtor)
 	kzg = sin(elev*!dtor)
+	if ~(azim mod 180.) then kxg = 0.
+	if ~(elev+90. mod 180.) then kzg = 0.
 
 ; ! Correction to the k-vector due to oblateness
 	kxr = kxg
-	kyr = kyg * cos(del*!dtor) + kzg * cos(del*!dtor)
-	kzr = -kyg * sin(del*!dtor) + kzg * sin(del*!dtor)
+	kyr = kyg * cos(del*!dtor) + kzg * sin(del*!dtor)
+	kzr = -kyg * sin(del*!dtor) + kzg * cos(del*!dtor)
 
 ; ! Finally compute corrected elevation and azimuth
 	gaz = atan(kxr,kyr) * !radeg
@@ -96,7 +98,7 @@ function calc_azdist, start_pos, end_pos, azimuth=azimuth
 		coslon = 0.
 		sinlon = -eglon/abs(eglon)*1.
 	endif
-		print, sglon, coslon, sinlon
+; 	print, sglon, coslon, sinlon
 
 ; ! Convert from glabal spherical to global cartesian
 	srx = (sRe) * coslat * coslon
@@ -124,7 +126,7 @@ function calc_azdist, start_pos, end_pos, azimuth=azimuth
 		coslon = 0.
 		sinlon = -eglon/abs(eglon)*1.
 	endif
-		print, eglon, coslon, sinlon
+; 	print, eglon, coslon, sinlon
 
 ; ! Convert from glabal spherical to global cartesian
 	erx = (eRe) * coslat * coslon

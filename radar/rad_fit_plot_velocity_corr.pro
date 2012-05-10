@@ -12,8 +12,8 @@ xyouts, .1, .86, 'Velocity correction for '+radar+', beam '+strtrim(beam,2), $
 	charsize=charsize, charthick=charthick, /normal
 parse_date, date, yy, mm, dd
 ajul = julday(mm, dd, yy)
-xyouts, .9, .88, $
-	STRMID(format_juldate(ajul),0,13), $
+xyouts, .9, .86, /normal, $
+	STRMID(format_juldate(ajul),0,11), $
 	align=1., charsize=charsize, charthick=charthick
 
 ; Read radar data and pass it through median filter

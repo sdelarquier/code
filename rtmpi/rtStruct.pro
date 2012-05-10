@@ -36,13 +36,13 @@ end
 ; - no arrays with more than 1 dimension in rt_info
 ; ********************************************************************
 pro	rtStructInit, nhour, nazim, ngates, rt_data, rt_info
-	start_mem = memory(/current)
+	if nazim eq 1 then naz = nazim + 1 else naz = nazim
 		
 	rt_data = { $
 		juls: dblarr(nhour), $
 		tfreq: fltarr(nhour), $
-		beam: intarr(nhour,nazim), $
-		azim: fltarr(nhour,nazim), $
+		beam: intarr(nhour,naz), $
+		azim: fltarr(nhour,naz), $
 		lagpower: fltarr(nhour,nazim,ngates), $
 		power: fltarr(nhour,nazim,ngates), $
 		gscatter: bytarr(nhour,nazim,ngates), $
@@ -111,7 +111,7 @@ function rtFileName, date, time, radar, beam=beam, freq=freq, nhop=nhop, back=ba
 		file = strdate + '.' + strtime + '.' + radar + strsupl + '.rays'
 
 	filename = dir + file
-;   	print, filename
+; 	print, filename
 
 	return, filename
 	
@@ -136,8 +136,8 @@ pro	rtWriteStruct, rt_data, rt_info, rt_rays, ground=ground, code=code, outdir=o
 	endif
 
 	; Read number of steps
-	ntime = n_elements(rt_data.power[*,0,0,0])
-	nazim = n_elements(rt_data.power[0,*,0,0])
+	ntime = n_elements(rt_data.power[*,0,0])
+	nazim = n_elements(rt_data.power[0,*,0])
 
 	for nh=0,ntime-1 do begin
 
@@ -168,7 +168,7 @@ pro	rtWriteStruct, rt_data, rt_info, rt_rays, ground=ground, code=code, outdir=o
 			for n=0,ntags_data-1 do begin
 				writeu, unit, size(rt_data.(n), /type), size(rt_data.(n), /n_dimensions)
 				writeu, unit, size(rt_data.(n), /dimensions)
-                                case size(rt_data.(n), /n_dimensions) of
+				case size(rt_data.(n), /n_dimensions) of
 					1: writeu, unit, rt_data.(n)[nh]
 					2: writeu, unit, rt_data.(n)[nh,nb]
 					3: writeu, unit, rt_data.(n)[nh,nb,*]
@@ -205,7 +205,6 @@ pro	rtReadStruct, date, time, radar, beams, freq, rt_data, rt_info, dhour=dhour,
 			nfiles = ceil( (fhour+fminute/60. - shour+sminute/60.)/dhour )
 	endif else $
 		nfiles = 1
-	print, nfiles
 
 	; calculate maximum number of time steps (each file can contain 2 hours with a max resolution of 1 min)
 	maxnh = nfiles
@@ -241,7 +240,7 @@ pro	rtReadStruct, date, time, radar, beams, freq, rt_data, rt_info, dhour=dhour,
 		for nb=0,nazim-1 do begin
 			; name fit file
 			input = rtFileName(tdate, floor(hour)*100L+round((hour-floor(hour))*60.), radar, beam=beams[nb], freq=freq, nhop=nhop, back=back, ground=ground, outdir=outdir)
-			print, input
+
 			; test for file
 			code = file_test(input, /read)
 			if ~code then $
@@ -267,7 +266,7 @@ pro	rtReadStruct, date, time, radar, beams, freq, rt_data, rt_info, dhour=dhour,
 				tnelem = lonarr(ndims)
 				readu, unit, tnelem
 				tnelem[0] = 1
-                                if ndims gt 1 then $
+        if ndims gt 1 then $
 				    tnelem[1] = 1
 				temp = make_array(tnelem, type=ttype)
 				readu, unit, temp
@@ -278,9 +277,9 @@ pro	rtReadStruct, date, time, radar, beams, freq, rt_data, rt_info, dhour=dhour,
 					4: temp_rt_data.(n)[nh,nb,0:tnelem[2]-1,0:tnelem[3]-1] = temp
 				endcase
 			endfor
-
+			
 		free_lun, unit
-		endfor		
+		endfor
 		
 		nh = nh + 1
 		hour = hour + dhour

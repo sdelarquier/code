@@ -197,11 +197,11 @@ if n_elements(mpdout) gt 1 then begin
 endif
 
 ; Some useful parameters
-ngates 		= 70
-range_gate 	= 180L + 45L*lindgen(ngates+1)
-Re 			= 6370.
-P 			= 180. + findgen(ngates)*45.
-minpower 	= 4.
+ngates		= 70
+range_gate	= 180L + 45L*lindgen(ngates+1)
+Re			= 6370.
+P			= 180. + findgen(ngates)*45.
+minpower	= 4.
 
 ;******************************************************************************************************
 ; Some file management and testing
@@ -211,6 +211,7 @@ if keyword_set(outdir) then begin
 	if strmid(outdir,strlen(outdir)-1,1) ne '/' then $
 		outdir = outdir+'/'
 endif
+
 rtFileTest, date, time, radar, beam=beam, freq=freq, dhour=dhour, nhop=nhop, back=back, ground=no_ionos, code=code, outdir=outdir
 if ~keyword_set(no_rays) then $
 	rtFileTest, date, time, radar, beam=beam, freq=freq, dhour=dhour, nhop=nhop, back=back, /rays, code=rcode, outdir=outdir $
@@ -455,6 +456,7 @@ IF ~code OR ~rcode OR keyword_set(force) THEN BEGIN
 	if ccgnd gt 0 then begin
 		rt_data.power[ginds] = 10.*alog10( rt_data.lagpower[ginds]/max(rt_data.lagpower[ginds]) )
 	endif
+	print, max(rt_data.lagpower[ginds]), max(rt_data.lagpower[ionosinds])
 	noinds = where(rt_data.gscatter eq 0, ccno)
 	if ccno gt 0 then $
 		rt_data.power[noinds] = 10000.

@@ -1,4 +1,4 @@
-pro	rad_plot_ionoscat_stat, radar
+pro	rad_plot_ionoscat_stat, radar, beam
 
 openr, unit, 'ionoscat_edges_'+radar+'.dat', /get_lun
 njuls = 0L
@@ -18,6 +18,7 @@ hmf2 = fltarr(njuls)
 readu, unit, nmf2, hmf2
 free_lun, unit
 ; help, njuls, juls, edges, nbeams, ngates, radhist, rthist, nmf2, hmf2
+ind = where(juls eq julday(01,01,2009))
 
 
 ; ********************************************************
@@ -36,7 +37,7 @@ plot, xrange, yrange, /nodata, position=position, charsize=charsize, $
 dav = 15
 weights = ( (dav+1-abs(findgen(2*dav)-dav))/float(dav+1) )
 weights = weights/total(weights)
-beam = 4
+; beam = 12
 baryran = fltarr(njuls)
 ranges = 180. + findgen(ngates)*45.
 histfull = dblarr(njuls, ngates)
@@ -98,14 +99,18 @@ weights = ( (dav+1-abs(findgen(2*dav)-dav))/float(dav+1) )
 weights = weights/total(weights)
 for id=dav,njuls-2-dav do begin
 ; 	if edges[id,1] gt 0 then begin
-		nzinds = where( reform(max(rthist[id-dav:id+dav,beam,*], dimension=3)) ne 0., ccnz )
-		maxav = total( max(rthist[id-dav:id+dav,beam,*], dimension=3)*weights/total(weights[nzinds]), 1 )
+; 		nzinds = where( reform(max(rthist[id-dav:id+dav,beam,*], dimension=3)) ne 0., ccnz )
+		maxav = total( max(rthist[id-dav:id+dav,beam,*], dimension=3)*weights/total(weights),1);[nzinds]), 1 )
+; 		caldat, juls[id], tmm, tdd, tyy
+; 		if tyy*10000L+tmm*100L+tdd eq 20090101 then $
+; 			print, reform(rthist[id,beam,0:30])
+; 		print, tyy, tmm, tdd, maxav, reform(rthist[id,beam,10:15])
 		for ir=0,ngates-1 do begin
-			nzinds = where( reform(rthist[id-dav:id+dav,beam,ir]) ne 0., ccnz )
-			if ccnz ne 0 then $
-				runav = total( rthist[id-dav:id+dav,beam,ir]*weights/total(weights[nzinds]), 1 ) $
-			else $
-				runav = 0.
+; 			nzinds = where( reform(rthist[id-dav:id+dav,beam,ir]) ne 0., ccnz )
+; 			if ccnz ne 0 then $
+				runav = total( rthist[id-dav:id+dav,beam,ir]*weights/total(weights),1);[nzinds]), 1 ) $
+; 			else $
+; 				runav = 0.
 			col = bytscl(runav / maxav, min=0., max=1., top=250)+2b
 			if ((180.+(ir+1)*45.)/100. le yrange[1]) and col gt 0 then $
 				polyfill, juls[id]*[1,1,0,0] + juls[id+1]*[0,0,1,1], (180.+[ir,ir+1,ir+1,ir]*45.)/100., color=col

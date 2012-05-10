@@ -49,7 +49,7 @@ azimuth = (1.+fltarr(ngates)) ## azimuth
 if method eq 'iri' then begin
 
 	; run ray tracing
-	rt_run, date, (*rad_fit_info[data_index]).code, time=time, force=force, freq=(*rad_fit_data[data_index]).tfreq[nrecs/4]*1e3
+	rt_run, date, (*rad_fit_info[data_index]).code, time=time, force=force, freq=round((*rad_fit_data[data_index]).tfreq[nrecs/4]*1e-3)
 
 	; Apply correction to velocity (mask)
 	njuls = n_elements((*rad_fit_data[data_index]).juls)
