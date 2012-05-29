@@ -40,7 +40,7 @@ radarsite = network[radID].site[s]
 nbeams = network[radID].site[s].maxbeam
 ngates = 65
 rad_define_beams, network[radID].id, nbeams, ngates, yy, yrsec, coords='magn', $
-		/normal, fov_loc_full=fov_loc_full
+		/normal, fov_loc_full=fov_loc_full, fov_loc_center=fov_loc_center
 
 
 ; Set scatter edge finding
@@ -57,6 +57,13 @@ for ib=0,nbeams do begin
 			fov_loc_full[0,p,ib,ig] = tmp[0]
 			fov_loc_full[1,p,ib,ig] = tmp[1]
 		endfor
+		if ib lt nbeams then begin
+			lat = fov_loc_center[0,ib,ig]
+			lon = fov_loc_center[1,ib,ig]
+			tmp = calc_stereo_coords(lat, lon)
+			fov_loc_center[0,ib,ig] = tmp[0]
+			fov_loc_center[1,ib,ig] = tmp[1]
+		endif
 	endfor
 endfor
 
@@ -98,7 +105,8 @@ if keyword_set(rtrun) then begin
 	hist = fltarr(nbeams,ngates+1)
 	rthist = hist
 	parse_date, date, tyy, tmm, tdd
-	rtdate = tyy*10000L+tmm*100L+01
+; 	rtdate = tyy*10000L+tmm*100L+01
+	rtdate = date
 	rt_run, rtdate, radar, time=[0,1200], /no_rays
 	
 	; Find midnight
@@ -136,7 +144,7 @@ if keyword_set(rtrun) then begin
 	; Plot histogram
 	overlay_rt, 0
 	map_plot_panel, xmaps, 1, xmaps-xmap-1, 0, date=date, coords='magn', /iso, /no_fill, yrange=yrange, xrange=xrange, coast_linecolor=1
-	overlay_radar, name=radar, /anno, coords='magn', charsize=.5
+	overlay_radar, name=radar, /anno, coords='magn', charsize=charsize
 
 	; Plot beam-range grid
 	for ib=0,nbeams-1 do begin
@@ -170,7 +178,7 @@ if keyword_set(rtrun) then begin
 	print, pos
 	xyouts, pos[0]+(pos[2]-pos[0])/2., pos[3]*1.03, $
 			STRMID(format_juldate(julmidnight),0,17)+textoidl('\pm')+'3:00 UT', $
-			align=.5, /normal;, charsize=get_charsize(xmaps,1)
+			align=.5, /normal, charsize=charsize;, charsize=get_charsize(xmaps,1)
 	xmap = xmap + 1
 endif
 
@@ -248,7 +256,7 @@ if keyword_set(vel) then begin
 
 	; Plot map
 	map_plot_panel, xmaps, 1, xmaps-xmap-1, 0, date=date, coords='magn', /iso, /no_fill, yrange=yrange, xrange=xrange, coast_linecolor=1
-	overlay_radar, name=radar, /anno, coords='magn', charsize=.5
+	overlay_radar, name=radar, /anno, coords='magn', charsize=charsize
 
 	;loadct, 4, file='/tmp/colors2.tbl'
 	plot_colorbar, xmaps, 1, xmaps-xmap-1, 0, charthick=charthick, /continuous, $
@@ -340,15 +348,18 @@ for ib=0,nbeams-1 do begin
 ; 	if ib eq 12 then print, date, edges[ib,0,0], edges[ib,0,1]
 endfor
 
+if keyword_set(rtrun) then begin
+	contour, hist, reform(fov_loc_center[0,*,*]), reform(fov_loc_center[1,*,*]), /overplot, levels=[0.,.25,.5,.75]
+endif
+
 ; Plot map
 map_plot_panel, xmaps, 1, 0, 0, date=date, coords='magn', /iso, /no_fill, yrange=yrange, xrange=xrange, coast_linecolor=1
-overlay_radar, name=radar, /anno, coords='magn', charsize=.5
+overlay_radar, name=radar, /anno, coords='magn', charsize=charsize
 
 plot_colorbar, xmaps, 1, 0, 0, charthick=charthick, /continuous, $
 	nlevels=4, scale=[0,1], charsize=charsize, $
 	legend='Scatter distribution', /no_rotate, $
 	level_format='(F4.2)', /keep_first_last_label, /horizontal
-
 
 
 

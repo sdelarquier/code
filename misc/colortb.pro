@@ -21,14 +21,14 @@ fgreen = bytarr(256)
 fblue = bytarr(256)
 loadct, 1
 tvlct, red, green, blue, /get
-fred[0:127] = red[128:*]
-fgreen[0:127] = green[128:*]
-fblue[0:127] = blue[128:*]
+fred[128:255] = red[128:*]
+fgreen[128:255] = green[128:*]
+fblue[128:255] = blue[128:*]
 loadct, 3
 tvlct, red, green, blue, /get
-fred[128:255] = reverse(red[128:*])
-fgreen[128:255] = reverse(green[128:*])
-fblue[128:255] = reverse(blue[128:*])
+fred[0:127] = reverse(red[128:*])
+fgreen[0:127] = reverse(green[128:*])
+fblue[0:127] = reverse(blue[128:*])
 fred[0] = 0
 fgreen[0] = 0
 fblue[0] = 0
