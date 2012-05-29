@@ -1,4 +1,4 @@
-pro rt_plot_elevation_season, radar, year
+pro rt_plot_ionoscat_season, radar, year
 
 common rt_data_blk
 common radarinfo

@@ -95,7 +95,7 @@ for ir=0,n_elements(radar)-1 do begin
 	; +1 for North hemisphere, -1 for south
 	hemi = fix( radarsite.geolat/abs(radarsite.geolat) )
 
-	; Calculate stereographic projection and plot
+	; Calculate stereographic projection
 	for ib=0,nbeams do begin
 		for ig=0,ngates do begin
 			for p=0,3 do begin

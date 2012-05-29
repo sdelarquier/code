@@ -17,7 +17,7 @@
 ; DATE: the date for which you want to run the raytracing (for IRI model)
 ; Format is YYYYMMDD
 ;
-; RADAR: the radar code for which you want to run the raytracing
+; RADAR: the radar code for which you want to run the raytracing. Use 'custom' to provide your own radar position and azimuth (using GEOPOS and AZIM)
 ;
 ; KEYWORD PARAMETERS:
 ; BEAM: the beam for which you want to run the raytracing (default is all)
@@ -44,6 +44,10 @@
 ;
 ; OUTDIR: directory where ray-tracing files will be outputed: *.dat contain radar binned results, *.rays contain raw ray paths
 ;
+; NMF2: Electron density at the peak of the f2 layer in log scale [log10(m-3)]. The default value is computed by IRI.
+;
+; HMF2: Height of the f2 layer peak [km]. The default value is computed by IRI.
+;
 ; BACK
 ;
 ; SILENT
@@ -62,83 +66,23 @@
 ;	rt_plot_rti, param=['power','elevation']
 ;
 ; COPYRIGHT:
-; Non-Commercial Purpose License
-; Copyright © November 14, 2006 by Virginia Polytechnic Institute and State University
-; All rights reserved.
-; Virginia Polytechnic Institute and State University (Virginia Tech) owns the DaViT
-; software and its associated documentation (“Software”). You should carefully read the
-; following terms and conditions before using this software. Your use of this Software
-; indicates your acceptance of this license agreement and all terms and conditions.
-; You are hereby licensed to use the Software for Non-Commercial Purpose only. Non-
-; Commercial Purpose means the use of the Software solely for research. Non-
-; Commercial Purpose excludes, without limitation, any use of the Software, as part of, or
-; in any way in connection with a product or service which is sold, offered for sale,
-; licensed, leased, loaned, or rented. Permission to use, copy, modify, and distribute this
-; compilation for Non-Commercial Purpose is hereby granted without fee, subject to the
-; following terms of this license.
-; Copies and Modifications
-; You must include the above copyright notice and this sti=sti, license on any copy or modification
-; of this compilation. Each time you redistribute this Software, the recipient automatically
-; receives a license to copy, distribute or modify the Software subject to these terms and
-; conditions. You may not impose any further restrictions on this Software or any
-; derivative works beyond those restrictions herein.
-; You agree to use your best efforts to provide Virginia Polytechnic Institute and State
-; University (Virginia Tech) with any modifications containing improvements or
-; extensions and hereby grant Virginia Tech a perpetual, royalty-free license to use and
-; distribute such modifications under the terms of this license. You agree to notify
-; Virginia Tech of any inquiries you have for commercial use of the Software and/or its
-; modifications and further agree to negotiate in good faith with Virginia Tech to license
-; your modifications for commercial purposes. Notices, modifications, and questions may
-; be directed by e-mail to Stephen Cammer at cammer@vbi.vt.edu.
-; Commercial Use
-; If you desire to use the software for profit-making or commercial purposes, you agree to
-; negotiate in good faith a license with Virginia Tech prior to such profit-making or
-; commercial use. Virginia Tech shall have no obligation to grant such license to you, and
-; may grant exclusive or non-exclusive licenses to others. You may contact Stephen
-; Cammer at email address cammer@vbi.vt.edu to discuss commercial use.
-; Governing Law
-; This agreement shall be governed by the laws of the Commonwealth of Virginia.
-; Disclaimer of Warranty
-; Because this software is licensed free of charge, there is no warranty for the program.
-; Virginia Tech makes no warranty or representation that the operation of the software in
-; this compilation will be error-free, and Virginia Tech is under no obligation to provide
-; any services, by way of maintenance, update, or otherwise.
-; THIS SOFTWARE AND THE ACCOMPANYING FILES ARE LICENSED “AS IS”
-; AND WITHOUT WARRANTIES AS TO PERFORMANCE OR
-; MERCHANTABILITY OR ANY OTHER WARRANTIES WHETHER EXPRESSED
-; OR IMPLIED. NO WARRANTY OF FITNESS FOR A PARTICULAR PURPOSE IS
-; OFFERED. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF
-; THE PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE,
-; YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR
-; CORRECTION.
-; Limitation of Liability
-; IN NO EVENT WILL VIRGINIA TECH, OR ANY OTHER PARTY WHO MAY
-; MODIFY AND/OR REDISTRIBUTE THE PRORAM AS PERMITTED ABOVE, BE
-; LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL,
-; INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR
-; INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS
-; OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED
-; BY YOU OR THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE
-; WITH ANY OTHER PROGRAMS), EVEN IF VIRGINIA TECH OR OTHER PARTY
-; HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
-; Use of Name
-; Users will not use the name of the Virginia Polytechnic Institute and State University nor
-; any adaptation thereof in any publicity or advertising, without the prior written consent
-; from Virginia Tech in each case.
-; Export License
-; Export of this software from the United States may require a specific license from the
-; United States Government. It is the responsibility of any person or organization
-; contemplating export to obtain such a license before exporting.
+; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+; THE SOFTWARE.
 ;
 ; MODIFICATION HISTORY:
 ; Based on Lasse Clausen, RAD_FIT_READ
 ; Based on Nitya Ravindran, RT
 ; Written by Sebastien de Larquier, Sept. 2010
-;	Last modified 09-2011
+; Last modified 02-2012
 ;-
 pro 	RT_RUN, date, radar, dhour=dhour, ltime=ltime, $
-	time=time, beam=beam, nhop=nhop, azim=azim, $
-	freq=freq, elevstp=elevstp, geopos=geopos, $
+	time=time, beam=beam, nhop=nhop, azim=azim, nmf2=nmf2, hmf2=hmf2, $
+	freq=freq, elev=elev, geopos=geopos, no_weights=no_weights, $
 	back=back, bin=bin, nprocs=nprocs, outdir=outdir, $
 	silent=silent,  force=force, no_ionos=no_ionos, no_rays=no_rays
 
@@ -164,11 +108,8 @@ if ~keyword_set(bin) then $
 if ~keyword_set(nprocs) then $
 	nprocs = 4
 
-if ~keyword_set(elevstp) then $
-	elevstp = .1
-
-if keyword_set(elev) then $
-	elev = [5., 55., elevstp]
+if ~keyword_set(elev) then $
+	elev = [5., 55., .1]
 
 ; Format time parameters
 if ~keyword_set(dhour) then $
@@ -197,17 +138,23 @@ endif else $
 	tz = 'LT'
 
 ; Read radar location and boresight
-if keyword_set(geopos) then begin
-	radar = 'custom'
+if radar eq 'custom' then begin
 	if ~keyword_set(azim) then begin
-		prinfo, 'No azimuth specified.'
-		return
+		prinfo, 'No azimuth specified. Setting it to 0.'
+		azim = 0.
 	endif
-	nbeams = abs(azim[1] - azim[0])/abs(azim[2]) + 1
-	beam = indgen(nbeams+2)
-	radarsite = { $
-				geolat: geopos[0], $
-				geolon: geopos[1]}
+        rad_set_customradar, geopos[0], geopos[1], azim
+	radarsite = network[0].site[0]
+	
+        if n_elements(beam) lt 1 then $
+		beam = indgen(radarsite.maxbeam)
+	if max(beam) ge radarsite.maxbeam then $
+		return
+
+	; Calculate azimuth limits and step
+	azim = [rt_get_azim(radar, beam[0], date[0]), $
+	        	rt_get_azim(radar, beam[n_elements(beam)-1], date[0]), $
+		    	radarsite.bmsep]
 endif else begin
 	radID = where(network.code[0,*] eq radar)
 	tval = TimeYMDHMSToEpoch(year, month, day, shour, sminutes, 0)
@@ -250,11 +197,11 @@ if n_elements(mpdout) gt 1 then begin
 endif
 
 ; Some useful parameters
-ngates 		= 70
-range_gate 	= 180L + 45L*lindgen(ngates+1)
-Re 			= 6370.
-P 			= 180. + findgen(ngates)*45.
-minpower 	= 4.
+ngates		= 70
+range_gate	= 180L + 45L*lindgen(ngates+1)
+Re			= 6370.
+P			= 180. + findgen(ngates)*45.
+minpower	= 4.
 
 ;******************************************************************************************************
 ; Some file management and testing
@@ -264,6 +211,7 @@ if keyword_set(outdir) then begin
 	if strmid(outdir,strlen(outdir)-1,1) ne '/' then $
 		outdir = outdir+'/'
 endif
+
 rtFileTest, date, time, radar, beam=beam, freq=freq, dhour=dhour, nhop=nhop, back=back, ground=no_ionos, code=code, outdir=outdir
 if ~keyword_set(no_rays) then $
 	rtFileTest, date, time, radar, beam=beam, freq=freq, dhour=dhour, nhop=nhop, back=back, /rays, code=rcode, outdir=outdir $
@@ -282,6 +230,11 @@ if ~keyword_set(outdir) then begin
 endif else $
 	dirname = outdir
 
+if keyword_set(nmf2) or keyword_set(hmf2) then begin
+	outdir = '/tmp/'
+	dirname = outdir
+endif
+
 ;**************************************************************************************
 ; Get to the ray-tracing part of this all thing
 ;**************************************************************************************
@@ -296,11 +249,11 @@ IF ~code OR ~rcode OR keyword_set(force) THEN BEGIN
 
 	; Generate input file for fortran code
 	rt_write_input, radarsite.geolat, radarsite.geolon, azim, date[0], hour, $
-			freq=freq, elev=elev, nhop=nhop, $
+			freq=freq, elev=elev, nhop=nhop, nmf2=nmf2, hmf2=hmf2, $
 			outdir=inputdir, filename=filename, silent=silent
 
 	spawn, 'echo "'+inputdir+filename+'" > /tmp/rt_inp_file'
-	spawn, 'mpiexec -n '+strtrim(nprocs, 2)+' '+davit_lib+'/vt/fort/rtmpi/raydarn < /tmp/rt_inp_file'
+	spawn, 'mpiexec -n '+strtrim(nprocs, 2)+' raydarn < /tmp/rt_inp_file'
 
 	; Read data from files to be saved in common block
 ; 	time_mark = systime(/julian, /utc)
@@ -384,7 +337,7 @@ IF ~code OR ~rcode OR keyword_set(force) THEN BEGIN
 			rt_data.azim[hr,b] = azim_beg + b*azim_stp
 
 			; linear power(param%
-			rt_data.lagpower[hr,b,0:ngates-1] = histc(range_sort*1e-3,range_gate, weights=grpran[hr,b,*]^3)
+			rt_data.lagpower[hr,b,0:ngates-1] = histc(range_sort*1e-3,range_gate, weights=1./grpran[hr,b,*]^3)
 
 			; Ground scatter flag
 			gscatterinds = where(rt_data.lagpower[hr,b,*] gt 0., cc)
@@ -393,7 +346,10 @@ IF ~code OR ~rcode OR keyword_set(force) THEN BEGIN
 
 			; ionospheric linear and log power and scatter flag
 			if ~keyword_set(no_ionos) then begin
-				ionoslagpower = histc(ionosrange_sort*1e-3,range_gate, weights=normweights[hr,b,*]);/max(normweights[hr,*,*]))
+				if keyword_set(no_weights) then $
+					ionoslagpower = histc(ionosrange_sort*1e-3,range_gate, weights=1./normran[hr,b,*]^3) $
+				else $
+					ionoslagpower = histc(ionosrange_sort*1e-3,range_gate, weights=normweights[hr,b,*])
 				ionoslagpower2 = histc(ionosrange_sort*1e-3,range_gate, weights=normweights[hr,b,*]/max(normweights[hr,*,*]))
 				ionosinds = where(ionoslagpower2 gt 1e-1,cc)
 				if cc gt 0 then begin
@@ -485,18 +441,22 @@ IF ~code OR ~rcode OR keyword_set(force) THEN BEGIN
 	; Binning parameter
 	rt_info.nhop = nhop
 
+	; Output directory
+	rt_info.outdir = dirname
+
 	; Normalize power distributions
 	if ~keyword_set(no_ionos) then begin
 		ionosinds = where(rt_data.gscatter eq 2b, ccionos)
 		if ccionos gt 0 then begin
 			rt_data.power[ionosinds] = 10.*alog10( rt_data.lagpower[ionosinds]/max(rt_data.lagpower[ionosinds]) )
-			rt_data.power[ionosinds] = rt_data.power[ionosinds]*30./abs(min(rt_data.power[ionosinds]))
+			rt_data.power[ionosinds] = rt_data.power[ionosinds]*30./45.;abs(min(rt_data.power[ionosinds]))
 		endif
 	endif
 	ginds = where(rt_data.gscatter eq 1b, ccgnd)
 	if ccgnd gt 0 then begin
 		rt_data.power[ginds] = 10.*alog10( rt_data.lagpower[ginds]/max(rt_data.lagpower[ginds]) )
 	endif
+	print, max(rt_data.lagpower[ginds]), max(rt_data.lagpower[ionosinds])
 	noinds = where(rt_data.gscatter eq 0, ccno)
 	if ccno gt 0 then $
 		rt_data.power[noinds] = 10000.

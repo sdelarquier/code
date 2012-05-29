@@ -21,8 +21,11 @@ if n_elements(infout) le 2 then begin
 	return
 endif
 
+if ~keyword_set(param) then $
+	param = 'power'
+
 if ~keyword_set(coords) then $
-	coords = get_coordinates()
+	coords = 'rang'
 
 if ~keyword_set(beam) then $
 	beam = rt_data.beam[0,0]
@@ -113,25 +116,21 @@ beaminds = where(rt_data.beam[0,*] eq beam)
 nb = beaminds[0]
 
 ; Find range-gate locations
-if rt_info.name ne 'custom' then begin
-	ajul = (sjul+fjul)/2.d
-	caldat, ajul, mm, dd, year
-	yrsec = (ajul-julday(1,1,year,0,0,0))*86400.d
-	radID = where(network.ID eq rt_info.id)
-	tval = TimeYMDHMSToEpoch(year, mm, dd, 0, 0, 0)
-	for s=0,31 do begin
-		if (network[radID].site[s].tval eq -1) then break
-		if (network[radID].site[s].tval ge tval) then break
-	endfor
-	radarsite = network[radID].site[s]
-	nbeams = network[radID].site[s].maxbeam
-	rad_define_beams, rt_info.id, nbeams, rt_info.ngates, year, yrsec, coords=coords, $
-			/normal, fov_loc_center=fov_loc_center
-	fov_loc_center = reform(fov_loc_center[0,beam,*])
-endif else begin
-	nbeams = n_elements(rt_data.beam[0,*])
-	fov_loc_center = findgen(rt_info.ngates+1)
-endelse
+ajul = (sjul+fjul)/2.d
+caldat, ajul, mm, dd, year
+yrsec = (ajul-julday(1,1,year,0,0,0))*86400.d
+radID = where(network.ID eq rt_info.id)
+tval = TimeYMDHMSToEpoch(year, mm, dd, 0, 0, 0)
+for s=0,31 do begin
+	if (network[radID].site[s].tval eq -1) then break
+	if (network[radID].site[s].tval ge tval) then break
+endfor
+radarsite = network[radID].site[s]
+nbeams = network[radID].site[s].maxbeam
+rad_define_beams, rt_info.id, nbeams, rt_info.ngates, year, yrsec, coords=coords, $
+		/normal, fov_loc_center=fov_loc_center
+fov_loc_center = reform(fov_loc_center[0,beam,*])
+; print, coords, fov_loc_center
 
 ; Determine maximum width to plot scan - to decide how big a 'data gap' has to
 ; be before it really is a data gap.  Default to 5 minutes
@@ -178,7 +177,54 @@ if keyword_set(trend) AND param eq 'power' then begin
 	trendARR = dindgen(tsteps,2)
 endif
 
-; aspect = abs(90. - median(reform(rt_data.aspect[*,nb,*]),2))
+
+if keyword_set(sun) then begin
+	sunlinecol = 190
+	; plot sunrise/sunset/solar noon
+	loadct, 0
+	rad_calc_sunset, date, rt_info.name, beam, rt_info.ngates, $
+		risetime=risetime, settime=settime
+
+	toverflow = where(risetime lt sjul, cc, complement=tunderflow, ncomplement=cccomp)
+	if cc gt 0 then $
+		risetime[toverflow] = risetime[toverflow]+1.d
+	toverflow = where(settime gt fjul, cc, complement=tunderflow, ncomplement=cccomp)
+	if cc gt 0 then $
+		settime[toverflow] = settime[toverflow]-1.d
+	toutbound = where(risetime gt fjul, cc)
+	if cc gt 0 then $
+		risetime[toutbound] = 0.
+	toutbound = where(settime lt sjul, cc)
+	if cc gt 0 then $
+		settime[toutbound] = 0.
+
+
+	for ig=0,n_elements(risetime)-2 do begin
+		if fov_loc_center[ig+1] le yrange[1] and fov_loc_center[ig] ge yrange[0] then begin
+			ylims_night = fov_loc_center[ig]*[1,0,0,1] + fov_loc_center[ig+1]*[0,1,1,0]
+
+			if settime[ig+1] lt risetime[ig+1] then begin
+				if settime[ig] ge risetime[ig] then continue
+				xlims_night = [settime[ig:ig+1], reverse(risetime[ig:ig+1])]
+				if settime[ig+1] eq 0. or settime[ig] eq 0. then $
+					xlims_night = [xrange[0]*[1,1], reverse(risetime[ig:ig+1])]
+				if risetime[ig+1] ne 0. and risetime[ig] ne 0. then $
+					polyfill, xlims_night, ylims_night , col=sunlinecol*1.2
+			endif
+			if settime[ig+1] gt risetime[ig+1] then begin
+				if settime[ig] le risetime[ig] then continue
+				xlims_night = [xrange[0]*[1,1], reverse(risetime[ig:ig+1])]
+				if risetime[ig] ne 0. and risetime[ig+1] ne 0. then $
+					polyfill, xlims_night, ylims_night , col=sunlinecol*1.2
+				xlims_night = [settime[ig:ig+1], xrange[1]*[1,1]]
+				polyfill, xlims_night, ylims_night , col=sunlinecol*1.2
+			endif
+		endif
+	endfor
+
+	nleg = 0
+	loadct, 0, file='/tmp/colors2.tbl'
+endif
 
 ; overplot data
 FOR nt=0, tsteps-1 DO BEGIN
@@ -198,12 +244,14 @@ FOR nt=0, tsteps-1 DO BEGIN
 				continue
 			if keyword_set(ionos) and rt_data.gscatter[nt,nb,r] eq 1b then $
 				continue
+			if rt_data.gscatter[nt,nb,r] eq 0b then $
+				continue
 
 			if ~keyword_set(data) and ~keyword_set(contour) then begin
 				; get color
 				color_ind = (MAX(where(lvl le ((ydata[nt,nb,r] > scale[0]) < scale[1]))) > 0)
 				col = cin[color_ind]
-
+				
 				; finally plot the point
 				POLYFILL,[start_time,start_time,end_time,end_time], $
 						[fov_loc_center[r],fov_loc_center[r+1], $
@@ -250,8 +298,8 @@ FOR nt=0, tsteps-1 DO BEGIN
 
 ENDFOR
 ; Plot first range gate
-loadct, 0
-oplot, [xdata[0],xdata[tsteps-1]], fov_loc_center[0]*[1,1], linestyle=0, col=0, thick=2
+; loadct, 0
+oplot, xrange, fov_loc_center[0]*[1,1], linestyle=0, col=0, thick=2
 loadct, 0, file='/tmp/colors2.tbl'
 
 if keyword_set(data) or keyword_set(contour) then begin
@@ -263,37 +311,19 @@ if keyword_set(data) or keyword_set(contour) then begin
 endif
 
 if keyword_set(sun) then begin
-        sunlinecol = 190
 	; plot sunrise/sunset/solar noon
 	loadct, 0
-	rad_calc_sunset, date, rt_info.name, beam, rt_info.ngates, $
-		risetime=risetime, settime=settime
-		
-	toverflow = where(risetime lt sjul, cc, complement=tunderflow, ncomplement=cccomp)
-	if cc gt 0 then begin
-		risetime[toverflow] = risetime[toverflow]+1.d
-		oplot, risetime[toverflow], fov_loc_center[toverflow], linestyle=2, thick=3, col=sunlinecol
-		if cccomp gt 0. then $
-			oplot, risetime[tunderflow], fov_loc_center[tunderflow], linestyle=2, thick=3, col=sunlinecol
-	endif else $
-		oplot, risetime, fov_loc_center, linestyle=2, thick=3, col=sunlinecol
-	toverflow = where(settime gt fjul, cc, complement=tunderflow, ncomplement=cccomp)
-	if cc gt 0 then begin
-		settime[toverflow] = settime[toverflow]-1.d
-		oplot, settime[toverflow], fov_loc_center[toverflow], linestyle=2, thick=3, col=sunlinecol
-		if cccomp gt 0. then $
-			oplot, settime[tunderflow], fov_loc_center[tunderflow], linestyle=2, thick=3, col=sunlinecol
-	endif else $
-		oplot, settime, fov_loc_center, linestyle=2, thick=3, col=sunlinecol
 
-	nleg = 0
-	xyouts, risetime[nleg], fov_loc_center[nleg]-(fov_loc_center[nleg+1]-fov_loc_center[nleg])*2., 'Sunrise', align=.5, col=sunlinecol, charsize=charsize
-	xyouts, settime[nleg], fov_loc_center[nleg]-(fov_loc_center[nleg+1]-fov_loc_center[nleg])*2., 'Sunset', align=.5, col=sunlinecol, charsize=charsize
-; 	caldat, risetime[nleg], month, day, year, hour, minute
-; 	print, 'Rise: ', year*10000L+month*100L+day, hour*100L+minute
-; 	caldat, settime[nleg], month, day, year, hour, minute
-; 	print, 'Set: ', year*10000L+month*100L+day, hour*100L+minute
-	
+	tinbound = where(risetime ne 0., cc)
+	if cc gt 0. then $
+		oplot, risetime[tinbound], fov_loc_center[tinbound], linestyle=2, thick=3, col=sunlinecol
+	tinbound = where(settime ne 0., cc)
+	if cc gt 0. then $
+		oplot, settime[tinbound], fov_loc_center[tinbound], linestyle=2, thick=3, col=sunlinecol
+
+; 	xyouts, risetime[nleg], fov_loc_center[nleg]-(fov_loc_center[nleg+1]-fov_loc_center[nleg])*2., 'Sunrise', align=.5, col=sunlinecol, charsize=charsize
+; 	xyouts, settime[nleg], fov_loc_center[nleg]-(fov_loc_center[nleg+1]-fov_loc_center[nleg])*2., 'Sunset', align=.5, col=sunlinecol, charsize=charsize
+
 	loadct, 0, file='/tmp/colors2.tbl'
 endif
 
@@ -324,10 +354,13 @@ endif
 
 ; Overlay grid if required
 if keyword_set(grid) then begin
-	_gridstyle = 2
+	_gridstyle = 1
 	_xticklen = 1.
 	_yticklen = 1.
-endif
+endif else begin
+	_xticklen = -.02
+	_yticklen = -.02
+endelse
 
 ; "over"plot axis
 plot, [0,0], /nodata, position=position, $

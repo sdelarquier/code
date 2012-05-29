@@ -30,80 +30,20 @@
 ; EXAMPLE:
 ;
 ; COPYRIGHT:
-; Non-Commercial Purpose License
-; Copyright © November 14, 2006 by Virginia Polytechnic Institute and State University
-; All rights reserved.
-; Virginia Polytechnic Institute and State University (Virginia Tech) owns the DaViT
-; software and its associated documentation (“Software”). You should carefully read the
-; following terms and conditions before using this software. Your use of this Software
-; indicates your acceptance of this license agreement and all terms and conditions.
-; You are hereby licensed to use the Software for Non-Commercial Purpose only. Non-
-; Commercial Purpose means the use of the Software solely for research. Non-
-; Commercial Purpose excludes, without limitation, any use of the Software, as part of, or
-; in any way in connection with a product or service which is sold, offered for sale,
-; licensed, leased, loaned, or rented. Permission to use, copy, modify, and distribute this
-; compilation for Non-Commercial Purpose is hereby granted without fee, subject to the
-; following terms of this license.
-; Copies and Modifications
-; You must include the above copyright notice and this license on any copy or modification
-; of this compilation. Each time you redistribute this Software, the recipient automatically
-; receives a license to copy, distribute or modify the Software subject to these terms and
-; conditions. You may not impose any further restrictions on this Software or any
-; derivative works beyond those restrictions herein.
-; You agree to use your best efforts to provide Virginia Polytechnic Institute and State
-; University (Virginia Tech) with any modifications containing improvements or
-; extensions and hereby grant Virginia Tech a perpetual, royalty-free license to use and
-; distribute such modifications under the terms of this license. You agree to notify
-; Virginia Tech of any inquiries you have for commercial use of the Software and/or its
-; modifications and further agree to negotiate in good faith with Virginia Tech to license
-; your modifications for commercial purposes. Notices, modifications, and questions may
-; be directed by e-mail to Stephen Cammer at cammer@vbi.vt.edu.
-; Commercial Use
-; If you desire to use the software for profit-making or commercial purposes, you agree to
-; negotiate in good faith a license with Virginia Tech prior to such profit-making or
-; commercial use. Virginia Tech shall have no obligation to grant such license to you, and
-; may grant exclusive or non-exclusive licenses to others. You may contact Stephen
-; Cammer at email address cammer@vbi.vt.edu to discuss commercial use.
-; Governing Law
-; This agreement shall be governed by the laws of the Commonwealth of Virginia.
-; Disclaimer of Warranty
-; Because this software is licensed free of charge, there is no warranty for the program.
-; Virginia Tech makes no warranty or representation that the operation of the software in
-; this compilation will be error-free, and Virginia Tech is under no obligation to provide
-; any services, by way of maintenance, update, or otherwise.
-; THIS SOFTWARE AND THE ACCOMPANYING FILES ARE LICENSED “AS IS”
-; AND WITHOUT WARRANTIES AS TO PERFORMANCE OR
-; MERCHANTABILITY OR ANY OTHER WARRANTIES WHETHER EXPRESSED
-; OR IMPLIED. NO WARRANTY OF FITNESS FOR A PARTICULAR PURPOSE IS
-; OFFERED. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF
-; THE PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE,
-; YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR
-; CORRECTION.
-; Limitation of Liability
-; IN NO EVENT WILL VIRGINIA TECH, OR ANY OTHER PARTY WHO MAY
-; MODIFY AND/OR REDISTRIBUTE THE PRORAM AS PERMITTED ABOVE, BE
-; LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL,
-; INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR
-; INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS
-; OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED
-; BY YOU OR THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE
-; WITH ANY OTHER PROGRAMS), EVEN IF VIRGINIA TECH OR OTHER PARTY
-; HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
-; Use of Name
-; Users will not use the name of the Virginia Polytechnic Institute and State University nor
-; any adaptation thereof in any publicity or advertising, without the prior written consent
-; from Virginia Tech in each case.
-; Export License
-; Export of this software from the United States may require a specific license from the
-; United States Government. It is the responsibility of any person or organization
-; contemplating export to obtain such a license before exporting.
+; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+; THE SOFTWARE.
 ;
 ; MODIFICATION HISTORY:
 ; Written by Sebastien de Larquier, Nov.2010
 ;-
 PRO	rt_plot_rays, time, date=date, beam=beam, blines=blines, refl=refl, gates=gates, hm=hm, $
 			rthick=rthick, ps=ps, scale=scale, scatter=scatter, gscatter=gscatter, nhop=nhop, back=back, $
-			dirname=dirname
+			maxr=maxr, maxh=maxh, dirname=dirname
 
 common rt_data_blk
 
@@ -115,6 +55,10 @@ endif
 
 Rav = 6370.
 
+; Check if a special output directory was specified
+if ~keyword_set(dirname) and ~(rt_info.outdir eq '/sd-data/rt/') then $
+	dirname = rt_info.outdir
+
 if ~keyword_set(rthick) then $
 	rthick = 1
 
@@ -123,8 +67,13 @@ if ~keyword_set(beam) then begin
 	ib = 0
 	beam = rt_data.beam[0,ib]
 endif
-binds = where(rt_data.beam[0,*] eq beam)
-ib = binds[0]
+binds = where(rt_data.beam[0,*] eq beam, cc)
+if cc gt 0 then $
+	ib = binds[0] $
+else begin
+	ib = 0
+	beam = rt_data.beam[0,ib]
+endelse
 
 ; Retrieve raytracing parameters from structure
 radar = rt_info.name
@@ -163,8 +112,10 @@ endif else begin
 endelse
 
 ; Generate plotting area
-maxr = 2000.
-maxh = 500.
+if ~keyword_set(maxr) then $
+    maxr = 2000.
+if ~keyword_set(maxh) then $
+    maxh = 500.
 tht0 = maxr/Rav/2.
 xmin = -(Rav + maxh) * sin (tht0)
 xmax = (Rav + maxh) * sin (tht0)
@@ -233,8 +184,11 @@ for nr=0,nrays-1,10 do begin
 					radpos[nr,ns]*1e-3*cos(-tht0 + thtpos[nr,ns])]
 		if thtpos[nr,ns] lt maxr/Rav then $
 			oplot, xx, yy, thick=rthick, color=100
-        endfor
+; 		if nr eq 100 then print, radpos[nr,ns-1]*1e-3-Rav, grppth[nr,ns-1]*1e-3, asin( (radpos[nr,ns]^2 - radpos[nr,ns-1]^2 - (grppth[nr,ns]-grppth[nr,ns-1])^2)/(2.*radpos[nr,ns-1]*(grppth[nr,ns]-grppth[nr,ns-1])) )*!radeg, thtpos[nr,ns-1]+(rt_info.elev_beg+nr*rt_info.elev_stp)
+	endfor
 	; finds ray touching ground and max reflection altitude
+	if nrsteps le 3 then $
+			continue
 	if min(radpos[nr,2:nrsteps-1]*1e-3) le Rav+0.1 and max(radpos[nr,2:nrsteps-1]*1e-3) gt hmax then begin
 		hmax = max(radpos[nr,2:nrsteps-1]*1e-3)
 		indmax = [nr, where(radpos[nr,2:nrsteps-1]*1e-3 eq hmax)]
@@ -275,7 +229,7 @@ if keyword_set(refl) then begin
 	for nr=0,nrays-1 do begin
 		nrsteps = raysteps[nr]
 		for ns=1,nrsteps-1 do begin
-			if grppth[nr,ns-1] gt 180e3 and thtpos[nr,ns] lt maxr/Rav and radpos[nr,ns]*1e-3 gt Rav+80. then begin
+			if grppth[nr,ns-1] gt 0e3 and thtpos[nr,ns] lt maxr/Rav and radpos[nr,ns]*1e-3 gt Rav+80. then begin
 
 				; Calculate k vector
 				kx = radpos[nr,ns]*sin(thtpos[nr,ns]-thtpos[nr,ns-1])
@@ -470,14 +424,14 @@ xyouts, .5 * (xmin + xmax), ymin - .1 * (ymax - ymin), 'Range [km]', $
 ; Date and time
 caldat, rt_data.juls[timeind], mm, dd, yy, hr, mn
 radarlt = ( (hr + mn/60.) + ((360.+rt_info.glon) mod 360.)*24./360. ) mod 24.
-print, radarlt, ((360.+rt_info.glon) mod 360.), (hr + mn/60.)
+; print, radarlt, ((360.+rt_info.glon) mod 360.), (hr + mn/60.)
 xyouts, .5 * (xmin + xmax), ymax + .2*(ymax - ymin), $
 	STRMID(format_juldate(rt_data.juls[timeind]),0,17)+' UT'+ $
-	' ('+strtrim(floor(radarlt),2)+':'+strtrim(round((radarlt-floor(radarlt))*6.)*10,2)+' LT)', $
+	' ('+strtrim(string(floor(radarlt),format='(I02)'),2)+':'+strtrim(string(round((radarlt-floor(radarlt))*6.)*10,format='(I02)'),2)+' LT)', $
 	align=0.5, charsize=charsize, charthick=charthick
 ; Radar info
 subtitle = '(IRI-2011) - Radar: '+rt_info.name+', Beam '+STRTRIM(beam,2)+', Freq. '+$
-	STRTRIM(string(rt_data.tfreq[timeind],format='(F5.2)'),2)+' MHz'
+	STRTRIM(string(rt_data.tfreq[timeind],format='(F5.1)'),2)+' MHz'
 xyouts, .5 * (xmin + xmax), ymax + .1*(ymax - ymin), $
 	subtitle, align=0.5, charsize=charsize, charthick=charthick
 

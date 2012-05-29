@@ -26,6 +26,8 @@ mmdd = 0L
 hour_beg = 0.
 hour_end = 0.
 hour_stp = 0.
+hmf2 = 0.
+nmf2 = 0.
 nhour = 0L
 nazim = 0L
 nelev = 0L
@@ -42,7 +44,7 @@ openr, unit, filename, /get_lun
 READU, unit, $
 	txlat, txlon, azim_beg, azim_end, azim_stp, $
 	elev_beg, elev_end, elev_stp, freq, nhop, $
-	year, mmdd, hour_beg, hour_end, hour_stp
+	year, mmdd, hour_beg, hour_end, hour_stp, hmf2, nmf2
 READU, unit, nhour, nazim, nelev
 
 ; Save unit position
@@ -147,9 +149,9 @@ for nh=0,nhour-1 do begin
 								reform(nrsave[nh,na,nel,0:nrstepsave[nh,na,nel]-1])
 			endif
 		endfor
+	    free_lun, tmpout
 	endfor
 
-	free_lun, tmpout
 endfor
 
 

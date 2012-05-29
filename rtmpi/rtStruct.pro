@@ -36,13 +36,13 @@ end
 ; - no arrays with more than 1 dimension in rt_info
 ; ********************************************************************
 pro	rtStructInit, nhour, nazim, ngates, rt_data, rt_info
-	start_mem = memory(/current)
+	if nazim eq 1 then naz = nazim + 1 else naz = nazim
 		
 	rt_data = { $
 		juls: dblarr(nhour), $
 		tfreq: fltarr(nhour), $
-		beam: intarr(nhour,nazim), $
-		azim: fltarr(nhour,nazim), $
+		beam: intarr(nhour,naz), $
+		azim: fltarr(nhour,naz), $
 		lagpower: fltarr(nhour,nazim,ngates), $
 		power: fltarr(nhour,nazim,ngates), $
 		gscatter: bytarr(nhour,nazim,ngates), $
@@ -73,7 +73,8 @@ pro	rtStructInit, nhour, nazim, ngates, rt_data, rt_info
 		elev_end: 0., $
 		elev_stp: 0., $
 		bin: '', $
-		nhop: 0L $
+		nhop: 0L, $
+		outdir: ''$
 	}
 
 end
@@ -96,7 +97,7 @@ function rtFileName, date, time, radar, beam=beam, freq=freq, nhop=nhop, back=ba
 	if n_elements(beam) eq 1 then $
 		strsupl = strsupl + '.'  + strtrim(string(beam, format='(I02)'), 2)
 	if n_elements(freq) eq 1 then $
-		strsupl = strsupl + '.'  + strtrim(string(freq, format='(I02)'), 2)
+		strsupl = strsupl + '.'  + strtrim(string(freq, format='(I3)'), 2)
 	if n_elements(nhop) eq 1 then $
 		strsupl = strsupl + '.'  + strtrim(string(nhop, format='(I1)'), 2) + 'hop'
 	if n_elements(ground) eq 1 then $
@@ -110,7 +111,7 @@ function rtFileName, date, time, radar, beam=beam, freq=freq, nhop=nhop, back=ba
 		file = strdate + '.' + strtime + '.' + radar + strsupl + '.rays'
 
 	filename = dir + file
- 	print, filename
+; 	print, filename
 
 	return, filename
 	
@@ -135,8 +136,8 @@ pro	rtWriteStruct, rt_data, rt_info, rt_rays, ground=ground, code=code, outdir=o
 	endif
 
 	; Read number of steps
-	ntime = n_elements(rt_data.power[*,0,0,0])
-	nazim = n_elements(rt_data.power[0,*,0,0])
+	ntime = n_elements(rt_data.power[*,0,0])
+	nazim = n_elements(rt_data.power[0,*,0])
 
 	for nh=0,ntime-1 do begin
 
@@ -145,10 +146,10 @@ pro	rtWriteStruct, rt_data, rt_info, rt_rays, ground=ground, code=code, outdir=o
 
 		for nb=0,nazim-1 do begin
 			beam = rt_data.beam[nh,nb] 
-			freq = rt_data.tfreq[nh,nb]
+			freq = rt_data.tfreq[nh]
 
 			; name fit file
-			output = rtFileName(year*10000L+month*100L+day, hour*100L+minute, rt_info.name, beam=rt_data.beam[nh,nb], freq=rt_data.tfreq[nh,nb], nhop=rt_info.nhop, ground=ground, outdir=outdir)
+			output = rtFileName(year*10000L+month*100L+day, hour*100L+minute, rt_info.name, beam=rt_data.beam[nh,nb], freq=rt_data.tfreq[nh], nhop=rt_info.nhop, ground=ground, outdir=outdir)
 
 			; open fit file
 			openw, unit, output, /get_lun
@@ -190,7 +191,7 @@ end
 ; ********************************************************************
 pro	rtReadStruct, date, time, radar, beams, freq, rt_data, rt_info, dhour=dhour, nhop=nhop, back=back, ground=ground, code=code, outdir=outdir
 
-	parse_date, date, year, month, day
+	parse_date, date[0], year, month, day
 	parse_time, time, shour, sminute, fhour, fminute
 
 	if ~keyword_set(dhour) then $
@@ -199,7 +200,7 @@ pro	rtReadStruct, date, time, radar, beams, freq, rt_data, rt_info, dhour=dhour,
 	; find number of files
 	if fhour gt 0 then begin
 		if fhour le shour then $
-			nfiles = ceil( (fhour+fminute/60.)/dhour + (24. - (shour+sminute/60.)/dhour) ) $
+			nfiles = ceil( (fhour+fminute/60.)/dhour + (24./dhour - (shour+sminute/60.)/dhour) ) $
 		else $
 			nfiles = ceil( (fhour+fminute/60. - shour+sminute/60.)/dhour )
 	endif else $
@@ -226,7 +227,7 @@ pro	rtReadStruct, date, time, radar, beams, freq, rt_data, rt_info, dhour=dhour,
 	nelem = 0L
 
 	; cycle through files
-	tdate = date
+	tdate = date[0]
 	nh = 0L
 	hour = shour
 	for nf=1,nfiles do begin
@@ -238,8 +239,8 @@ pro	rtReadStruct, date, time, radar, beams, freq, rt_data, rt_info, dhour=dhour,
 
 		for nb=0,nazim-1 do begin
 			; name fit file
-			input = rtFileName(date, floor(hour)*100L+round((hour-floor(hour))*60.), radar, beam=beams[nb], freq=freq, nhop=nhop, back=back, ground=ground, outdir=outdir)
-		
+			input = rtFileName(tdate, floor(hour)*100L+round((hour-floor(hour))*60.), radar, beam=beams[nb], freq=freq, nhop=nhop, back=back, ground=ground, outdir=outdir)
+
 			; test for file
 			code = file_test(input, /read)
 			if ~code then $
@@ -265,6 +266,8 @@ pro	rtReadStruct, date, time, radar, beams, freq, rt_data, rt_info, dhour=dhour,
 				tnelem = lonarr(ndims)
 				readu, unit, tnelem
 				tnelem[0] = 1
+        if ndims gt 1 then $
+				    tnelem[1] = 1
 				temp = make_array(tnelem, type=ttype)
 				readu, unit, temp
 				case ndims of
@@ -274,9 +277,9 @@ pro	rtReadStruct, date, time, radar, beams, freq, rt_data, rt_info, dhour=dhour,
 					4: temp_rt_data.(n)[nh,nb,0:tnelem[2]-1,0:tnelem[3]-1] = temp
 				endcase
 			endfor
-
+			
 		free_lun, unit
-		endfor		
+		endfor
 		
 		nh = nh + 1
 		hour = hour + dhour
@@ -318,37 +321,37 @@ pro rtFileTest, date, time, radar, beam=beam, freq=freq, dhour=dhour, nhop=nhop,
 	if ~keyword_set(dhour) then $
 		dhour = .5
 
-	parse_date, date, year, month, day
+	parse_date, date[0], year, month, day
 	parse_time, time, shour, sminute, fhour, fminute
 
 	; find number of files
 	if fhour gt 0 then begin
 		if fhour le shour then $
-			nfiles = ceil( (fhour+fminute/60.)/dhour + (24. - (shour+sminute/60.)/dhour) ) $
+			nfiles = ceil( (fhour+fminute/60.)/dhour + (24./dhour - (shour+sminute/60.)/dhour) ) $
 		else $
 			nfiles = ceil( (fhour+fminute/60. - shour+sminute/60.)/dhour )
 	endif else $
 		nfiles = 1
-	
+
 	; cycle through files
-	tdate = date
+	tdate = date[0]
 	nh = 0L
 	hour = shour
 	for nf=1,nfiles do begin
 		for nb=0,n_elements(beam)-1 do begin
-			input = rtFileName(date, floor(hour)*100L+round((hour-floor(hour))*60.), radar, beam=beam[nb], freq=freq, nhop=nhop, back=back, ground=ground, rays=rays, outdir=outdir)
+			input = rtFileName(tdate, floor(hour)*100L+round((hour-floor(hour))*60.), radar, beam=beam[nb], freq=freq, nhop=nhop, back=back, ground=ground, rays=rays, outdir=outdir)
 
 			; test for file
 			code = file_test(input, /read)
 			if ~code then $
 				return
 
-			hour = hour + dhour
-			if hour ge 24. then begin
-				hour = hour - 24.
-				tdate = calc_date(tdate, 1)
-			endif
 		endfor
+		hour = hour + dhour
+		if hour ge 24. then begin
+			hour = hour - 24.
+			tdate = calc_date(tdate, 1)
+	    	endif
 	endfor
 
 end

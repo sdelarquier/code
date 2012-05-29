@@ -35,27 +35,30 @@ c                  = 8      hour (UT or LT)
 
 	implicit none
 	integer(4)        :: i,ivar,nvar,nsteps
-	integer(4)				:: jmag,jf(30),iut
+	integer(4)				:: jmag,jf(50),iut
 	integer(4)        :: iyyyy,mmdd
 	real(4)						:: vbeg,vend,vstp,dhour
 	real(4)           :: lati,longi,alti,h_tec_max
-	real(4)           :: a(20,500),b(50,500)
+	real(4)           :: a(20,1000),b(100,1000)
 
 	read(5,*),lati,longi,alti,iyyyy,mmdd,iut,dhour,ivar,vbeg,vend,vstp
 
 ! Input choices for iri_sub
-	do i=1,30
-	  jf(i)=.true.
+	do i=1,50
+	   jf(i) = .true.
 	enddo
-	jf(2) = .false.               ! no temperatures
+	jf(2) = .true.               ! no temperatures
 	jf(3) = .false.               ! no ion composition
 	jf(5) = .false.               ! URSI foF2 model
 	jf(6) = .false.               ! Newest ion composition model
-	jf(12) = .false.              ! suppress messages to unit 6
-	jf(23) = .false.              ! TTS Te model is standard
-	jf(26) = .true.              ! STORM model turned OFF
+	jf(21) = .false.              ! ion drift not computed
+	jf(23) = .false.              ! Te topside (TBT 2011)
+	jf(26) = .false.              ! no fof2 storm updating
 	jf(29) = .false.              ! New Topside options
 	jf(30) = .false.              ! NeQuick topside
+	jf(33) = .false.               ! Do not calcultae auroral boundary
+	jf(34) = .false.              ! Messages off
+	jf(35) = .false.              ! no foE storm updating
 
 ! Geographic or Geomagnetic coords
 	jmag = 0
@@ -79,6 +82,9 @@ c                  = 8      hour (UT or LT)
 	write(66,100)(b(1,nvar), nvar=1,500)
 	write(66,100)(b(2,nvar), nvar=1,500)
 	write(66,100)(b(37,nvar), nvar=1,500)
+	write(66,100)(a(2,nvar), nvar=1,500)
+	write(66,100)(a(3,nvar), nvar=1,500)
+	write(66,100)(a(4,nvar), nvar=1,500)
 	CLOSE(66)
 
 
