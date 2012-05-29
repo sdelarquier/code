@@ -1,7 +1,7 @@
 ;- Plots a field of view representation of power for a given radar and day and given time
 ;
 ; Last update: Feb, 23, 2012
-pro rad_fit_plot_ionoscat_scan, date, time, radar, ps=ps, xrange=xrange, yrange=yrange, showbeam=showbeam, vel=vel
+pro rad_fit_plot_ionoscat_scan2, date, time, radar, ps=ps, xrange=xrange, yrange=yrange, showbeam=showbeam
 
 common radarinfo
 common rad_data_blk
@@ -59,11 +59,12 @@ endif else if abs(xrange[1]-xrange[0]) lt abs(yrange[1]-yrange[0]) then begin
 	xrange[0] = xrange[0] - ext/2.
 endif
 
-if keyword_set(vel) then $
+if keyword_set(rt) and keyword_set(vel) then $
+	xmaps = 3 $
+else if keyword_set(rt) or keyword_set(vel) then $
 	xmaps = 2 $
 else $
 	xmaps = 1
-charsize = get_charsize(xmaps,1)*1.5
 ; Initilalize position
 xmap = 0
 
@@ -71,7 +72,6 @@ xmap = 0
 ;*******************************************
 ; Radar: SCATTER 
 ;*******************************************
-; loadct, 0, file='/tmp/colors2.tbl'
 parse_date, date, yy, mm, dd
 parse_time, time, hr, mn
 jultime = julday(mm, dd, yy, hr, mn)
@@ -152,91 +152,9 @@ overlay_radar, name=radar, /anno, coords='magn', charsize=.5
 plot_colorbar, xmaps, 1, 0, 0, charthick=charthick, $
 	nlevels=8, scale=scale, charsize=charsize, $
 	legend='Power [dB]', /no_rotate, $
-	level_format='(I4)', /keep_first_last_label, /horiz
+	level_format='(I4)', /keep_first_last_label, /vert
 
-
-;- Velocity plot
-if keyword_set(vel) then begin
-	map_plot_panel, xmaps, 1, 1, 0, date=date, coords='magn', /iso, /no_fill, yrange=yrange, xrange=xrange, coast_linecolor=1
-
-	; get color preferences
-	scale = [-50,50]
-	foreground  = get_foreground()
-	color_steps = get_colorsteps()
-	ncolors     = get_ncolors()
-	bottom      = get_bottom()
-
-	; Set color bar and levels
-	cin = FIX(FINDGEN(color_steps)/(color_steps-1.)*(ncolors-1))+bottom
-	lvl = scale[0]+FINDGEN(color_steps)*(scale[1]-scale[0])/color_steps
-
-	; Plot beam-range grid
-; 	loadct, 1, file='/tmp/colors2.tbl'
-	for ib=0,nbeams-1 do begin
-		binds = where((*rad_fit_data[data_index]).beam eq ib and $
-					(*rad_fit_data[data_index]).juls ge jultime and $
-					(*rad_fit_data[data_index]).tfreq ge 10e3 and $
-					(*rad_fit_data[data_index]).tfreq le 12e3, ccinds)
-		if ccinds gt 0 then begin
-			vel = (*rad_fit_data[data_index]).velocity[binds,*]
-		endif else begin
-			binds = 0
-			vel = fltarr(1,ngates+1) + 10000.
-		endelse
-		for ig=0,ngates do begin
-			xx = fov_loc_full[0,*,ib,ig]
-			yy = fov_loc_full[1,*,ib,ig]
-			if vel[0,ig] ne 10000. then begin;and scat[0,ig] eq 0b then begin
-; 				color_ind = (MAX(where(lvl le ((vel[0,ig] > scale[0]) < scale[1]))) > 0)
-; 				col = cin[color_ind]
-				col = get_color_index(vel[0,ig], param='velocity', scale=scale, sc_values=sc_values)
-
-				polyfill, xx, yy, col=col
-			endif
-	; 		plots, [xx, xx[0]], [yy, yy[0]], thick=1
-			if (ib eq nbeams-1) then $
-				plots, xx[1:2], yy[1:2];, thick=2, col=200
-			if ~(ib mod 4) then $
-				plots, [xx[0],xx[3]], [yy[0],yy[3]];, thick=2, col=200
-			if ~(ig mod 5) then $
-				plots, xx[0:1], yy[0:1];, thick=2, col=200
-			if (ig eq ngates-1) then $
-				plots, xx[2:3], yy[2:3];, thick=2, col=200
-			if (ib eq 20) then begin
-				plots, xx[1:2], yy[1:2], thick=2
-				plots, [xx[0],xx[3]], [yy[0],yy[3]], thick=2
-			endif
-		endfor
-	endfor
-; 	loadct, 0, file='/tmp/colors2.tbl'
-
-
-	if n_elements(showbeam) eq 1 then begin
-		for ib=0,nbeams-1 do begin
-			for ig=0,ngates do begin
-				xx = fov_loc_full[0,*,ib,ig]
-				yy = fov_loc_full[1,*,ib,ig]
-				if (ib eq showbeam) then begin
-					plots, xx[1:2], yy[1:2], thick=2
-					plots, [xx[0],xx[3]], [yy[0],yy[3]], thick=2
-				endif
-			endfor
-		endfor
-	endif
-
-	; Plot map
-	map_plot_panel, xmaps, 1, 1, 0, date=date, coords='magn', /iso, /no_fill, yrange=yrange, xrange=xrange, coast_linecolor=1
-	overlay_radar, name=radar, /anno, coords='magn', charsize=.5
-
-; 	loadct, 1, file='/tmp/colors2.tbl'
-	plot_colorbar, xmaps, 1, 1, 0, charthick=charthick, $
-		nlevels=8, scale=scale, charsize=charsize, $
-		legend='Velocity [m/s]', $
-		level_format='(I4)', /keep_first_last_label, /horiz
-; 	loadct, 0, file='/tmp/colors2.tbl'
-endif
-
-xyouts, .5, .9, $
+xyouts, .5, .88, $
 		radar+', '+STRMID(format_juldate(jultime),0,17), $
 		align=.5, /normal, charsize=charsize
 

@@ -54,13 +54,11 @@ function CALC_AZEL, lati, longi, azim, elev, gaz, gel
 	kxg = cos(elev*!dtor) * sin(azim*!dtor)
 	kyg = cos(elev*!dtor) * cos(azim*!dtor)
 	kzg = sin(elev*!dtor)
-	if ~(azim mod 180.) then kxg = 0.
-	if ~(elev+90. mod 180.) then kzg = 0.
 
 ; ! Correction to the k-vector due to oblateness
 	kxr = kxg
-	kyr = kyg * cos(del*!dtor) + kzg * sin(del*!dtor)
-	kzr = -kyg * sin(del*!dtor) + kzg * cos(del*!dtor)
+	kyr = kyg * cos(del*!dtor) + kzg * cos(del*!dtor)
+	kzr = -kyg * sin(del*!dtor) + kzg * sin(del*!dtor)
 
 ; ! Finally compute corrected elevation and azimuth
 	gaz = atan(kxr,kyr) * !radeg

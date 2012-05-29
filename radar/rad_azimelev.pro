@@ -20,7 +20,7 @@ beams = indgen(radarsite.maxbeam)
 azim = fltarr(radarsite.maxbeam)
 for n=0,radarsite.maxbeam-1 do $
 	azim[n] = radarsite.boresite - rt_get_azim(radar, beams[n], date)
-stop
+
 ; Elevation
 nelev = 101
 delev = 60./nelev
