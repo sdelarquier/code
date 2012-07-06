@@ -1,0 +1,11 @@
+*~
+*.o
+*.shfp.*
+*.swp
+/.metadata
+/deprecated
+/mpfit
+/rtmpi/fort
+/Cassandra
+/PicUp3D
+*.png
