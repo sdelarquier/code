@@ -9,3 +9,5 @@
 /Cassandra
 /PicUp3D
 *.png
+*.mod
+.DS_store
