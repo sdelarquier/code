@@ -18,7 +18,9 @@ hmf2 = fltarr(njuls)
 readu, unit, nmf2, hmf2
 free_lun, unit
 ; help, njuls, juls, edges, nbeams, ngates, radhist, rthist, nmf2, hmf2
-ind = where(juls eq julday(01,01,2009))
+
+; Generate time array with 1 month steps for the given time period
+julbins = timegen(start=juls[0], final=juls[njuls-1], units='Months', step_size=1)
 
 
 ; ********************************************************
@@ -34,34 +36,19 @@ yrange = [0, 2000]/100
 date_label = label_date(date_format=['%M','%Y'])
 plot, xrange, yrange, /nodata, position=position, charsize=charsize, $
 	xtickformat=['label_date','label_date'], xtickunits=['Month','Year'], xtickinterval=4, xstyle=5, ystyle=5
-dav = 15
-weights = ( (dav+1-abs(findgen(2*dav)-dav))/float(dav+1) )
-weights = weights/total(weights)
-; beam = 12
-baryran = fltarr(njuls)
-ranges = 180. + findgen(ngates)*45.
-histfull = dblarr(njuls, ngates)
-for id=dav,njuls-2-dav do begin
-	if edges[id,1] gt 0 then begin
-		nzinds = where( reform(max(radhist[id-dav:id+dav,beam,*], dimension=3)) ne 0., ccnz )
-		if ccnz ne 0 then $
-				maxav = total( max(radhist[id-dav:id+dav,beam,*], dimension=3)*weights/total(weights[nzinds]), 1 )*1.2 $
-		else continue
-		runav = fltarr(ngates)
-		for ir=0,ngates-1 do begin
-			nzinds = where( reform(radhist[id-dav:id+dav,beam,ir]) ne 0., ccnz )
-			if ccnz ne 0 then $
-				runav[ir] = total( radhist[id-dav:id+dav,beam,ir]*weights/total(weights[nzinds]), 1 ) $
-			else $
-				runav[ir] = 0.
-			histfull[id,ir] = runav[ir]
-			col = bytscl(runav[ir] / maxav, min=0., max=1., top=250)+2b
-			if ((180.+(ir+1)*45.)/100. le yrange[1]) and col gt 0 then $
-				polyfill, juls[id]*[1,1,0,0] + juls[id+1]*[0,0,1,1], (180.+[ir,ir+1,ir+1,ir]*45.)/100., color=col
-		endfor
-		maxav = max(runav,maxind)
-		baryran[id] = ranges[maxind]; total( ranges[0:30] *(runav[0:30])^2 / total((runav[0:30])^2) )
-	endif
+histfull = dblarr(n_elements(julbins), ngates)
+for id=0,njuls-1 do begin
+	inds = where(julbins gt juls[id], cc)
+	if cc le 0 then continue
+	histfull[inds[0]-1, *] = radhist[id,beam,*]
+endfor
+histfull = histfull / max(histfull)
+for ibin=0,n_elements(julbins)-2 do begin
+	for ir=0,ngates-2 do begin
+		col = bytscl(histfull[ibin,ir], min=0., max=1., top=250)+2b
+		if ((180.+(ir+1)*45.)/100. le yrange[1]) and col gt 0 then $
+			polyfill, julbins[ibin]*[1,1,0,0] + julbins[ibin+1]*[0,0,1,1], (180.+[ir,ir+1,ir+1,ir]*45.)/100., color=col
+	endfor
 endfor
 plot, xrange, yrange, /nodata, position=position, charsize=charsize, $
 	xtickformat='label_date', xtickunits='Month', xtickinterval=4, ytickname=replicate(' ',60), $
@@ -69,21 +56,6 @@ plot, xrange, yrange, /nodata, position=position, charsize=charsize, $
 plot, xrange, yrange, /nodata, position=position, charsize=charsize, $
 	xtickformat=['',''], xtickunits=['Month','Year'], xtickinterval=4, $
 	ytitle='Slant range [x100 km]', xstyle=9, xtickname=replicate(' ',60), xcharsize=.001
-load_usersym, /circle
-runav = fltarr(njuls)
-dav = 30
-weights = ( (dav+1-abs(findgen(2*dav)-dav))/float(dav+1) )
-weights = weights/total(weights)
-for id=dav,njuls-2-dav do begin
-	nzinds = where( baryran[id-dav:id+dav] ne 0., ccnz )
-	if ccnz gt 0 then $
-		runav[id] = total( baryran[id-dav:id+dav]*weights/total(weights[nzinds]) ) $
-	else $
-		runav[id] = 0.
-endfor
-; oplot, juls, runav, min_val=180., linestyle=0, thick=2;, psym=8, symsize=.25
-plot, juls, hmf2, thick=2, position=position, xstyle=5, ystyle=5, xrange=xrange, yrange=[250.,350.]
-axis, /yaxis, yrange=[250,350], ystyle=1, ytitle=textoidl('hmF_2 [km]'), charsize=charsize
 
 ; ********************************************************
 ; RT distribution - range
@@ -94,9 +66,6 @@ yrange = [0, 2000]/100
 date_label = label_date(date_format=['%M','%Y'])
 plot, xrange, yrange, /nodata, position=position, charsize=charsize, $
 	xtickformat=['label_date','label_date'], xtickunits=['Month','Year'], xtickinterval=4, xstyle=5, ystyle=5
-dav = 15
-weights = ( (dav+1-abs(findgen(2*dav)-dav))/float(dav+1) )
-weights = weights/total(weights)
 for id=dav,njuls-2-dav do begin
 ; 	if edges[id,1] gt 0 then begin
 ; 		nzinds = where( reform(max(rthist[id-dav:id+dav,beam,*], dimension=3)) ne 0., ccnz )

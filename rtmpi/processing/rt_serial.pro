@@ -3,18 +3,18 @@ pro rt_serial, radar
 common radarinfo
 
 
-juls = timegen(start=julday(01,01,1993), final=julday(01,01,2012), units='month',step_size=6)
+juls = timegen(start=julday(01,01,1983), final=julday(01,01,2012), units='months',step_size=6)
 caldat, juls, month, day, year
 date = year*10000L+month*100L+day
 
 for it=0,n_elements(juls)-1 do begin
-	radarFoVs, date[it], 'fovs'+strtrim(string(it,format='(I03)'),2), /noannotate, /fillfov, range=[-55,55]
+	radarFoVs, date[it], 'fovs'+strtrim(string(it,format='(I03)'),2), /fillfov, range=[-55,55], /bardate, /legend
 ; 	spawn, 'ps2png.sh fovs'+strtrim(string(it,format='(I03)'),2)+'.ps'
 	spawn, 'gs -sDEVICE=jpeg -dJPEGQ=100 -dNOPAUSE -dBATCH -dSAFER -r300 -sOutputFile=fovs'+strtrim(string(it,format='(I03)'),2)+'.png fovs'+strtrim(string(it,format='(I03)'),2)+'.ps'
-	spawn, 'mogrify +repage -trim -rotate 270 -resize 850x800 fovs'+strtrim(string(it,format='(I03)'),2)+'.png'
+	spawn, 'mogrify +repage -rotate 270 -resize 800x800 -crop 710x500+50+100 fovs'+strtrim(string(it,format='(I03)'),2)+'.png'
 	spawn, 'rm fovs'+strtrim(string(it,format='(I03)'),2)+'.ps'
 endfor
-spawn, 'convert -delay 20 fovs???.png fovs.gif'
+spawn, 'convert -delay 30 fovs???.png -delay 500 fovs'+strtrim(string(n_elements(juls)-1, format='(I03)'),2)+'.png fovs.gif'
 
 
 

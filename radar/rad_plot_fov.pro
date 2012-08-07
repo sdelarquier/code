@@ -6,11 +6,10 @@
 ; This procedure plots radar field of views and highlight one or more beams if desired
 ;
 ; CATEGORY:
-; misc
+; graphics
 ;
 ; CALLING SEQUENCE:
-; rad_plot_fov, radar, date=date, beam=beam, coords=coords, $
-; 		grid=grid, ps=ps, no_fill_beam=no_fill_beam
+; rad_plot_fov, radar, date=date, beam=beam, coords=coords, grid=grid, ps=ps, no_fill_beam=no_fill_beam
 ;
 ; INPUTS:
 ; RADAR: radar code(s)
@@ -42,7 +41,8 @@
 ; -
 pro	rad_plot_fov, radar, date=date, beam=beam, coords=coords, $
 		grid=grid, ps=ps, no_fill_beam=no_fill_beam, xrange=xrange, yrange=yrange, $
-		fovonly=fovonly, rotate=rotate
+		fovonly=fovonly, rotate=rotate, panel=panel, xpanel=xpanel, fovcolor=fovcolor, $
+		fillannotate=fillannotate
 
 common radarinfo
 
@@ -51,15 +51,22 @@ if n_elements(xrange) eq 2 then $
 if n_elements(yrange) eq 2 then $
 	yrangeset = yrange
 
-radptr = PTRARR(n_elements(radar), /allocate_heap)
-for ir=0,n_elements(radar)-1 do begin
-	; First find radar site structure
-	radID = where(network.code[0,*] eq radar[ir], cc)
-	if cc le 0 then begin
-		print, 'Unknown radar. Skipping.'
-		continue
-	end
+if n_elements(panel) ne 2 then $
+	panel = [1,0]
+ymaps = panel[0]
+ymap = panel[1]
+if n_elements(xpanel) ne 2 then $
+	xpanel = [1,0]
+xmaps = xpanel[0]
+xmap = xpanel[1]
+charsize = get_charsize(xmaps,ymaps)
 
+; if radar eq 'all' then radar = network[1:*].code[0]
+
+radptr = PTRARR(n_elements(radar), /allocate_heap)
+n_valid_radars = 0L
+hemi = intarr(n_elements(radar))
+for ir=0,n_elements(radar)-1 do begin
 	; Set coordinate system
 	if ~keyword_set(coords) then $
 		coords = 'magn'
@@ -67,12 +74,20 @@ for ir=0,n_elements(radar)-1 do begin
 		print, 'Invalid coordinate system. Using magn'
 		coords = 'magn'
 	endif
+	
+	; First find radar site structure
+	radID = where(network.code[0,*] eq radar[ir], cc)
+	if cc le 0 then begin
+		print, 'Unknown radar. Skipping.'
+		continue
+	end
+	n_valid_radars = n_valid_radars + 1
 
 	; Find range-gate locations
 	if ~keyword_set(date) then $
 		ajul = systime(/julian, /utc) $
 	else $
-		ajul = calc_jul(date,1200)
+	ajul = calc_jul(date,1200)
 	caldat, ajul, mm, dd, year
 	tval = TimeYMDHMSToEpoch(year, mm, dd, 12, 0, 0)
 	if tval lt network[radID].st_time then begin
@@ -93,9 +108,10 @@ for ir=0,n_elements(radar)-1 do begin
 			/normal, fov_loc_full=fov_loc_full
 
 	; +1 for North hemisphere, -1 for south
-	hemi = fix( radarsite.geolat/abs(radarsite.geolat) )
+	hemi[ir] = fix( radarsite.geolat/abs(radarsite.geolat) )
+	if ir gt 0 then if hemi[ir]*hemi[ir-1] lt 0 then return
 
-	; Calculate stereographic projection
+	; Calculate stereographic projection and plot
 	for ib=0,nbeams do begin
 		for ig=0,ngates do begin
 			for p=0,3 do begin
@@ -127,6 +143,14 @@ for ir=0,n_elements(radar)-1 do begin
 	endelse
 
 endfor
+; If no valid radars were provided
+if n_valid_radars eq 0 then begin
+	loadct, 0
+	map_plot_panel, xmaps, ymaps, xmap, ymap, coords=coords, /iso, yrange=yrange, xrange=xrange, hemi=hemi[0], $
+		coast_linecolor=150, grid_linecolor=200, lake_fillcolor=255, rotate=rotate, charsize=charsize
+	return
+endif
+
 ; Adjust plot limits so that they cover the same extent
 ext = abs(abs(xrange[1]-xrange[0]) - abs(yrange[1]-yrange[0]))
 if abs(xrange[1]-xrange[0]) gt abs(yrange[1]-yrange[0]) then begin
@@ -144,31 +168,50 @@ if n_elements(yrangeset) eq 2 then $
 	yrange = yrangeset
 
 ; Set plot area
-set_format, /landscape
 if keyword_set(ps) then $
 	ps_open, '~/Desktop/rad_plot_fov.ps', /no_init
-clear_page
 loadct, 0
 if ~keyword_set(fovonly) then begin
-map_plot_panel, 1, 1, 0, 0, coords=coords, /iso, yrange=yrange, xrange=xrange, hemi=hemi, $
-	coast_linecolor=150, grid_linecolor=200, lake_fillcolor=255, rotate=rotate
+map_plot_panel, xmaps, ymaps, xmap, ymap, coords=coords, /iso, yrange=yrange, xrange=xrange, hemi=hemi[0], $
+	coast_linecolor=150, lake_fillcolor=255, rotate=rotate, charsize=charsize, /no_grid
 endif else begin
-map_plot_panel, 1, 1, 0, 0, coords=coords, /iso, yrange=yrange, xrange=xrange, hemi=hemi, $
-	/no_fill, /no_coast, /no_grid, rotate=rotate; /no_axis, /no_label, 
+map_plot_panel, xmaps, ymaps, xmap, ymap, coords=coords, /iso, yrange=yrange, xrange=xrange, hemi=hemi[0], $
+	/no_grid, rotate=rotate, charsize=charsize; /no_axis, /no_label,
 endelse
-
 ; Calculate stereographic projection and plot
-loadct,8
 xx = fltarr(4)
 yy = fltarr(4)
 ibeam = 0L
+loadct, 13
 if radar[0] ne '' then begin
 	for ir=0,n_elements(radar)-1 do begin
-		overlay_radar, name=radar[ir], /anno, coords=coords, rotate=rotate
 		for ib=0,(*radptr[ir]).nbeams-1 do begin
 			for ig=0,(*radptr[ir]).ngates-1 do begin
 				xx = reform((*radptr[ir]).fov_loc_full[0,*,ib,ig])
 				yy = reform((*radptr[ir]).fov_loc_full[1,*,ib,ig])
+				if (max(xx) gt xrange[1]) or (min(xx) lt xrange[0]) then continue
+				if (max(yy) gt yrange[1]) or (min(yy) lt yrange[0]) then continue
+				; Highlight field of view
+				if n_elements(fovcolor) eq n_elements(radar) then begin
+						if fovcolor[ir] gt 0 then polyfill, xx, yy, col=fovcolor[ir]
+				endif
+			endfor
+		endfor
+	endfor
+endif
+loadct,8
+if radar[0] ne '' then begin
+	for ir=0,n_elements(radar)-1 do begin
+		if keyword_set(fovcolor) and keyword_set(fillannotate) then begin
+				if fovcolor[ir] gt 0 then overlay_radar, date=date, name=radar[ir], /anno, coords=coords, rotate=rotate, charsize=charsize
+		endif
+		if ~keyword_set(fillannotate) then overlay_radar, date=date, name=radar[ir], /anno, coords=coords, rotate=rotate, charsize=charsize
+		for ib=0,(*radptr[ir]).nbeams-1 do begin
+			for ig=0,(*radptr[ir]).ngates-1 do begin
+				xx = reform((*radptr[ir]).fov_loc_full[0,*,ib,ig])
+				yy = reform((*radptr[ir]).fov_loc_full[1,*,ib,ig])
+				if (max(xx) gt xrange[1]) or (min(xx) lt xrange[0]) then continue
+				if (max(yy) gt yrange[1]) or (min(yy) lt yrange[0]) then continue
 				; Highlight selected beam(s)
 				if n_elements(beam) eq 1 then begin
 					if (ib eq beam) then begin
@@ -197,13 +240,13 @@ if radar[0] ne '' then begin
 					plots, [xx, xx[0]], [yy, yy[0]], thick=.25
 				; Plot fov limits
 				if ib eq 0 then $
-					plots, [xx[0],xx[3]], [yy[0],yy[3]], thick=2
+					plots, [xx[0],xx[3]], [yy[0],yy[3]], thick=.5
 				if (ib eq (*radptr[ir]).nbeams-1) then $
-					plots, xx[1:2], yy[1:2], thick=2
+					plots, xx[1:2], yy[1:2], thick=.5
 				if (ig eq (*radptr[ir]).ngates-1) then $
-					plots, xx[2:3], yy[2:3], thick=2
+					plots, xx[2:3], yy[2:3], thick=.5
 				if (ig eq 0) then $
-					plots, xx[0:1], yy[0:1], thick=2
+					plots, xx[0:1], yy[0:1], thick=.5
 			endfor
 		endfor
 	endfor
@@ -211,8 +254,8 @@ endif
 
 if ~keyword_set(fovonly) then begin
 	loadct, 0
-	map_plot_panel, 1, 1, 0, 0, coords=coords, /iso, /no_fill, yrange=yrange, xrange=xrange, hemi=hemi, $
-		coast_linecolor=150, /no_grid, rotate=rotate
+	map_plot_panel, xmaps, ymaps, xmap, ymap, coords=coords, /iso, /no_fill, yrange=yrange, xrange=xrange, hemi=hemi[0], $
+		coast_linecolor=150, rotate=rotate, charsize=charsize, grid_linecolor=200, grid_linethick=.2
 endif
 
 if keyword_set(ps) then $

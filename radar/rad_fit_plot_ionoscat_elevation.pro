@@ -20,7 +20,7 @@ if keyword_set(ps) then begin
 	else $
 		ps_open, '~/Desktop/ionoscatelev_'+radar+'_'+strtrim(date,2)+'.ps'
 endif
-set_format, /portrait
+set_format, /landscape
 clear_page
 
 if ~keyword_set(dtime) then $
@@ -52,11 +52,11 @@ slope = fltarr(2,2)
 if ~keyword_set(xrange) then $
 	xrange = [0.,40.]*45.
 if ~keyword_set(yrange) then $
-	yrange = [5.,55.]
+	yrange = [5.,40.]
 charsize = 1.2
 
 ; Set elevation range
-elrange = [5.,55.]
+elrange = [5.,40.]
 elstep = 0.5
 nelev_steps = (elrange[1]-elrange[0])/elstep
 elev_steps = elrange[0] + findgen(nelev_steps)*(elrange[1]-elrange[0])/nelev_steps
@@ -82,7 +82,8 @@ free_lun, unit
 ; Run ray tracing and set histogram
 hist = fltarr(3, 71, nelev_steps+1)
 parse_date, date, tyy, tmm, tdd
-rtdate = tyy*10000L+tmm*100L+01
+; rtdate = tyy*10000L+tmm*100L+01
+rtdate = date
 rt_run, rtdate, radar, time=[0,1200]
 
 ; Find midnight
@@ -183,15 +184,9 @@ hist = hist/max(hist[*,10:*,*])
 
 ; Plot results
 for ib=0,n_elements(beams)-1 do begin
-	pos = [.1,.1,.8,.5]
-	if ib ne 0 then begin
-		ytickname = replicate(' ',60)
-		ytitle = ''
-	endif else begin
-		ytickname = ''
-		ytitle = 'Elevation'
-	endelse
-	xtickname = ''
+	pos = [.51,.1,.91,.55]
+	ytickname = replicate(' ',60)
+	ytitle = ''
 	xtitle = 'Slant range [km]'
 	plot, xrange, yrange, /nodata, xstyle=1, ystyle=1, position=pos, $
 		xtickname=xtickname, ytickname=ytickname, xtitle=xtitle, ytitle=ytitle, $
@@ -231,9 +226,9 @@ for ib=0,n_elements(beams)-1 do begin
 ; 	print, edges[1,0], edges[1,1]
 endfor
 
-xyouts, .5, .91, $
-		radar+', '+STRMID(format_juldate(julmidnight),0,17)+textoidl('\pm')+'3:00 UT', $
-		align=.5, /normal, charsize=charsize
+xyouts, .75, .85, $
+	radar+', '+STRMID(format_juldate(julmidnight),0,17)+textoidl('\pm')+'3:00 UT', $
+	align=.5, /normal, charsize=charsize
 
 
 
@@ -283,16 +278,10 @@ hist = hist/max(hist[*,10:*,*])
 
 ; Plot results
 for ib=0,n_elements(beams)-1 do begin
-	pos = [.1,.51,.8,.9]
-	if ib ne 0 then begin
-		ytickname = replicate(' ',60)
-		ytitle = ''
-	endif else begin
-		ytickname = ''
-		ytitle = 'Elevation'
-	endelse
-	xtickname = replicate(' ',60)
-	xtitle = ''
+	pos = [.1,.1,.5,.55]
+	ytickname = ''
+	ytitle = 'Elevation angle'
+	xtitle = 'Slant range [km]'
 	plot, xrange, yrange, /nodata, xstyle=1, ystyle=1, position=pos, $
 		xtickname=xtickname, ytickname=ytickname, xtitle=xtitle, ytitle=ytitle, $
 		xticklen=1, xgridstyle=1, yticklen=1, ygridstyle=1, charsize=charsize
@@ -333,8 +322,8 @@ for ib=0,n_elements(beams)-1 do begin
 ; 	oplot, x, f, linestyle=4, thick=2
 endfor
 
-bpos = [.81,.1,.83,.9]
-plot_colorbar, /vert, charthick=charthick, /continuous, $
+bpos = [.1,.81,.5,.83]
+plot_colorbar, /horiz, charthick=charthick, /continuous, $
 	nlevels=4, scale=[0,1], position=bpos, charsize=charsize, $
 	legend='Scatter distribution', /no_rotate, $
 	level_format='(F4.2)', /keep_first_last_label

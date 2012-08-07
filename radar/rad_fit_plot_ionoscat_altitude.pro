@@ -198,11 +198,11 @@ valt2palt = mean(corrvalt[where(corrvalt gt 0.)])
 
 ; Plot virtual altitude
 ib = 0
-pos = [.1,.1,.5,.5]
-ytickname = ''
-ytitle = 'Altitude [km]'
-xtickname = ''
-xtitle = 'Slant range [km]'
+pos = [.53,.51,.9,.9]
+ytickname = replicate(' ',60)
+ytitle = ''
+xtickname = replicate(' ',60)
+xtitle = ''
 plot, xrange, yrange, /nodata, xstyle=1, ystyle=1, position=pos, $
 	xtickname=xtickname, ytickname=ytickname, xtitle=xtitle, ytitle=ytitle, $
 	xticklen=1, xgridstyle=1, yticklen=1, ygridstyle=1, charsize=charsize
@@ -220,7 +220,7 @@ for ir=0,70 do begin
 	endfor
 endfor
 ; Plot physical altitude
-pos = [.51,.1,.9,.5]
+pos = [.53,.1,.9,.5]
 ytickname = replicate(' ',60)
 ytitle = ''
 xtickname = ''
@@ -242,8 +242,15 @@ for ir=0,70 do begin
 		endif
 	endfor
 endfor
-iri_run, date, 524, param='alti', lati=radarsite.geolat, longi=radarsite.geolon, /ut, nel=nel
+iri_run, date, 225, param='alti', lati=radarsite.geolat, longi=radarsite.geolon, /ut, nel=nel
 oplot, nel*500., 100.+findgen(500)
+print, 'IRI 225', min(nel), max(nel)
+iri_run, date, 525, param='alti', lati=radarsite.geolat, longi=radarsite.geolon, /ut, nel=nel
+oplot, nel*500., 100.+findgen(500)
+print, 'IRI 525', min(nel), max(nel)
+iri_run, date, 825, param='alti', lati=radarsite.geolat, longi=radarsite.geolon, /ut, nel=nel
+oplot, nel*500., 100.+findgen(500)
+print, 'IRI 825', min(nel), max(nel)
 ; print, nel
 
 xyouts, .5, .91, $
@@ -298,9 +305,9 @@ hist = hist/max(hist[*,10:*,*])
 
 ; Plot virtual altitude
 ib = 0
-pos = [.1,.51,.5,.9]
+pos = [.1,.51,.48,.9]
 ytickname = ''
-ytitle = 'Altitude [km]'
+ytitle = 'Virtual height [km]'
 xtickname = replicate(' ',60)
 xtitle = ''
 plot, xrange, yrange, /nodata, xstyle=1, ystyle=1, position=pos, $
@@ -320,11 +327,11 @@ for ir=0,70 do begin
 	endfor
 endfor
 ; Plot physical altitude
-pos = [.51,.51,.9,.9]
-ytickname = replicate(' ',60)
-ytitle = ''
-xtickname = replicate(' ',60)
-xtitle = ''
+pos = [.1,.1,.48,.5]
+ytickname = ''
+ytitle = 'Altitude [km]'
+xtickname = ''
+xtitle = 'Slant range [km]'
 plot, xrange, yrange, /nodata, xstyle=1, ystyle=1, position=pos, $
 	xtickname=xtickname, ytickname=ytickname, xtitle=xtitle, ytitle=ytitle, $
 	xticklen=1, xgridstyle=1, yticklen=1, ygridstyle=1, charsize=charsize
@@ -341,6 +348,30 @@ for ir=0,70 do begin
 		endif
 	endfor
 endfor
+; Plot Millstone Hill densities (for Nov 17 2010)
+if date eq 20101118 then begin
+	load_usersym, /circle, /no_fill
+	mlh_read, data, mlh_alt, mlh_juls
+	sjul = julday(11, 18, 2010, 2, 25)
+	fjul = julday(11, 18, 2010, 8, 25)
+	inds = where(data.el1 eq 12.00 and data.az1 eq -90. and mlh_juls ge sjul and mlh_juls le fjul and mlh_alt ge 200. and mlh_alt le 500.)
+	altbins = mlh_alt[inds[UNIQ(mlh_alt[inds], SORT(mlh_alt[inds]))]]
+	mlh_nel = fltarr(n_elements(altbins))
+	mlh_nel_dev = fltarr(n_elements(altbins))
+	dnel = .05
+	nelbins = dnel + findgen(ceil(2./dnel))*dnel
+	for ialt=0,n_elements(altbins)-2 do begin
+		indalts = inds[where(mlh_alt[inds] ge altbins[ialt] and mlh_alt[inds] lt altbins[ialt+1])]
+		for iel=0,n_elements(nelbins)-2 do begin
+			nelalts = where(10.^(data.popl[indalts]-11.) ge nelbins[iel] and 10.^(data.popl[indalts]-11.) lt nelbins[iel+1], cc)
+			if cc gt 0 then begin
+				plots, nelbins[iel]*500., altbins[ialt], psym=8, symsize=cc/50., col=0
+			endif
+		endfor
+		mlh_nel[ialt] = mean( 10.^(data.popl[indalts]-11.) )
+		mlh_nel_dev[ialt] = meanabsdev( 10.^(data.popl[indalts]-11.) )
+	endfor
+endif
 
 bpos = [.91,.1,.925,.9]
 plot_colorbar, /vert, charthick=charthick, /continuous, $
