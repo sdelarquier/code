@@ -1,0 +1,125 @@
+c
+c	This file contains the definitions of the radar operating parameters
+c	It is designed to be compatible with the orignal RADOPS Version 5
+c	parameter list (with Version 6 modifications), but at the same time
+c	provide the additional functions of RADOPS386 Version 1
+c
+c	The RADOPS386 parameter structure is defined as a FORTRAN STRUCTURE
+c	with the name /radops_parms/.  All new programs, and major revisions
+c	of old programs should utilize the new structure variables rather 
+c	than the original parameter definitions
+c
+        INTEGER*2 
+     &            PARMS(0:69), NPARM, YEAR, MONTH, DAY, HOUR, MINUT,
+     &            SEC, INTT, NAVE, FMHZ, FKHZ, TXPOW, TXPL, MPINC,
+     &            MPPUL, MPLGS, NRANG, LAGFR, SMSEP, BMNUM, MXPWR,
+     &            ATTEN, MODE, DPARM, LVMAX, ERCOD, NOISE, XCF, NCHAR,
+     &            COMBF(40),rsep,frang,tfreq
+
+        BYTE 
+     &            NSEL, NREQ, SEL(2), TXST(2), TXDB, ST_ID, combyts(80)
+
+ 	integer*4 noise4, mxpwr4, lvmax4
+	integer*2 pulse_pattern(16), lag_table(48,2)
+
+       EQUIVALENCE 
+!                   BYTE VARIABLES
+     &              (NREQ,      SEL(1)), 	!no. ranges requested
+     &              (NSEL,      SEL(2)),	!no. ranges selected
+     &		    (TXDB,      TXST(1)),	!transmitted power (dB)
+     &		    (ST_ID,     TXST(2)),	!station ID number
+     &		    (combyts,   combf),
+!                   INTEGER VARIABLES
+     &              (NPARM,     PARMS(0) ),	!number of words in parms
+     &              (YEAR,      PARMS(1) ),	!date and time parameters
+     &              (MONTH,     PARMS(2) ),
+     &              (DAY,       PARMS(3) ),
+     &              (HOUR,      PARMS(4) ),
+     &              (MINUT,     PARMS(5) ),
+     &              (SEC,       PARMS(6) ),
+     &              (INTT,      PARMS(7) ),	!integration time
+     &              (NAVE,      PARMS(8) ),	!no. pts. in lag0 average
+     &              (FMHZ,      PARMS(9) ),	!freq. (MHz part)
+     &              (FKHZ,      PARMS(10)),	!freq, (KHz part)
+     &              (TXPOW,     PARMS(11)),	!transmitted power
+     &              (TXST,      TXPOW),		!(for byte variables)
+     &              (TXPL,      PARMS(12)),	!pulse length (microsec)
+     &              (MPINC,     PARMS(13)),	!lag separation
+     &              (MPPUL,     PARMS(14)),	!number of pulses
+     &              (MPLGS,     PARMS(15)),	!number of lags in acf
+     &              (NRANG,     PARMS(16)),	!number of ranges
+     &              (LAGFR,     PARMS(17)),	!delay to first range
+     &              (SMSEP,     PARMS(18)),	!range separation
+     &              (BMNUM,     PARMS(19)),	!beam number
+     &              (MXPWR,     PARMS(20)),	!max. power allowed
+     &              (ATTEN,     PARMS(21)),	!no. of attenuators
+     &              (MODE,      PARMS(22)),	!normal/sounder/auto
+     &              (DPARM,     PARMS(23)),	!display parameter
+     &              (LVMAX,     PARMS(24)),	!max noise level allowed
+     &              (ERCOD,     PARMS(25)),	!error code 
+     &              (NOISE,     PARMS(26)),	!noise level
+     &              (SEL,       PARMS(27)),	!nreq and nsel
+     &              (XCF,       PARMS(28)),	!cross-correlation flag
+     &              (NCHAR,     PARMS(29)),	!length of comment buffer
+     &              (COMBF(1),  PARMS(30))	!comment buffer (max of 80)
+
+c	
+c	This is the beginning of thenew radops386 structure
+c
+	structure /rev_no/	!this defines the revision number structure
+		byte major
+		byte minor
+	end structure
+
+	structure /radops_parms/	!this defines the full parameter set
+	  record /rev_no/ rev	!revision number 
+	  integer*2 nparm
+	  integer*2 st_id
+	  integer*2 year	!the first batch of parameters are 
+	  integer*2 month	!set by the system, not the radops386 user
+	  integer*2 day
+	  integer*2 hour
+	  integer*2 minut
+	  integer*2 sec
+	  integer*2 txpow
+	  integer*2 nave
+	  integer*2 atten
+	  integer*2 lagfr
+	  integer*2 smsep
+	  integer*2 ercod
+	  integer*2 radops_sys_ress(3)
+
+	  integer*4 noise
+	  integer*4 radops_sys_resl(2)
+
+	  integer*2 intt	!the second batch of paramters are
+	  integer*2 txpl	!set by the user, either directly or
+	  integer*2 mpinc	!from a radops interpreter program
+	  integer*2 mppul
+	  integer*2 mplgs
+	  integer*2 nrang
+	  integer*2 frang
+	  integer*2 rsep
+	  integer*2 bmnum
+	  integer*2 xcf
+	  integer*2 tfreq
+	  integer*2 scan
+
+	  integer*4 mxpwr
+	  integer*4 lvmax
+
+	  integer*4 usr_resL1	!the final variables are user defined
+	  integer*4 usr_resL2	!  i.e. they can mean different things
+	  integer*2 cp		!  programs.  cp is an exception to this
+	  integer*2 usr_resS1	!  rule.  It identifies the COMMON PROGRAM
+	  integer*2 usr_resS2	!  id number.
+	  integer*2 usr_resS3	
+	end structure
+
+	record /radops_parms/ rparms	!this declares the variable "rparms"
+
+c
+c	This is the end of the radar parameter definitions.  The meaning
+c	of each parameter will be found in the documentation for RADOPS386
+c
+

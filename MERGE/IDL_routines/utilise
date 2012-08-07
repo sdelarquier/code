@@ -1,0 +1,18 @@
+
+
+UTILISATION DES PROGRAMMES IDL
+------------------------------
+
+PRTMRG, [file='931022tk', head=head, long=long]
+
+PLTMRG, [file='931022tk', scale=scl, geom=geom, cntrs=cntrs]
+
+PLTMRG_PLUS, [file='931022tk']
+
+INSTANT, [date=931022, scale=scl, geom=geom, cntrs=cntrs]
+
+INSTANT_PLUS, [date=931022]
+
+UTVAR, [date=931022, scale=scl]
+
+

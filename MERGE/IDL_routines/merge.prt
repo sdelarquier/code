@@ -1,0 +1,47 @@
+ 
+MERGE: version 2.6
+------------------ 
+ 
+Stations:       1       8
+ 
+Processing Start end Stop Times:
+	   Start:  97 1 17 22 0 0
+	   Stop :  97 1 17 23 59 59
+ 
+Processing Parameters:
+    Averaged Map with integration time =      240.000
+    Constant Virtual Height of       400.000
+    ifltr =       1
+    inter =       0
+    idiv  =       0
+    iext  =       0
+    ires  =       0
+    istnd =       0
+ 
+Data Selection Parameters
+    Frequency Range for Radar       1:       8      20
+    Frequency Range for Radar       8:       8      20
+    igs   =                           2
+    iereg =                           1
+    Minimum Power =                  3.00000
+    Minimum Velocity =               25.0000
+    Maximum Velocity =               3000.00
+    Maximum Error on Velocity =      100.000
+ 
+******************************************************** MAP  1
+Radar        1
+ From:    1997       1      17      22       0       1
+   To:    1997       1      17      22       3      48
+Radar        8
+ From:    1997       1      17      22       0       0
+   To:    1997       1      17      22       3      49
+ 
+Lagfr (us):                1200    1200
+Sample separation (us):     300     300
+Frequency (Khz):          12415    9350
+Map quality:                      0
+Number of iterations:             0
+Number of good points:        0
+ 
+No common data
+ 

@@ -1,0 +1,99 @@
+This package contains everthing needed to run the fully analytic 3D 
+(local) and 4D (Millstone Hill regional and America Regional) models.
+
+"Fully analytic" means that variations in season (day number), local time, 
+height and latitude are expressed in mathmatical functions, namely, 
+harmonic functions for seasonal and local time variations, cublic B-spline 
+function for the height variation, and cublic polynomial for latitudinal 
+variations.
+
+WHAT FILES ARE NEEDED 
+
+basis.f        basis3.h       isrim.f  
+basis.h        basis4.h       make3D4D*      testISRIM.f
+basis1.h       coefiles/      tb3D4D.f
+
+isrim.f:  the model interface, the model subroutine that users can use.
+tb3D4D.f: the command-line controled model program. It reads inputs 
+          from the command line, then call isrim.f to run the model.
+make3D4D: executable scripts to compile and link files for tb3D4D.f
+testISRIM.f:  a very simple test main program;
+
+coefiles/ contains coefficient files
+
+how to run   -
+
+1- compile and link the programs; run ths shell script: make3D4D
+2- run the main program tb3D4D
+
+C     Usage - tb3D4D kinst dayno1 dayno2 daynod lt1 lt2 ltd ...
+C                    z1 z2 zd f107 ap ip tabfile
+C        kinst     - STATION/INSTRUMENT CODE
+C             31 -> MILLSTONE HILL STEERABLE (regional model)
+C             32 -> MILLSTONE HILL ZENITH (local model)
+C             10 -> JICAMARCA - NOT AVAILABLE!!
+C             20 -> ARECIBO
+C             25 -> MU RADAR
+C             40 -> ST. SANTIN
+C             72 -> EISCAT TROMSO
+C             80 -> SONDRESTROM (local)
+C             95 -> EISCAT SVALBARD
+c
+C        dayno1   - start day number (january 1 = 1)
+C        dayno2   - end day number
+C        daynod   - day number increment
+C        lt1      - start local time (hours)
+C        lt2      - end local time
+C        ltd      - local time increment
+C        z1       - start altitude (km)
+C        z2       - end altitude
+C        zd       - altitude increment
+C        la1      - start geodetic latitude (degree)
+C        la2      - end geodetic latitude (degree)
+C        lad      - geodetic latitude increment (degree)
+C        f107     - 10.7 cm solar flux
+C        ap       - 3-hour ap index
+C        ip       - parameter code
+c                      520 - log10 electron density
+c                      550 - ion temperature (k)
+c                      560 - electron temperature (k)
+c                      1270 - parallel drifts
+C        tabfile  - output file name
+C
+C  e.g.: tb3D4D 32 1 1 1 12 12 12 \
+C               100 1000 100 135 15 550 output
+C   (this will run MH local model; la1 la2, and lad are not necessary,
+C     but won't be used if provided)
+
+
+3- output format
+
+C    WRITE (16,FMT=FM) DAYNO,LT,Z,LA,F107,AP,PARAMETER
+C                  IF (IP.EQ.520) THEN
+C                     FM = '(2F7.2,4F8.1,F10.4)'
+C                  ELSE IF (IP.EQ.550 .OR. IP.EQ.560) THEN
+C                     FM = '(2F7.2,4F8.1,F8.1)'
+C                  ELSE
+C                     FM = '(2F7.2,4F8.1,F8.2)'
+C                  END IF
+
+
+NOTES:
+
+isrim.f is the latest and official version of the incoherent scatter radar 
+ionospheric models (ISRIMs); this version reads in all coefficients for a 
+given site/kinst; when site is changed it will read coefficients again. 
+So different from isrim0.f (see below), it is efficient when it is called 
+with frequently switching parameter. This version takes more memory.
+
+isrim0.f is also a useful version which has the same interface and
+functions but this version works mostly efficiently when it is called for
+a given site and a specific parameter, and it takes less memory.  
+However, when it is called with frequently switching site and parameter,
+it has to keep reading coefficients in responding to the changing site and
+parameter.
+
+glat, geodetic latitude, is an output when a local model is called giving
+the site's latitude; so when subroutine isrim is called with changes
+between local and regional models (in kinst), be sure glat is reset to the
+correct one when the regional model is computed.

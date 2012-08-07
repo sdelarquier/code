@@ -1,0 +1,2 @@
+f77 -o tb3D4D tb3D4D.f isrim.f basis.f
+rm -f *.o
