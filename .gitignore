@@ -6,8 +6,6 @@
 /deprecated
 /mpfit
 /rtmpi/fort
-/Cassandra
-/PicUp3D
 *.png
 *.mod
 .DS_store

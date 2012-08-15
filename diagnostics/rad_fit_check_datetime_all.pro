@@ -37,7 +37,7 @@
 ; MODIFICATION HISTORY:
 ; Written by Sebastien de Larquier, Jun, 21, 2012
 ;-
-pro rad_fit_check_datetime_all, date=date, $
+pro rad_fit_check_datetime_all, date=date, time=time, $
 	threshold=threshold, outfile=outfile
 
 ; Declare mid-latitude radars
@@ -66,6 +66,9 @@ if ~keyword_set(outfile) then $
 filename = outfile
 ps_open, filename+'.ps'
 
+; Page title
+pagetitle = 'Clock diagnostics vs Record #'
+
 ; Plot high latitude radar diagnostics
 clear_page
 noxtitle = 1
@@ -74,11 +77,11 @@ xyouts, .5, .95, $
 	'High latitude radars ('+datafmt+') - '+STRMID(format_juldate(juld),0,11), $
 	charsize=get_charsize(1,2), align=.5, /normal
 xyouts, .5, .98, $
-	'Clock diagnostics', $
+	pagetitle, $
 	charsize=get_charsize(1,2), align=.5, /normal
 for irad=0,n_elements(highlat)-1 do begin
 	if irad eq n_elements(highlat)-1 then noxtitle = 0
-	rad_fit_check_datetime, highlat[irad], date=tdate, $
+	rad_fit_check_datetime, highlat[irad], date=tdate, time=time, $
 		/fitacf, noxtitle=noxtitle, /notitle, $
 		threshold=threshold, position=define_panel(1,n_elements(highlat), 0, irad, /no_title), $
 		charsize=get_charsize(1,n_elements(highlat))
@@ -93,11 +96,11 @@ xyouts, .5, .95, $
 	'Mid latitude radars ('+datafmt+') - '+STRMID(format_juldate(juld),0,11), $
 	charsize=get_charsize(1,2), align=.5, /normal
 xyouts, .5, .98, $
-	'Clock diagnostics', $
+	pagetitle, $
 	charsize=get_charsize(1,2), align=.5, /normal
 for irad=0,n_elements(midlat)-1 do begin
 	if irad eq n_elements(midlat)-1 then noxtitle = 0
-	rad_fit_check_datetime, midlat[irad], date=tdate, $
+	rad_fit_check_datetime, midlat[irad], date=tdate, time=time, $
 		/fitacf, noxtitle=noxtitle, /notitle, $
 		threshold=threshold, position=define_panel(1,n_elements(midlat), 0, irad, /no_title), $
 		charsize=get_charsize(1,n_elements(highlat))
@@ -105,7 +108,11 @@ for irad=0,n_elements(midlat)-1 do begin
 endfor
 
 ps_close, /no_f
-spawn, 'ps2pdf '+filename+'.ps '+filename+'.pdf'
+; spawn, 'ps2pdf '+filename+'.ps '+filename+'.pdf'
+; spawn, 'rm -f '+filename+'.ps'
+spawn, 'ps2png.sh '+filename+'.ps'
 spawn, 'rm -f '+filename+'.ps'
+spawn, 'convert -units PixelsPerInch -extent 2300x3200 -density 96 '+filename+'*.png '+filename+'.pdf'
+spawn, 'rm -f '+filename+'*.png'
 
 end

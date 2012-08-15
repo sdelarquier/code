@@ -35,7 +35,7 @@
 ; MODIFICATION HISTORY:
 ; Written by Sebastien de Larquier, Jun, 30, 2012
 ;-
-pro rad_fit_check_param, param, radar, date=date, $
+pro rad_fit_check_param, param, radar, date=date, time=time, $
 	oldfit=oldfit, fitacf=fitacf, fitex=fitex, $
 	ps=ps, clock=clock, scale=scale, beam=beam, $
 	position=position, charsize=charsize, scanbeams=scanbeams, $
@@ -86,8 +86,27 @@ endelse
 yticklen = -.02
 xticklen = -.02
 
+; ****************************
+;- Schedule
+; ****************************
+if keyword_set(schedule) then begin
+	loadct, 0
+	switchud = 0
+	rad_fit_check_schedule, date, schedule=rad_schedule
+	plot, xrange, [0,1], /nodata, $
+		xstyle=1, ystyle=1, position=[pos[0],pos[1]-.07,pos[2], pos[1]-.04], charsize=charsize, $
+		ytitle='', yticks=1, ytickname=replicate(' ',60), $
+		xtitle='', xtickformat='', xticks=4, xtickv=xrange[0]+dindgen(5)*6./24.d, xminor=6, xtickname=replicate(' ',60), xticklen=.2
+	for isc=0,rad_schedule.nsch-1 do begin
+		oplot, juld + rad_schedule.time[isc]*1.d/24.d*[1.d,1.d], [0,1], col=120, linestyle=1
+		xyouts, juld + rad_schedule.time[isc]*1.d/24.d, .05 + switchud*.6, rad_schedule.name[isc], /data, charsize=charsize
+		switchud = 1 - switchud
+	endfor
+	xyouts, .5, pos[1]-.08, 'Schedule', align=.5, /normal, charsize=charsize
+endif
+
 ; Read file in required format and populate structures
-rad_fit_read, tdate, radar, oldfit=oldfit, fitacf=fitacf, fitex=fitex
+rad_fit_read, tdate, radar, time=time, oldfit=oldfit, fitacf=fitacf, fitex=fitex
 
 ; Get data index
 data_index = rad_fit_get_data_index()
@@ -98,7 +117,7 @@ if data_index eq -1 then begin
 	; If no data, draw empty plotplot, xrange, yrange, /nodata, $
 	plot, xrange, [0,1], /nodata, $
 		xstyle=1, ystyle=1, position=pos, charsize=charsize, $
-		ytitle=strupcase(radar)+' - '+param, yticklen=yticklen, xticklen=xticklen, $
+		ytitle=strupcase(radar), yticklen=yticklen, xticklen=xticklen, $
 		xtitle=xtitle, xtickformat=xtickformat, xticks=4, xtickv=xrange[0]+dindgen(5)*6.d/24.d, xminor=6, xtickname=xtickname
 	; Add an unambiguous statement about data availability for this radar on that day...
 	xyouts, xrange[0]+(xrange[1]-xrange[0])/2., .5, 'NO DATA', charsize=charsize, align=.5
@@ -119,15 +138,15 @@ nrecs = (*rad_fit_info[data_index]).nrecs
 nbeams = (*rad_fit_info[data_index]).nbeams
 
 ; Create a time array, because I'm tired of typing the whole structure...
-time = (*rad_fit_data[data_index]).juls
+atime = (*rad_fit_data[data_index]).juls
 
 ; Beam and time array (for compatibility with data array)
 if size(xdata,/n_dim) eq 2 then begin
 	databeams = (1 + intarr((*rad_fit_info[data_index]).ngates)) ## (*rad_fit_data[data_index]).beam
-	datatime =  (1 + intarr((*rad_fit_info[data_index]).ngates)) ## time
+	datatime =  (1 + intarr((*rad_fit_info[data_index]).ngates)) ## atime
 endif else begin
 	databeams = (*rad_fit_data[data_index]).beam
-	datatime = time
+	datatime = atime
 endelse
 
 ; Set beam
@@ -212,7 +231,7 @@ if keyword_set(clock) then begin
 		scanjuls = dblarr(ccscan-1)
 		for iscan=0,ccscan-2 do begin
 			scantime[iscan] = ( (*rad_fit_data[data_index]).juls[scaninds[iscan+1]-1] + (*rad_fit_data[data_index]).intt[scaninds[iscan+1]-1]/86400.d - (*rad_fit_data[data_index]).juls[scaninds[iscan]] )*1440.d
-			scanjuls[iscan] = time[scaninds[iscan]]
+			scanjuls[iscan] = atime[scaninds[iscan]]
 		endfor
 	endif else scantime = 0
 	; Add an integration/scan time time axis
@@ -227,7 +246,7 @@ if keyword_set(clock) then begin
 	; Plot scan time (in green)
 	oplot, scanjuls, scantime, col=50, psym=8, symsize=.1;, linestyle=2
 	; Plot integration time (in blue)
-	oplot, time, (*rad_fit_data[data_index]).intt, col=120, psym=8, symsize=.1
+	oplot, atime, (*rad_fit_data[data_index]).intt, col=120, psym=8, symsize=.1
 endif else if ~keyword_set(scanbeams) then begin
 	; Add y plain axis
 	axis, /yaxis, /data, ystyle=1, yrange=yrange, ytickname=replicate(' ', 60), yticklen=yticklen
@@ -247,7 +266,7 @@ if keyword_set(scanbeams) then begin
 		offset = 0
 		for iscan=0,ccscan-2 do begin
 			scanbeam[iscan] = (*rad_fit_data[data_index]).beam[scaninds[iscan]+1+offset]
-			scanjuls[iscan] = time[scaninds[iscan]]
+			scanjuls[iscan] = atime[scaninds[iscan]]
 			if scaninds[iscan]+1+offset ge scaninds[iscan+1] then offset = 0 else offset += 1
 		endfor
 	endif else scantime = 0
@@ -277,55 +296,57 @@ endif
 ; ****************************
 ; Mark initial cpid
 loadct, 0
-xyouts, xrange[0], yrange[1] - (yrange[1]-yrange[0])/10., $
+xyouts, xrange[0]+(xrange[1]-xrange[0])*10.d/1440.d, yrange[1] - (yrange[1]-yrange[0])/15., $
 	rad_cpid_translate((*rad_fit_data[data_index]).scan_id[0])+' ('+strtrim((*rad_fit_data[data_index]).scan_id[0], 2)+')', $
 	align=0., /data, col=120, charsize=charsize*.7
 ; Mark cpid changes
 iddiff = (*rad_fit_data[data_index]).scan_id[1:nrecs-1] - (*rad_fit_data[data_index]).scan_id[0:nrecs-2]
 gapinds = where(iddiff ne 0, ccgap)
 ; If cpid changes, then mark and annotate it (in gray)
-cpidpos = 0		; used to switch the position of the cpid name to avoid overlap
+cpidpos = 1		; used to switch the position of the cpid name to avoid overlap
 if ccgap gt 0 then begin
 	for igap=0,ccgap-1 do begin
 		; Plot cpid change marker
-		oplot, time[gapinds[igap]]*[1,1], yrange, col=120, linestyle=2
+		oplot, atime[gapinds[igap]]*[1,1], yrange, col=120, linestyle=2
 		; Plot cpid name and number
-		xyouts, time[gapinds[igap]], yrange[cpidpos] - cpidpos * (yrange[1]-yrange[0])/10. + (1 - cpidpos) * (yrange[1]-yrange[0])/10., $
+		xyouts, atime[gapinds[igap]]+(xrange[1]-xrange[0])*10.d/1440.d, yrange[1] - (yrange[1]-yrange[0])/15. - cpidpos * (yrange[1]-yrange[0])/15., $
 			rad_cpid_translate((*rad_fit_data[data_index]).scan_id[gapinds[igap]+1])+' ('+strtrim((*rad_fit_data[data_index]).scan_id[gapinds[igap]+1], 2)+')', $
 			align=0., /data, col=120, charsize=charsize*.7
-		cpidpos = 1 - cpidpos
 		
 		; Plot average and deviation of main parameter over the time the previous mode was run (only if the mode ran for more than 2 hours)
 		if keyword_set(average) then begin
 			if igap eq 0 then previd = 0 else previd = gapinds[igap-1]
-			if (time[gapinds[igap]]-time[previd]) lt 2.d/24.d then continue
+			if (atime[gapinds[igap]]-atime[previd]) lt 2.d/24.d then continue
 			datachunck = xdata[previd:gapinds[igap]]
 			xmean = median( datachunck[sort(datachunck)] ) 
 			strxmean = strtrim(string(xmean, format='(I4)'),2)
-			xyouts, time[gapinds[igap]], yrange[1] - (yrange[1]-yrange[0])/10., strxmean, align=1., /data, charsize=charsize*.9
+			xyouts, atime[gapinds[igap]]-(xrange[1]-xrange[0])*10.d/1440.d, yrange[1] - (yrange[1]-yrange[0])/15. - (1-cpidpos) * (yrange[1]-yrange[0])/15., strxmean, align=1., /data, charsize=charsize*.9
 		endif
 		; Add min/max/camping beam if reuqested
 		if keyword_set(scanbeams) then begin
 			loadct, 10
 			if igap eq 0 then previd = 0 else previd = gapinds[igap-1]
-			if (time[gapinds[igap]]-time[previd]) lt 2.d/24.d then continue
+			if (atime[gapinds[igap]]-atime[previd]) lt 2.d/24.d then continue
 			datachunck = (*rad_fit_data[data_index]).beam[previd:gapinds[igap]]
 			maxbeam = max( datachunck ) 
 			minbeam = min( datachunck ) 
 			strmaxbeam = strtrim(string(maxbeam, format='(I2)'),2)
 			strminbeam = strtrim(string(minbeam, format='(I2)'),2)
-			xyouts, time[gapinds[igap]], maxbeam, strmaxbeam, align=1., /data, charsize=charsize*.9, col=120
-			xyouts, time[gapinds[igap]], minbeam, strminbeam, align=1., /data, charsize=charsize*.9, col=120
+			xyouts, atime[gapinds[igap]]-(xrange[1]-xrange[0])*10.d/1440.d, maxbeam, strmaxbeam, align=1., /data, charsize=charsize*.9, col=120
+			xyouts, atime[gapinds[igap]]-(xrange[1]-xrange[0])*10.d/1440.d, minbeam, strminbeam, align=1., /data, charsize=charsize*.9, col=120
 			loadct, 0
 		endif
+
+		cpidpos = 1 - cpidpos
 	endfor
+
 	; Plot average and deviation of main parameter over the time the last mode was run
 	if keyword_set(average) then begin
 		previd = gapinds[ccgap-1]
 		datachunck = xdata[previd:*]
 		xmean = median( datachunck[sort(datachunck)] )
 		strxmean = strtrim(string(xmean, format='(I4)'),2)
-		xyouts, time[n_elements(time)-1], yrange[1] - (yrange[1]-yrange[0])/10., strxmean, align=1., /data, charsize=charsize*.9
+		xyouts, atime[n_elements(atime)-1]-(xrange[1]-xrange[0])*10.d/1440.d, yrange[1] - (yrange[1]-yrange[0])/15. - (1-cpidpos) * (yrange[1]-yrange[0])/15., strxmean, align=1., /data, charsize=charsize*.9
 	endif
 	; Add min/max/camping beam if reuqested
 	if keyword_set(scanbeams) then begin
@@ -336,8 +357,8 @@ if ccgap gt 0 then begin
 		minbeam = min( datachunck ) 
 		strmaxbeam = strtrim(string(maxbeam, format='(I2)'),2)
 		strminbeam = strtrim(string(minbeam, format='(I2)'),2)
-		xyouts, time[n_elements(time)-1], maxbeam, strmaxbeam, align=1., /data, charsize=charsize*.9, col=120
-		xyouts, time[n_elements(time)-1], minbeam, strminbeam, align=1., /data, charsize=charsize*.9, col=120
+		xyouts, atime[n_elements(atime)-1]-(xrange[1]-xrange[0])*10.d/1440.d, maxbeam, strmaxbeam, align=1., /data, charsize=charsize*.9, col=120
+		xyouts, atime[n_elements(atime)-1]-(xrange[1]-xrange[0])*10.d/1440.d, minbeam, strminbeam, align=1., /data, charsize=charsize*.9, col=120
 		loadct, 0
 	endif
 endif else begin
@@ -347,7 +368,7 @@ endif else begin
 		datachunck = xdata[previd:*]
 		xmean = median( datachunck[sort(datachunck)] )
 		strxmean = strtrim(string(xmean, format='(I4)'),2)
-		xyouts, time[n_elements(time)-1], yrange[1] - (yrange[1]-yrange[0])/10., strxmean, align=1., /data, charsize=charsize*.9
+		xyouts, atime[n_elements(atime)-1]-(xrange[1]-xrange[0])*10.d/1440.d, yrange[1]-(yrange[1]-yrange[0])/15.-(1-cpidpos)*(yrange[1]-yrange[0])/15., strxmean, align=1., /data, charsize=charsize*.9
 	endif
 	; Add min/max/camping beam if reuqested
 	if keyword_set(scanbeams) then begin
@@ -358,8 +379,8 @@ endif else begin
 		minbeam = min( datachunck ) 
 		strmaxbeam = strtrim(string(maxbeam, format='(I2)'),2)
 		strminbeam = strtrim(string(minbeam, format='(I2)'),2)
-		xyouts, time[n_elements(time)-1], maxbeam, strmaxbeam, align=1., /data, charsize=charsize*.9, col=120
-		xyouts, time[n_elements(time)-1], minbeam, strminbeam, align=1., /data, charsize=charsize*.9, col=120
+		xyouts, atime[n_elements(atime)-1]-(xrange[1]-xrange[0])*10.d/1440.d, maxbeam, strmaxbeam, align=1., /data, charsize=charsize*.9, col=120
+		xyouts, atime[n_elements(atime)-1]-(xrange[1]-xrange[0])*10.d/1440.d, minbeam, strminbeam, align=1., /data, charsize=charsize*.9, col=120
 		loadct, 0
 	endif
 endelse
@@ -382,26 +403,6 @@ if ~keyword_set(notitle) then begin
 	xyouts, position[0], position[3], $
 		network[where(network.code[0] eq radar)].name+' ('+datafmt+') -- '+STRMID(format_juldate(juld),0,11), $
 		charsize=charsize, /normal
-endif
-
-
-; ****************************
-;- Schedule
-; ****************************
-if keyword_set(schedule) then begin
-	loadct, 0
-	switchud = 0
-	rad_fit_check_schedule, date, schedule=rad_schedule
-	plot, xrange, [0,1], /nodata, $
-		xstyle=1, ystyle=1, position=[pos[0],pos[1]-.07,pos[2], pos[1]-.04], charsize=charsize, $
-		ytitle='', yticks=1, ytickname=replicate(' ',60), $
-		xtitle='', xtickformat='', xticks=4, xtickv=xrange[0]+dindgen(5)*6./24.d, xminor=6, xtickname=replicate(' ',60), xticklen=.2
-	for isc=0,rad_schedule.nsch-1 do begin
-		oplot, juld + rad_schedule.time[isc]*1.d/24.d*[1.d,1.d], [0,1], col=120, linestyle=1
-		xyouts, juld + rad_schedule.time[isc]*1.d/24.d, .05 + switchud*.6, rad_schedule.name[isc], /data, charsize=charsize
-		switchud = 1 - switchud
-	endfor
-	xyouts, .5, pos[1]-.08, 'Schedule', align=.5, /normal, charsize=charsize
 endif
 
 ; If you needed a standalone postscript... then close it

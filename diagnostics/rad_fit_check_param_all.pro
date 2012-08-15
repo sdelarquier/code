@@ -35,7 +35,7 @@
 ; MODIFICATION HISTORY:
 ; Written by Sebastien de Larquier, Jun, 30, 2012
 ;-
-pro rad_fit_check_param_all, param, date=date, $
+pro rad_fit_check_param_all, param, date=date, time=time, $
 	outfile=outfile, clock=clock, scale=scale, beam=beam, $
 	average=average, scanbeams=scanbeams, pagetitle=pagetitle, ratio=ratio
 
@@ -49,8 +49,17 @@ highlatbeams = [07,07,07,07]
 ; For now, default data format is fitacf
 datafmt='fitacf'
 
-if ~keyword_set(pagetitle) then $
-	pagetitle = 'Parameter diagnostics'
+if ~keyword_set(pagetitle) then begin
+	case param of
+		'nave': pagetitle = 'Timing diagnostics (vs UT)'
+		'tfreq': pagetitle = 'Frequency/Beam diagnostics (vs UT)'
+		'velocity': pagetitle = 'Velocity scatter plot'
+		else: pagetitle = 'Parameter diagnostics'
+	endcase
+endif
+
+if ~keyword_set(time) then $
+	time = [0,2400]
 
 ; If no date is given, select previous day
 if ~keyword_set(date) then begin
@@ -87,7 +96,7 @@ for irad=0,n_elements(highlat)-1 do begin
 	if irad eq n_elements(highlat)-1 then noxlabels = 0
 	if keyword_set(beam) then abeam = highlatbeams else abeam = 0*highlatbeams
 	; Calls rad_fit_check_param for each radar, and only plots an x-axis and schedule for the bottom one
-	rad_fit_check_param, param, highlat[irad], date=tdate, scanbeams=scanbeams, $
+	rad_fit_check_param, param, highlat[irad], date=tdate, time=time, scanbeams=scanbeams, $
 		/fitacf, noxlabels=noxlabels, /notitle, beam=abeam[irad], schedule=(1-noxlabels), $
 		position=define_panel(1,n_elements(highlat), 0, irad, /no_title), ratio=ratio, $
 		charsize=get_charsize(1,n_elements(highlat)), clock=clock, scale=scale, average=average
@@ -110,7 +119,7 @@ for irad=0,n_elements(midlat)-1 do begin
 	if irad eq n_elements(midlat)-1 then noxlabels = 0
 	if keyword_set(beam) then abeam = midlatbeams else abeam = 0*midlatbeams
 	; Calls rad_fit_check_param for each radar, and only plots an x-axis and schedule for the bottom one
-	rad_fit_check_param, param, midlat[irad], date=tdate, scanbeams=scanbeams, $
+	rad_fit_check_param, param, midlat[irad], date=tdate, time=time, scanbeams=scanbeams, $
 		/fitacf, noxlabels=noxlabels, /notitle, beam=abeam[irad], schedule=(1-noxlabels), $
 		position=define_panel(1,n_elements(midlat), 0, irad, /no_title), ratio=ratio, $
 		charsize=get_charsize(1,n_elements(highlat)), clock=clock, scale=scale, average=average
