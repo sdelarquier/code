@@ -1,0 +1,27 @@
+Processed on: Fri Jun 29 14:07:52 MET DST 2001
+ 
+ 
+FICHIER: /radar9/data/superdarn/merge/980222ef.mrg
+******** 
+ 
+MERGE: version 2.6
+-------------------
+Processing Parameters:
+    Averaged Map, integ. time = 600 s
+    Time Step = 300 s
+    Constant Virtual Height of 400 km
+    ifltr  = 1
+    inter = 0
+    idiv  = 0
+    iext  = 0
+    ires  = 0
+ 
+Data Selection Parameters:
+    Frequency Range for Radar 1: 8-20 MHz
+    Frequency Range for Radar 2: 8-20 Mhz
+    Minimum Power = 3 db
+    Minimum Vlos = 25 m/s
+    Maximum Vlos = 2000 m/s
+    Max Error on Vlos = 100 m/s
+    igs   = 2
+    iereg = 1

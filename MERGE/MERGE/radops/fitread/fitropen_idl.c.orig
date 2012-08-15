@@ -1,0 +1,35 @@
+#include <stdio.h>
+/*
+$Log:	fitropen_idl.c,v $
+ * Revision 1.2  94/09/06  10:29:15  10:29:15  baker (Kile Baker S1G)
+ * removed path portion of includes
+ * 
+ * Revision 1.1  1994/03/16  17:44:50  baker
+ * Initial revision
+ *
+*/
+
+#include "fitfile.h"
+#include "endian.h"
+
+typedef struct {
+  unsigned short slen;
+  short stype;
+  char *s;
+} STRING;
+
+FIT_FILE *fitropen_idl(argc,argv)
+     int argc;
+     void *argv[];
+{
+  FIT_FILE *fitfile, *fitropen();
+  STRING strptr;
+  char *filename;
+
+  strptr = *(STRING *)argv[0];
+  filename = strptr.s;
+
+  return fitropen(filename);
+}
+
+

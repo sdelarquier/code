@@ -1,0 +1,25 @@
+		THE MERGE PROGRAM
+		-----------------
+
+- You will find a complete documentation on the MERGE program in the
+  postcript files 'merge.ps' and 'figxx.ps' contained in the DOC directory.
+
+- The fortran for the MERGE program is in merge.f, and all the routines
+  developped specifically for this program are in the directory 'routines'.
+
+- The program also needs many of the routines developped at APL that can
+  be found in the directory 'gen', 'mag', 'pgm', and 'fit'. It also needs
+  all the include files found in the directory 'include'.
+
+- To build the executable program:
+  (i)   Put the file info.inc into the 'include' directory;
+  (ii)  Declare your environment variables:
+	LPATH (for your librairies' path),
+	SD_FITROPEN_PATH (for the directory where the data can be found),
+	SD_HARDWARE (for the 'hardware.dat' file used by RADAR_POS);
+  (iii) Change the directory names in the open statements of the routines
+	/mag/igrfcall.f and /pgm/cnvcoord.f
+  (iv)  Build the shared librairies using the 'make_libs' file. This
+	makefile is a little different from the one that can be found
+	in the 'lib' directory.
+  (v)   Build the executable program using the 'make_merge' file
