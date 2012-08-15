@@ -1,0 +1,98 @@
+*** Basic input file layout with explanations ***
+  4                     Method of calculating refractive index
+  9                     Electron density model ; 9 is IRI
+ 10                     Electron density perturbation model ; 10 is blob
+  2                     Magnetic field model ; 2 is dipolar
+  4                     Collision frequency model
+  1      1.      0000   Transmission mode (1=ordinary, -1=extraordinary)
+  3      0.001   0000   Tx height above ground (km)
+  4     37.10    1000   Tx latitude (deg)
+  5    -77.95    1000   Tx longitude (deg)
+  7     11.000   0000   First frequency (MHz)
+  8     11.000   0000   Last frequency (MHz)
+  9     00.000   0000   Frequency step (MHz)
+ 11     10.000   1000   First azimuth (east of north) (deg)
+ 12     10.000   1000   Last azimuth (deg)
+ 13      0.000   1000   Azimuth step (deg)
+ 15     10.000   1000   First elevation (up of horizontal) (deg)
+ 16     60.000   1000   Last elevation (deg)
+ 17      0.100   1000   Elevation step (deg)
+ 20      0.000   0000   Receiver height above ground (km)
+ 21      0.      0000   Skip to next frequency after penetration (0=no, 1=yes)
+ 22      1.000   0000   Maximum number of hops calculated
+ 23   8000.000   0000   Maximum number of steps per hop
+ 24     90.000   1000   Geographic latitude of north geomagnetic pole
+ 25      0.000   1000   Geographic longitude of north geomagnetic pole
+ 28    500.000   0000   Height at which ionosphere is considered penetrated
+ 41      3.      0000   Integration routine used (see manual)
+ 42      1.000E-40000   Maximum single step error allowed
+ 43     50.000   0000   Ratio of maximum to minimum single step error
+ 44      1.000   0000   Initial integration step size (in group path) (km)
+ 45      5.000   0000   Maxmum step size (km)
+ 46      1.000E-40000   Minimum step size (km)
+ 47      0.500   0000   Factor to change step size by
+ 48     10.000   0000   Used to define grazing incidence
+ 57      0.      0000   Phase path (1=integrate, 2=integrate & output)
+ 58      0.      0000   Absorption
+ 59      0.      0000   Doppler shift
+ 60      0.      0000   Real part of gamma (group path)
+ 61      0.      0000   Imaginary part of gamma
+ 62      0.      0000   Geometrical path
+ 71      1.000   0000   Steps per printout
+ 72      0.      0000   Punchcard printout (leave as 0)
+ 81      1.      0000   Plot projection (1=vertical, 2=horizontal, 3=vertical2)
+ 82     10.000   0000   Lateral expansion (horiz projection only)
+ 83     62.320   1000   Latitude of left hand edge of plot (deg)
+ 84     26.610   1000   Longitude of left hand edge (deg)
+ 85     75.320   1000   Latitude of right hand edge (deg)
+ 86     26.610   1000   Longitude of right hand edge (deg)
+ 87     10.000   0000   Tick mark interval (km)
+ 88      0.000   0000   Height above ground of bottom of graph (km)
+ 89      1.      0000   Plot out Ne and dNe (0=no, 1=yes)
+ 90     45.000   1000   Receiver latitude (deg)
+ 91    -85.000   1000   Receiver longitude (deg)
+ 92     10.000   1000   Llatitudinal extent of Rx (deg)
+ 93     10.000   1000   Longitudinal extent of Rx (deg)
+ 94      1.      0000   Count received rays (0=no, 1=yes)
+100      1.      0000   Electron density switch (leave as 1)
+101      4.260   0000   Electron density parameter (see manual)
+102    310.000   0000   Electron density parameter (see manual)
+103    110.000   0000   Electron density parameter (see manual)
+104      5.210   0000   Electron density parameter (see manual)
+105    100.000   0000   Electron density parameter (see manual)
+106     10.000   0000   Electron density parameter (see manual)
+107      0.000   0000   Electron density parameter (see manual)
+108      0.000   0000   Electron density parameter (see manual)
+109      1.000   0000   Electron density parameter (see manual)
+150      0.      0000   Use electron density perturbation (0=no, 1=yes)
+151     80.000   0000   A relative amplitude of blob
+152     67.000   1000   Latitude of blob (deg)
+153    340.800   1000   Longitude of blob (deg)
+154    250.000   0100   Latitudinal blob width (km)
+155   2000.000   0100   Longitudinal blob width (km)
+156    105.000   0000   Height of blob (km
+157     20.000   0000   Scale height of blob (km)
+158      0.000   0000   Perturbation parameter (see manual)
+159      0.000   0000   Perturbation parameter (see manual)
+160      0.000   0000   Perturbation parameter (see manual)
+161      0.000   0000   Perturbation parameter (see manual)
+200      1.      0000   Magnetic field switch (leave as 1)
+201      0.800   0000   Magnetic field parameter (gyrofrequency in MHz)
+202      0.000   0000   Magnetic field parameter (dip angle)
+250      1.      0000   Collision frequency switch (leave as 1)
+251     15.900E+50000   Collision frequency parameter (see manual)
+252     79.000   0000   Collision frequency parameter (see manual)
+253      0.140   0000   Collision frequency parameter (see manual)
+254   3000.000   0000   Collision frequency parameter (see manual)
+255    135.000   0000   Collision frequency parameter (see manual)
+256      0.015   0000   Collision frequency parameter (see manual)
+300      0.0     0000   Reduce written to outfile.dat (0=no, 1=yes)
+301      0.0     0000   Reduce data written to rays.dat
+302      0.0     0000   Reduce data written to ranges.dat
+303      1.0     0000   Skip GHOST output
+304      0.0     0000   Reduce data written to kvect.dat
+305      0.0     0000   Read in Tx parameters from groundpos.dat
+306      1.0     0000   Scatter type (0=isotropic, 1=land, 2=sea)
+307      0.0     0000   Reduce data written to groundkv.dat
+308      0.0     0000   Reduce data written to uhybrid.dat
+000

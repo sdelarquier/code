@@ -1,0 +1,5 @@
+pro milh_rad_read
+
+rad_fit_read, [20101117,20101118], 'bks', time=[2100,1300]
+
+END

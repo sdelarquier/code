@@ -1,0 +1,9 @@
+function get_gray
+
+common color_prefs
+
+print, color_prefs
+
+return, cp_gray
+
+end

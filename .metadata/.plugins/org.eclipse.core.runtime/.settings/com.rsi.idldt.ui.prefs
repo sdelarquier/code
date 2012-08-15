@@ -1,0 +1,13 @@
+#Fri Feb 04 13:14:16 EST 2011
+IDL_DEVICE=X
+IDL_VALUES=true
+CHROMACODING_VALUES=true
+IDL_DATAFILE_USER_COMMENTS=1
+IDL_DLM_PATH=/davit/lib/rst/dlm\:/davit/lib/geopack/idl/dlm\:/davit/lib/cxform/cxform\:<IDL_DEFAULT>
+IDLDT_VALUES=true
+IDL_RBUF_PERSIST=1
+IDL_QUIET=0
+IDL_PATH=\:+/usr/local/itt/idl/lib\:+/davit/lib/rst/idl\:+/davit/lib/textoidl\:+/davit/lib/cdf_read\:+/davit/lib/asi\:+/davit/lib/vt\:+/davit/lib/mpfit\:+/davit/lib/themis/tdas/idl/themis\:+/davit/lib/themis/tdas/idl/ssl_general\:+/davit/lib/themis/tdas/idl/external\:+/home/sebastien/Documents/IDL/Default
+eclipse.preferences.version=1
+IDL_CPU_VECTOR_ENABLE=1
+IDL_PATH_CACHE_DISABLE=0

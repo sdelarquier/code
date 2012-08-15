@@ -1,0 +1,33 @@
+function	get_pathcoords, glat,glon,azim,step=step
+
+if ~keyword_set(step) then $
+	step = 20.
+Rpol = 6356.7523142
+Requ = 6378.137
+
+; Find length of an arcdegree of latitude
+thtmp = glat*!PI/180.
+latDeg = !PI/180.*Requ*Rpol*Requ*Rpol/ $
+     	SQRT(Requ*Requ*COS(thtmp)*COS(thtmp) + $
+     	     Rpol*Rpol*SIN(thtmp)*SIN(thtmp))/ $
+     	(Requ*Requ*COS(thtmp)*COS(thtmp) + $
+     	     Rpol*Rpol*SIN(thtmp)*SIN(thtmp))
+; Find new latitude
+x = glat + step/latDeg*COS(azim*!PI/180.)
+IF x gt 90. OR x lt -90. THEN $
+	x = 180. - x
+
+; Find length of an arcdegree of longitude
+thtmp = x*!PI/180.
+lonDeg = !PI/180.*Requ*Requ*COS(thtmp) / $
+	SQRT(Requ*Requ*COS(thtmp)*COS(thtmp) + $
+	     Rpol*Rpol*SIN(thtmp)*SIN(thtmp))
+; Find new longitude
+y = glon + step/lonDeg*SIN(azim*!PI/180.)
+IF y lt 0 THEN $
+	y = y + 360.
+
+; print, x,y,latDeg,lonDeg
+return, reform(transpose([[x],[y]]))
+
+end

@@ -1,0 +1,14 @@
+AbstractTextEditor.Color.Background=37,32,32
+AbstractTextEditor.Color.Background.SystemDefault=false
+AbstractTextEditor.Color.Foreground=239,239,239
+AbstractTextEditor.Color.Foreground.SystemDefault=false
+AbstractTextEditor.Color.SelectionBackground=77,77,77
+AbstractTextEditor.Color.SelectionBackground.SystemDefault=false
+AbstractTextEditor.Color.SelectionForeground.SystemDefault=false
+currentLineColor=57,57,57
+eclipse.preferences.version=1
+lineNumberColor=255,165,0
+lineNumberRuler=true
+overviewRuler_migration=migrated_3.1
+spacesForTabs=true
+spellingEngine=org.eclipse.jdt.internal.ui.text.spelling.DefaultSpellingEngine

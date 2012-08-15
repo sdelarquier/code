@@ -1,0 +1,13 @@
+function	get_re, lat
+
+Rpol = 6356.7523142
+Requ = 6378.137
+
+lat = lat*!PI/180.
+
+Re = SQRT( ( (Requ^2*cos(lat))^2 + (Rpol^2*sin(lat))^2 ) / $
+	   ( (Requ*cos(lat))^2 + (Rpol*sin(lat))^2 ) )
+
+return, Re
+
+end

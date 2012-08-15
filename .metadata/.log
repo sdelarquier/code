@@ -1,0 +1,1464 @@
+!SESSION 2012-08-14 14:34:34.041 -----------------------------------------------
+eclipse.buildId=I20110613-1736
+java.version=1.6.0_24
+java.vendor=Sun Microsystems Inc.
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_US
+Command-line arguments:  -os linux -ws gtk -arch x86_64
+
+!ENTRY org.eclipse.core.resources 4 567 2012-08-14 14:34:55.979
+!MESSAGE Workspace restored, but some problems occurred.
+!SUBENTRY 1 org.eclipse.core.resources 4 567 2012-08-14 14:34:55.979
+!MESSAGE Could not read metadata for 'Default'.
+!STACK 1
+org.eclipse.core.internal.resources.ResourceException: The project description file (.project) for 'Default' is missing.  This file contains important information about the project.  The project will not function properly until this file is restored.
+	at org.eclipse.core.internal.localstore.FileSystemResourceManager.read(FileSystemResourceManager.java:851)
+	at org.eclipse.core.internal.resources.SaveManager.restoreMetaInfo(SaveManager.java:874)
+	at org.eclipse.core.internal.resources.SaveManager.restoreMetaInfo(SaveManager.java:854)
+	at org.eclipse.core.internal.resources.SaveManager.restore(SaveManager.java:703)
+	at org.eclipse.core.internal.resources.SaveManager.startup(SaveManager.java:1528)
+	at org.eclipse.core.internal.resources.Workspace.startup(Workspace.java:2503)
+	at org.eclipse.core.internal.resources.Workspace.open(Workspace.java:2251)
+	at org.eclipse.core.resources.ResourcesPlugin.start(ResourcesPlugin.java:439)
+	at org.eclipse.osgi.framework.internal.core.BundleContextImpl$1.run(BundleContextImpl.java:711)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at org.eclipse.osgi.framework.internal.core.BundleContextImpl.startActivator(BundleContextImpl.java:702)
+	at org.eclipse.osgi.framework.internal.core.BundleContextImpl.start(BundleContextImpl.java:683)
+	at org.eclipse.osgi.framework.internal.core.BundleHost.startWorker(BundleHost.java:381)
+	at org.eclipse.osgi.framework.internal.core.AbstractBundle.start(AbstractBundle.java:299)
+	at org.eclipse.osgi.framework.util.SecureAction.start(SecureAction.java:440)
+	at org.eclipse.osgi.internal.loader.BundleLoader.setLazyTrigger(BundleLoader.java:268)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseLazyStarter.postFindLocalClass(EclipseLazyStarter.java:107)
+	at org.eclipse.osgi.baseadaptor.loader.ClasspathManager.findLocalClass(ClasspathManager.java:463)
+	at org.eclipse.osgi.internal.baseadaptor.DefaultClassLoader.findLocalClass(DefaultClassLoader.java:216)
+	at org.eclipse.osgi.internal.loader.BundleLoader.findLocalClass(BundleLoader.java:400)
+	at org.eclipse.osgi.internal.loader.SingleSourcePackage.loadClass(SingleSourcePackage.java:35)
+	at org.eclipse.osgi.internal.loader.BundleLoader.findClassInternal(BundleLoader.java:473)
+	at org.eclipse.osgi.internal.loader.BundleLoader.findClass(BundleLoader.java:429)
+	at org.eclipse.osgi.internal.loader.BundleLoader.findClass(BundleLoader.java:417)
+	at org.eclipse.osgi.internal.baseadaptor.DefaultClassLoader.loadClass(DefaultClassLoader.java:107)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:266)
+	at org.eclipse.ui.internal.ide.application.IDEApplication.start(IDEApplication.java:124)
+	at org.eclipse.equinox.internal.app.EclipseAppHandle.run(EclipseAppHandle.java:196)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:110)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:79)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:344)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:179)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:616)
+	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:622)
+	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:577)
+	at org.eclipse.equinox.launcher.Main.run(Main.java:1410)
+	at org.eclipse.equinox.launcher.Main.main(Main.java:1386)
+!SUBENTRY 2 org.eclipse.core.resources 4 567 2012-08-14 14:34:55.980
+!MESSAGE The project description file (.project) for 'Default' is missing.  This file contains important information about the project.  The project will not function properly until this file is restored.
+
+!ENTRY org.eclipse.ui 4 0 2012-08-14 14:34:57.136
+!MESSAGE Unable to create editor ID com.rsi.idldt.proeditor.ProEditor: No editor descriptor for id com.rsi.idldt.proeditor.ProEditor
+!STACK 1
+org.eclipse.ui.PartInitException: No editor descriptor for id com.rsi.idldt.proeditor.ProEditor
+	at org.eclipse.ui.internal.EditorReference.createPartHelper(EditorReference.java:601)
+	at org.eclipse.ui.internal.EditorReference.createPart(EditorReference.java:465)
+	at org.eclipse.ui.internal.WorkbenchPartReference.getPart(WorkbenchPartReference.java:595)
+	at org.eclipse.ui.internal.EditorAreaHelper.setVisibleEditor(EditorAreaHelper.java:271)
+	at org.eclipse.ui.internal.EditorManager.setVisibleEditor(EditorManager.java:1459)
+	at org.eclipse.ui.internal.EditorManager$5.runWithException(EditorManager.java:972)
+	at org.eclipse.ui.internal.StartupThreading$StartupRunnable.run(StartupThreading.java:31)
+	at org.eclipse.swt.widgets.RunnableLock.run(RunnableLock.java:35)
+	at org.eclipse.swt.widgets.Synchronizer.runAsyncMessages(Synchronizer.java:135)
+	at org.eclipse.swt.widgets.Display.runAsyncMessages(Display.java:3563)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3212)
+	at org.eclipse.ui.application.WorkbenchAdvisor.openWindows(WorkbenchAdvisor.java:803)
+	at org.eclipse.ui.internal.Workbench$33.runWithException(Workbench.java:1600)
+	at org.eclipse.ui.internal.StartupThreading$StartupRunnable.run(StartupThreading.java:31)
+	at org.eclipse.swt.widgets.RunnableLock.run(RunnableLock.java:35)
+	at org.eclipse.swt.widgets.Synchronizer.runAsyncMessages(Synchronizer.java:135)
+	at org.eclipse.swt.widgets.Display.runAsyncMessages(Display.java:3563)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3212)
+	at org.eclipse.ui.internal.Workbench.runUI(Workbench.java:2609)
+	at org.eclipse.ui.internal.Workbench.access$4(Workbench.java:2499)
+	at org.eclipse.ui.internal.Workbench$7.run(Workbench.java:679)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:332)
+	at org.eclipse.ui.internal.Workbench.createAndRunWorkbench(Workbench.java:668)
+	at org.eclipse.ui.PlatformUI.createAndRunWorkbench(PlatformUI.java:149)
+	at org.eclipse.ui.internal.ide.application.IDEApplication.start(IDEApplication.java:123)
+	at org.eclipse.equinox.internal.app.EclipseAppHandle.run(EclipseAppHandle.java:196)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:110)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:79)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:344)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:179)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:616)
+	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:622)
+	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:577)
+	at org.eclipse.equinox.launcher.Main.run(Main.java:1410)
+	at org.eclipse.equinox.launcher.Main.main(Main.java:1386)
+!SUBENTRY 1 org.eclipse.ui 4 0 2012-08-14 14:34:57.136
+!MESSAGE No editor descriptor for id com.rsi.idldt.proeditor.ProEditor
+
+!ENTRY org.eclipse.ui 2 2 2012-08-14 14:34:57.157
+!MESSAGE Ignored attempt to add saveable that was already registered
+!STACK 0
+org.eclipse.core.runtime.AssertionFailedException: unknown saveable: org.eclipse.ui.internal.DefaultSaveable@55f4c4a3 from part: org.eclipse.ui.internal.ErrorEditorPart@55f4c4a3
+	at org.eclipse.ui.internal.SaveablesList.logWarning(SaveablesList.java:187)
+	at org.eclipse.ui.internal.SaveablesList.addModel(SaveablesList.java:117)
+	at org.eclipse.ui.internal.SaveablesList.addModels(SaveablesList.java:289)
+	at org.eclipse.ui.internal.SaveablesList.postOpen(SaveablesList.java:695)
+	at org.eclipse.ui.internal.PartList.partOpened(PartList.java:234)
+	at org.eclipse.ui.internal.PartList.access$0(PartList.java:210)
+	at org.eclipse.ui.internal.PartList$1.propertyChanged(PartList.java:40)
+	at org.eclipse.ui.internal.WorkbenchPartReference.fireInternalPropertyChange(WorkbenchPartReference.java:375)
+	at org.eclipse.ui.internal.WorkbenchPartReference.getPart(WorkbenchPartReference.java:610)
+	at org.eclipse.ui.internal.EditorAreaHelper.setVisibleEditor(EditorAreaHelper.java:271)
+	at org.eclipse.ui.internal.EditorManager.setVisibleEditor(EditorManager.java:1459)
+	at org.eclipse.ui.internal.EditorManager$5.runWithException(EditorManager.java:972)
+	at org.eclipse.ui.internal.StartupThreading$StartupRunnable.run(StartupThreading.java:31)
+	at org.eclipse.swt.widgets.RunnableLock.run(RunnableLock.java:35)
+	at org.eclipse.swt.widgets.Synchronizer.runAsyncMessages(Synchronizer.java:135)
+	at org.eclipse.swt.widgets.Display.runAsyncMessages(Display.java:3563)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3212)
+	at org.eclipse.ui.application.WorkbenchAdvisor.openWindows(WorkbenchAdvisor.java:803)
+	at org.eclipse.ui.internal.Workbench$33.runWithException(Workbench.java:1600)
+	at org.eclipse.ui.internal.StartupThreading$StartupRunnable.run(StartupThreading.java:31)
+	at org.eclipse.swt.widgets.RunnableLock.run(RunnableLock.java:35)
+	at org.eclipse.swt.widgets.Synchronizer.runAsyncMessages(Synchronizer.java:135)
+	at org.eclipse.swt.widgets.Display.runAsyncMessages(Display.java:3563)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3212)
+	at org.eclipse.ui.internal.Workbench.runUI(Workbench.java:2609)
+	at org.eclipse.ui.internal.Workbench.access$4(Workbench.java:2499)
+	at org.eclipse.ui.internal.Workbench$7.run(Workbench.java:679)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:332)
+	at org.eclipse.ui.internal.Workbench.createAndRunWorkbench(Workbench.java:668)
+	at org.eclipse.ui.PlatformUI.createAndRunWorkbench(PlatformUI.java:149)
+	at org.eclipse.ui.internal.ide.application.IDEApplication.start(IDEApplication.java:123)
+	at org.eclipse.equinox.internal.app.EclipseAppHandle.run(EclipseAppHandle.java:196)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:110)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:79)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:344)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:179)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:616)
+	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:622)
+	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:577)
+	at org.eclipse.equinox.launcher.Main.run(Main.java:1410)
+	at org.eclipse.equinox.launcher.Main.main(Main.java:1386)
+
+!ENTRY org.eclipse.ui 2 2 2012-08-14 14:34:57.949
+!MESSAGE Perspective IDL has been made into a local copy
+
+!ENTRY org.eclipse.ui 4 0 2012-08-14 14:34:58.279
+!MESSAGE Problems occurred restoring workbench.
+!SUBENTRY 1 unknown 0 0 2012-08-14 14:34:58.279
+!MESSAGE OK
+!SUBENTRY 1 unknown 0 0 2012-08-14 14:34:58.279
+!MESSAGE OK
+!SUBENTRY 1 unknown 0 0 2012-08-14 14:34:58.279
+!MESSAGE OK
+!SUBENTRY 1 unknown 0 0 2012-08-14 14:34:58.279
+!MESSAGE OK
+!SUBENTRY 1 org.eclipse.ui 4 0 2012-08-14 14:34:58.279
+!MESSAGE Unable to restore perspective: Workspace - IDL.
+!SUBENTRY 2 org.eclipse.ui 0 0 2012-08-14 14:34:58.279
+!MESSAGE Problems occurred restoring perspective.
+!SUBENTRY 3 org.eclipse.ui 0 0 2012-08-14 14:34:58.279
+!MESSAGE 
+!SUBENTRY 2 unknown 0 0 2012-08-14 14:34:58.279
+!MESSAGE OK
+!SUBENTRY 2 unknown 0 0 2012-08-14 14:34:58.279
+!MESSAGE OK
+!SUBENTRY 2 unknown 0 0 2012-08-14 14:34:58.279
+!MESSAGE OK
+!SUBENTRY 2 org.eclipse.ui 4 4 2012-08-14 14:34:58.279
+!MESSAGE Could not create view: com.rsi.idldt.ui.views.ProfilerView
+!STACK 1
+org.eclipse.ui.PartInitException: Could not create view: com.rsi.idldt.ui.views.ProfilerView
+	at org.eclipse.ui.internal.ViewFactory.createView(ViewFactory.java:158)
+	at org.eclipse.ui.internal.Perspective.createReferences(Perspective.java:1249)
+	at org.eclipse.ui.internal.Perspective.restoreState(Perspective.java:1219)
+	at org.eclipse.ui.internal.WorkbenchPage$17.runWithException(WorkbenchPage.java:3293)
+	at org.eclipse.ui.internal.StartupThreading$StartupRunnable.run(StartupThreading.java:31)
+	at org.eclipse.swt.widgets.RunnableLock.run(RunnableLock.java:35)
+	at org.eclipse.swt.widgets.Synchronizer.runAsyncMessages(Synchronizer.java:135)
+	at org.eclipse.swt.widgets.Display.runAsyncMessages(Display.java:3563)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3212)
+	at org.eclipse.ui.application.WorkbenchAdvisor.openWindows(WorkbenchAdvisor.java:803)
+	at org.eclipse.ui.internal.Workbench$33.runWithException(Workbench.java:1600)
+	at org.eclipse.ui.internal.StartupThreading$StartupRunnable.run(StartupThreading.java:31)
+	at org.eclipse.swt.widgets.RunnableLock.run(RunnableLock.java:35)
+	at org.eclipse.swt.widgets.Synchronizer.runAsyncMessages(Synchronizer.java:135)
+	at org.eclipse.swt.widgets.Display.runAsyncMessages(Display.java:3563)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3212)
+	at org.eclipse.ui.internal.Workbench.runUI(Workbench.java:2609)
+	at org.eclipse.ui.internal.Workbench.access$4(Workbench.java:2499)
+	at org.eclipse.ui.internal.Workbench$7.run(Workbench.java:679)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:332)
+	at org.eclipse.ui.internal.Workbench.createAndRunWorkbench(Workbench.java:668)
+	at org.eclipse.ui.PlatformUI.createAndRunWorkbench(PlatformUI.java:149)
+	at org.eclipse.ui.internal.ide.application.IDEApplication.start(IDEApplication.java:123)
+	at org.eclipse.equinox.internal.app.EclipseAppHandle.run(EclipseAppHandle.java:196)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:110)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:79)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:344)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:179)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:616)
+	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:622)
+	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:577)
+	at org.eclipse.equinox.launcher.Main.run(Main.java:1410)
+	at org.eclipse.equinox.launcher.Main.main(Main.java:1386)
+!SUBENTRY 3 org.eclipse.ui 4 0 2012-08-14 14:34:58.279
+!MESSAGE Could not create view: com.rsi.idldt.ui.views.ProfilerView
+!SUBENTRY 2 org.eclipse.ui 4 4 2012-08-14 14:34:58.279
+!MESSAGE Could not create view: com.rsi.idldt.ui.views.CommandLineView
+!STACK 1
+org.eclipse.ui.PartInitException: Could not create view: com.rsi.idldt.ui.views.CommandLineView
+	at org.eclipse.ui.internal.ViewFactory.createView(ViewFactory.java:158)
+	at org.eclipse.ui.internal.Perspective.createReferences(Perspective.java:1249)
+	at org.eclipse.ui.internal.Perspective.restoreState(Perspective.java:1219)
+	at org.eclipse.ui.internal.WorkbenchPage$17.runWithException(WorkbenchPage.java:3293)
+	at org.eclipse.ui.internal.StartupThreading$StartupRunnable.run(StartupThreading.java:31)
+	at org.eclipse.swt.widgets.RunnableLock.run(RunnableLock.java:35)
+	at org.eclipse.swt.widgets.Synchronizer.runAsyncMessages(Synchronizer.java:135)
+	at org.eclipse.swt.widgets.Display.runAsyncMessages(Display.java:3563)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3212)
+	at org.eclipse.ui.application.WorkbenchAdvisor.openWindows(WorkbenchAdvisor.java:803)
+	at org.eclipse.ui.internal.Workbench$33.runWithException(Workbench.java:1600)
+	at org.eclipse.ui.internal.StartupThreading$StartupRunnable.run(StartupThreading.java:31)
+	at org.eclipse.swt.widgets.RunnableLock.run(RunnableLock.java:35)
+	at org.eclipse.swt.widgets.Synchronizer.runAsyncMessages(Synchronizer.java:135)
+	at org.eclipse.swt.widgets.Display.runAsyncMessages(Display.java:3563)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3212)
+	at org.eclipse.ui.internal.Workbench.runUI(Workbench.java:2609)
+	at org.eclipse.ui.internal.Workbench.access$4(Workbench.java:2499)
+	at org.eclipse.ui.internal.Workbench$7.run(Workbench.java:679)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:332)
+	at org.eclipse.ui.internal.Workbench.createAndRunWorkbench(Workbench.java:668)
+	at org.eclipse.ui.PlatformUI.createAndRunWorkbench(PlatformUI.java:149)
+	at org.eclipse.ui.internal.ide.application.IDEApplication.start(IDEApplication.java:123)
+	at org.eclipse.equinox.internal.app.EclipseAppHandle.run(EclipseAppHandle.java:196)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:110)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:79)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:344)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:179)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:616)
+	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:622)
+	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:577)
+	at org.eclipse.equinox.launcher.Main.run(Main.java:1410)
+	at org.eclipse.equinox.launcher.Main.main(Main.java:1386)
+!SUBENTRY 3 org.eclipse.ui 4 0 2012-08-14 14:34:58.280
+!MESSAGE Could not create view: com.rsi.idldt.ui.views.CommandLineView
+!SUBENTRY 2 unknown 0 0 2012-08-14 14:34:58.280
+!MESSAGE OK
+!SUBENTRY 2 org.eclipse.ui 4 4 2012-08-14 14:34:58.280
+!MESSAGE Could not create view: com.rsi.idldt.ui.views.CommandLineView
+!STACK 1
+org.eclipse.ui.PartInitException: Could not create view: com.rsi.idldt.ui.views.CommandLineView
+	at org.eclipse.ui.internal.ViewFactory.createView(ViewFactory.java:158)
+	at org.eclipse.ui.internal.Perspective.createReferences(Perspective.java:1249)
+	at org.eclipse.ui.internal.Perspective.restoreState(Perspective.java:1219)
+	at org.eclipse.ui.internal.WorkbenchPage$17.runWithException(WorkbenchPage.java:3293)
+	at org.eclipse.ui.internal.StartupThreading$StartupRunnable.run(StartupThreading.java:31)
+	at org.eclipse.swt.widgets.RunnableLock.run(RunnableLock.java:35)
+	at org.eclipse.swt.widgets.Synchronizer.runAsyncMessages(Synchronizer.java:135)
+	at org.eclipse.swt.widgets.Display.runAsyncMessages(Display.java:3563)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3212)
+	at org.eclipse.ui.application.WorkbenchAdvisor.openWindows(WorkbenchAdvisor.java:803)
+	at org.eclipse.ui.internal.Workbench$33.runWithException(Workbench.java:1600)
+	at org.eclipse.ui.internal.StartupThreading$StartupRunnable.run(StartupThreading.java:31)
+	at org.eclipse.swt.widgets.RunnableLock.run(RunnableLock.java:35)
+	at org.eclipse.swt.widgets.Synchronizer.runAsyncMessages(Synchronizer.java:135)
+	at org.eclipse.swt.widgets.Display.runAsyncMessages(Display.java:3563)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3212)
+	at org.eclipse.ui.internal.Workbench.runUI(Workbench.java:2609)
+	at org.eclipse.ui.internal.Workbench.access$4(Workbench.java:2499)
+	at org.eclipse.ui.internal.Workbench$7.run(Workbench.java:679)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:332)
+	at org.eclipse.ui.internal.Workbench.createAndRunWorkbench(Workbench.java:668)
+	at org.eclipse.ui.PlatformUI.createAndRunWorkbench(PlatformUI.java:149)
+	at org.eclipse.ui.internal.ide.application.IDEApplication.start(IDEApplication.java:123)
+	at org.eclipse.equinox.internal.app.EclipseAppHandle.run(EclipseAppHandle.java:196)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:110)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:79)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:344)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:179)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:616)
+	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:622)
+	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:577)
+	at org.eclipse.equinox.launcher.Main.run(Main.java:1410)
+	at org.eclipse.equinox.launcher.Main.main(Main.java:1386)
+!SUBENTRY 3 org.eclipse.ui 4 0 2012-08-14 14:34:58.280
+!MESSAGE Could not create view: com.rsi.idldt.ui.views.CommandLineView
+!SUBENTRY 2 org.eclipse.ui 4 4 2012-08-14 14:34:58.280
+!MESSAGE Could not create view: com.rsi.idldt.ui.views.CommandHistoryView
+!STACK 1
+org.eclipse.ui.PartInitException: Could not create view: com.rsi.idldt.ui.views.CommandHistoryView
+	at org.eclipse.ui.internal.ViewFactory.createView(ViewFactory.java:158)
+	at org.eclipse.ui.internal.Perspective.createReferences(Perspective.java:1249)
+	at org.eclipse.ui.internal.Perspective.restoreState(Perspective.java:1219)
+	at org.eclipse.ui.internal.WorkbenchPage$17.runWithException(WorkbenchPage.java:3293)
+	at org.eclipse.ui.internal.StartupThreading$StartupRunnable.run(StartupThreading.java:31)
+	at org.eclipse.swt.widgets.RunnableLock.run(RunnableLock.java:35)
+	at org.eclipse.swt.widgets.Synchronizer.runAsyncMessages(Synchronizer.java:135)
+	at org.eclipse.swt.widgets.Display.runAsyncMessages(Display.java:3563)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3212)
+	at org.eclipse.ui.application.WorkbenchAdvisor.openWindows(WorkbenchAdvisor.java:803)
+	at org.eclipse.ui.internal.Workbench$33.runWithException(Workbench.java:1600)
+	at org.eclipse.ui.internal.StartupThreading$StartupRunnable.run(StartupThreading.java:31)
+	at org.eclipse.swt.widgets.RunnableLock.run(RunnableLock.java:35)
+	at org.eclipse.swt.widgets.Synchronizer.runAsyncMessages(Synchronizer.java:135)
+	at org.eclipse.swt.widgets.Display.runAsyncMessages(Display.java:3563)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3212)
+	at org.eclipse.ui.internal.Workbench.runUI(Workbench.java:2609)
+	at org.eclipse.ui.internal.Workbench.access$4(Workbench.java:2499)
+	at org.eclipse.ui.internal.Workbench$7.run(Workbench.java:679)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:332)
+	at org.eclipse.ui.internal.Workbench.createAndRunWorkbench(Workbench.java:668)
+	at org.eclipse.ui.PlatformUI.createAndRunWorkbench(PlatformUI.java:149)
+	at org.eclipse.ui.internal.ide.application.IDEApplication.start(IDEApplication.java:123)
+	at org.eclipse.equinox.internal.app.EclipseAppHandle.run(EclipseAppHandle.java:196)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:110)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:79)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:344)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:179)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:616)
+	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:622)
+	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:577)
+	at org.eclipse.equinox.launcher.Main.run(Main.java:1410)
+	at org.eclipse.equinox.launcher.Main.main(Main.java:1386)
+!SUBENTRY 3 org.eclipse.ui 4 0 2012-08-14 14:34:58.281
+!MESSAGE Could not create view: com.rsi.idldt.ui.views.CommandHistoryView
+!SUBENTRY 2 unknown 0 0 2012-08-14 14:34:58.281
+!MESSAGE OK
+!SUBENTRY 2 unknown 0 0 2012-08-14 14:34:58.281
+!MESSAGE OK
+!SUBENTRY 2 unknown 0 0 2012-08-14 14:34:58.281
+!MESSAGE OK
+!SUBENTRY 2 unknown 0 0 2012-08-14 14:34:58.281
+!MESSAGE OK
+!SUBENTRY 2 unknown 0 0 2012-08-14 14:34:58.281
+!MESSAGE OK
+!SUBENTRY 2 org.eclipse.ui 4 0 2012-08-14 14:34:58.281
+!MESSAGE Could not find view: com.rsi.idldt.ui.views.CommandLineView
+!SUBENTRY 2 org.eclipse.ui 4 0 2012-08-14 14:34:58.281
+!MESSAGE Could not find view: com.rsi.idldt.ui.views.CommandHistoryView
+!SUBENTRY 1 unknown 0 0 2012-08-14 14:34:58.281
+!MESSAGE OK
+!SESSION 2012-08-14 14:50:53.676 -----------------------------------------------
+eclipse.buildId=I20110613-1736
+java.version=1.6.0_24
+java.vendor=Sun Microsystems Inc.
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_US
+Command-line arguments:  -os linux -ws gtk -arch x86_64
+
+!ENTRY org.eclipse.equinox.p2.touchpoint.natives 4 0 2012-08-14 14:52:32.453
+!MESSAGE Manual restore of backup needed for: /tmp/PlatformProfile_2724cf5cd2e0_7f000101a4a6/_/usr/lib/eclipse/.eclipseproduct
+
+!ENTRY org.eclipse.equinox.p2.touchpoint.natives 4 0 2012-08-14 14:52:32.455
+!MESSAGE 0 items out of 1 items restored.
+
+!ENTRY org.eclipse.equinox.p2.engine 4 4 2012-08-14 14:52:32.456
+!MESSAGE An error occurred while committing the engine session for profile: PlatformProfile.
+!SUBENTRY 1 org.eclipse.equinox.p2.touchpoint.natives 4 0 2012-08-14 14:52:32.456
+!MESSAGE Restore of backup failed - see log for details. Backup directory name: PlatformProfile_2724cf5cd2e0_7f000101a4a6.
+!STACK 0
+java.io.IOException: Errors while restoring - see earlier logged errors
+	at org.eclipse.equinox.internal.p2.touchpoint.natives.BackupStore.close(BackupStore.java:489)
+	at org.eclipse.equinox.internal.p2.touchpoint.natives.BackupStore.restore(BackupStore.java:452)
+	at org.eclipse.equinox.internal.p2.touchpoint.natives.LazyBackupStore.restore(LazyBackupStore.java:53)
+	at org.eclipse.equinox.internal.p2.touchpoint.natives.NativeTouchpoint.rollback(NativeTouchpoint.java:108)
+	at org.eclipse.equinox.internal.p2.engine.EngineSession.rollback(EngineSession.java:194)
+	at org.eclipse.equinox.internal.p2.engine.Engine.perform(Engine.java:84)
+	at org.eclipse.equinox.internal.p2.engine.Engine.perform(Engine.java:44)
+	at org.eclipse.equinox.p2.operations.ProvisioningSession.performProvisioningPlan(ProvisioningSession.java:174)
+	at org.eclipse.equinox.p2.operations.ProfileModificationJob.runModal(ProfileModificationJob.java:79)
+	at org.eclipse.equinox.p2.operations.ProvisioningJob.run(ProvisioningJob.java:177)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:54)
+
+!ENTRY org.eclipse.equinox.p2.engine 4 4 2012-08-14 14:52:32.470
+!MESSAGE An error occurred while uninstalling
+!SUBENTRY 1 org.eclipse.equinox.p2.engine 4 0 2012-08-14 14:52:32.470
+!MESSAGE session context was:(profile=PlatformProfile, phase=org.eclipse.equinox.internal.p2.engine.phases.Uninstall, operand=[R]org.eclipse.platform_root 3.7.2.dist-9nF7UHagFqn9pElwWhC90gLz-soEuSGYmtSeiRH --> null, action=org.eclipse.equinox.internal.p2.touchpoint.natives.actions.CleanupzipAction).
+!SUBENTRY 1 org.eclipse.equinox.p2.touchpoint.natives 4 0 2012-08-14 14:52:32.470
+!MESSAGE Backup of file /usr/lib/eclipse/.eclipseproduct failed.
+!STACK 0
+java.io.IOException: File that was copied to backup could not be deleted: /usr/lib/eclipse/.eclipseproduct
+	at org.eclipse.equinox.internal.p2.touchpoint.natives.BackupStore.moveToBackup(BackupStore.java:274)
+	at org.eclipse.equinox.internal.p2.touchpoint.natives.BackupStore.backup(BackupStore.java:243)
+	at org.eclipse.equinox.internal.p2.touchpoint.natives.LazyBackupStore.backup(LazyBackupStore.java:36)
+	at org.eclipse.equinox.internal.p2.touchpoint.natives.actions.CleanupzipAction.cleanupzip(CleanupzipAction.java:85)
+	at org.eclipse.equinox.internal.p2.touchpoint.natives.actions.CleanupzipAction.execute(CleanupzipAction.java:30)
+	at org.eclipse.equinox.internal.p2.engine.ParameterizedProvisioningAction.execute(ParameterizedProvisioningAction.java:35)
+	at org.eclipse.equinox.internal.p2.engine.Phase.mainPerform(Phase.java:149)
+	at org.eclipse.equinox.internal.p2.engine.Phase.perform(Phase.java:78)
+	at org.eclipse.equinox.internal.p2.engine.PhaseSet.perform(PhaseSet.java:44)
+	at org.eclipse.equinox.internal.p2.engine.Engine.perform(Engine.java:75)
+	at org.eclipse.equinox.internal.p2.engine.Engine.perform(Engine.java:44)
+	at org.eclipse.equinox.p2.operations.ProvisioningSession.performProvisioningPlan(ProvisioningSession.java:174)
+	at org.eclipse.equinox.p2.operations.ProfileModificationJob.runModal(ProfileModificationJob.java:79)
+	at org.eclipse.equinox.p2.operations.ProvisioningJob.run(ProvisioningJob.java:177)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:54)
+!SESSION 2012-08-14 14:57:34.310 -----------------------------------------------
+eclipse.buildId=I20110613-1736
+java.version=1.6.0_24
+java.vendor=Sun Microsystems Inc.
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_US
+Command-line arguments:  -os linux -ws gtk -arch x86_64
+
+!ENTRY org.python.pydev.core 4 4 2012-08-14 14:58:13.000
+!MESSAGE Python not configured.
+!STACK 0
+org.python.pydev.core.NotConfiguredInterpreterException: Python not configured.
+	at org.python.pydev.ui.interpreters.AbstractInterpreterManager.getDefaultInterpreterInfo(AbstractInterpreterManager.java:231)
+	at org.python.pydev.plugin.nature.PythonNature.getProjectInterpreter(PythonNature.java:1200)
+	at org.python.pydev.plugin.nature.PythonPathNature.getVariableSubstitution(PythonPathNature.java:484)
+	at org.python.pydev.plugin.nature.PythonPathNature.getVariableSubstitution(PythonPathNature.java:469)
+	at org.python.pydev.core.docutils.StringSubstitution.<init>(StringSubstitution.java:35)
+	at org.python.pydev.plugin.nature.PythonPathNature.getOnlyProjectPythonPathStr(PythonPathNature.java:168)
+	at org.python.pydev.plugin.nature.PythonNature$RebuildPythonNatureModules.run(PythonNature.java:137)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:54)
+
+!ENTRY org.python.pydev.core 4 4 2012-08-14 14:58:13.031
+!MESSAGE Info: Rebuilding internal caches: /home/sebastien/Documents/code/.metadata/.plugins/org.eclipse.core.resources/.projects/davitpy/com.python.pydev.analysis/AdditionalProjectInterpreterInfo.pydevinfo (Expected error to be provided and got no error!)
+
+!ENTRY org.python.pydev.core 1 1 2012-08-14 14:58:51.880
+!MESSAGE Information about process of adding new interpreter:
+- Chosen interpreter (name and file):'Tuple [python -- /usr/bin/python2.7]
+- Ok, file is non-null. Getting info on:/usr/bin/python2.7
+- Beggining task:Getting libs totalWork:100
+- Setting task name:Mounting executable string...
+- Setting task name:Executing:  /usr/bin/python2.7 -u /home/sebastien/.eclipse/org.eclipse.platform_3.7.0_155965261/plugins/org.python.pydev_2.6.0.2012062818/pysrc/interpreterInfo.py
+- Setting task name:Making pythonpath environment... /usr/bin/python2.7 -u /home/sebastien/.eclipse/org.eclipse.platform_3.7.0_155965261/plugins/org.python.pydev_2.6.0.2012062818/pysrc/interpreterInfo.py
+- Setting task name:Making exec... /usr/bin/python2.7 -u /home/sebastien/.eclipse/org.eclipse.platform_3.7.0_155965261/plugins/org.python.pydev_2.6.0.2012062818/pysrc/interpreterInfo.py
+- Setting task name:Reading output...
+- Setting task name:Waiting for process to finish.
+- Success getting the info. Result:<xml>
+<name>python</name>
+<version>2.7</version>
+<executable>/usr/bin/python2.7</executable>
+<lib>/usr/lib/python2.7</lib>
+<lib>/usr/lib/python2.7/plat-linux2</lib>
+<lib>/usr/lib/python2.7/lib-tk</lib>
+<lib>/usr/lib/python2.7/lib-old</lib>
+<lib>/usr/lib/python2.7/lib-dynload</lib>
+<lib>/usr/local/lib/python2.7/dist-packages</lib>
+<lib>/usr/lib/python2.7/dist-packages</lib>
+<lib>/usr/lib/python2.7/dist-packages/PIL</lib>
+<lib>/usr/lib/python2.7/dist-packages/gst-0.10</lib>
+<lib>/usr/lib/python2.7/dist-packages/gtk-2.0</lib>
+<lib>/usr/lib/pymodules/python2.7</lib>
+<lib>/usr/lib/python2.7/dist-packages/ubuntu-sso-client</lib>
+<lib>/usr/lib/python2.7/dist-packages/ubuntuone-client</lib>
+<lib>/usr/lib/python2.7/dist-packages/ubuntuone-control-panel</lib>
+<lib>/usr/lib/python2.7/dist-packages/ubuntuone-couch</lib>
+<lib>/usr/lib/python2.7/dist-packages/ubuntuone-installer</lib>
+<lib>/usr/lib/python2.7/dist-packages/ubuntuone-storage-protocol</lib>
+<forced_lib>Image</forced_lib>
+<forced_lib>OpenGL</forced_lib>
+<forced_lib>__builtin__</forced_lib>
+<forced_lib>__main__</forced_lib>
+<forced_lib>_ast</forced_lib>
+<forced_lib>_bisect</forced_lib>
+<forced_lib>_bytesio</forced_lib>
+<forced_lib>_codecs</forced_lib>
+<forced_lib>_codecs_cn</forced_lib>
+<forced_lib>_codecs_hk</forced_lib>
+<forced_lib>_codecs_iso2022</forced_lib>
+<forced_lib>_codecs_jp</forced_lib>
+<forced_lib>_codecs_kr</forced_lib>
+<forced_lib>_codecs_tw</forced_lib>
+<forced_lib>_collections</forced_lib>
+<forced_lib>_csv</forced_lib>
+<forced_lib>_fileio</forced_lib>
+<forced_lib>_functools</forced_lib>
+<forced_lib>_hashlib</forced_lib>
+<forced_lib>_heapq</forced_lib>
+<forced_lib>_hotshot</forced_lib>
+<forced_lib>_json</forced_lib>
+<forced_lib>_locale</forced_lib>
+<forced_lib>_lsprof</forced_lib>
+<forced_lib>_md5</forced_lib>
+<forced_lib>_multibytecodec</forced_lib>
+<forced_lib>_random</forced_lib>
+<forced_lib>_sha</forced_lib>
+<forced_lib>_sha256</forced_lib>
+<forced_lib>_sha512</forced_lib>
+<forced_lib>_socket</forced_lib>
+<forced_lib>_sre</forced_lib>
+<forced_lib>_ssl</forced_lib>
+<forced_lib>_struct</forced_lib>
+<forced_lib>_subprocess</forced_lib>
+<forced_lib>_symtable</forced_lib>
+<forced_lib>_warnings</forced_lib>
+<forced_lib>_weakref</forced_lib>
+<forced_lib>_winreg</forced_lib>
+<forced_lib>array</forced_lib>
+<forced_lib>audioop</forced_lib>
+<forced_lib>binascii</forced_lib>
+<forced_lib>cPickle</forced_lib>
+<forced_lib>cStringIO</forced_lib>
+<forced_lib>cmath</forced_lib>
+<forced_lib>datetime</forced_lib>
+<forced_lib>email</forced_lib>
+<forced_lib>errno</forced_lib>
+<forced_lib>exceptions</forced_lib>
+<forced_lib>fcntl</forced_lib>
+<forced_lib>future_builtins</forced_lib>
+<forced_lib>gc</forced_lib>
+<forced_lib>grp</forced_lib>
+<forced_lib>hashlib</forced_lib>
+<forced_lib>imageop</forced_lib>
+<forced_lib>imp</forced_lib>
+<forced_lib>itertools</forced_lib>
+<forced_lib>marshal</forced_lib>
+<forced_lib>math</forced_lib>
+<forced_lib>mmap</forced_lib>
+<forced_lib>msvcrt</forced_lib>
+<forced_lib>nt</forced_lib>
+<forced_lib>numpy</forced_lib>
+<forced_lib>operator</forced_lib>
+<forced_lib>os</forced_lib>
+<forced_lib>os.path</forced_lib>
+<forced_lib>parser</forced_lib>
+<forced_lib>posix</forced_lib>
+<forced_lib>pwd</forced_lib>
+<forced_lib>pytest</forced_lib>
+<forced_lib>scipy</forced_lib>
+<forced_lib>select</forced_lib>
+<forced_lib>signal</forced_lib>
+<forced_lib>socket</forced_lib>
+<forced_lib>spwd</forced_lib>
+<forced_lib>strop</forced_lib>
+<forced_lib>sys</forced_lib>
+<forced_lib>syslog</forced_lib>
+<forced_lib>thread</forced_lib>
+<forced_lib>time</forced_lib>
+<forced_lib>unicodedata</forced_lib>
+<forced_lib>wx</forced_lib>
+<forced_lib>wxPython</forced_lib>
+<forced_lib>xxsubtype</forced_lib>
+<forced_lib>zipimport</forced_lib>
+<forced_lib>zlib</forced_lib>
+</xml>
+
+!STACK 0
+java.lang.RuntimeException: Information about process of adding new interpreter:
+- Chosen interpreter (name and file):'Tuple [python -- /usr/bin/python2.7]
+- Ok, file is non-null. Getting info on:/usr/bin/python2.7
+- Beggining task:Getting libs totalWork:100
+- Setting task name:Mounting executable string...
+- Setting task name:Executing:  /usr/bin/python2.7 -u /home/sebastien/.eclipse/org.eclipse.platform_3.7.0_155965261/plugins/org.python.pydev_2.6.0.2012062818/pysrc/interpreterInfo.py
+- Setting task name:Making pythonpath environment... /usr/bin/python2.7 -u /home/sebastien/.eclipse/org.eclipse.platform_3.7.0_155965261/plugins/org.python.pydev_2.6.0.2012062818/pysrc/interpreterInfo.py
+- Setting task name:Making exec... /usr/bin/python2.7 -u /home/sebastien/.eclipse/org.eclipse.platform_3.7.0_155965261/plugins/org.python.pydev_2.6.0.2012062818/pysrc/interpreterInfo.py
+- Setting task name:Reading output...
+- Setting task name:Waiting for process to finish.
+- Success getting the info. Result:<xml>
+<name>python</name>
+<version>2.7</version>
+<executable>/usr/bin/python2.7</executable>
+<lib>/usr/lib/python2.7</lib>
+<lib>/usr/lib/python2.7/plat-linux2</lib>
+<lib>/usr/lib/python2.7/lib-tk</lib>
+<lib>/usr/lib/python2.7/lib-old</lib>
+<lib>/usr/lib/python2.7/lib-dynload</lib>
+<lib>/usr/local/lib/python2.7/dist-packages</lib>
+<lib>/usr/lib/python2.7/dist-packages</lib>
+<lib>/usr/lib/python2.7/dist-packages/PIL</lib>
+<lib>/usr/lib/python2.7/dist-packages/gst-0.10</lib>
+<lib>/usr/lib/python2.7/dist-packages/gtk-2.0</lib>
+<lib>/usr/lib/pymodules/python2.7</lib>
+<lib>/usr/lib/python2.7/dist-packages/ubuntu-sso-client</lib>
+<lib>/usr/lib/python2.7/dist-packages/ubuntuone-client</lib>
+<lib>/usr/lib/python2.7/dist-packages/ubuntuone-control-panel</lib>
+<lib>/usr/lib/python2.7/dist-packages/ubuntuone-couch</lib>
+<lib>/usr/lib/python2.7/dist-packages/ubuntuone-installer</lib>
+<lib>/usr/lib/python2.7/dist-packages/ubuntuone-storage-protocol</lib>
+<forced_lib>Image</forced_lib>
+<forced_lib>OpenGL</forced_lib>
+<forced_lib>__builtin__</forced_lib>
+<forced_lib>__main__</forced_lib>
+<forced_lib>_ast</forced_lib>
+<forced_lib>_bisect</forced_lib>
+<forced_lib>_bytesio</forced_lib>
+<forced_lib>_codecs</forced_lib>
+<forced_lib>_codecs_cn</forced_lib>
+<forced_lib>_codecs_hk</forced_lib>
+<forced_lib>_codecs_iso2022</forced_lib>
+<forced_lib>_codecs_jp</forced_lib>
+<forced_lib>_codecs_kr</forced_lib>
+<forced_lib>_codecs_tw</forced_lib>
+<forced_lib>_collections</forced_lib>
+<forced_lib>_csv</forced_lib>
+<forced_lib>_fileio</forced_lib>
+<forced_lib>_functools</forced_lib>
+<forced_lib>_hashlib</forced_lib>
+<forced_lib>_heapq</forced_lib>
+<forced_lib>_hotshot</forced_lib>
+<forced_lib>_json</forced_lib>
+<forced_lib>_locale</forced_lib>
+<forced_lib>_lsprof</forced_lib>
+<forced_lib>_md5</forced_lib>
+<forced_lib>_multibytecodec</forced_lib>
+<forced_lib>_random</forced_lib>
+<forced_lib>_sha</forced_lib>
+<forced_lib>_sha256</forced_lib>
+<forced_lib>_sha512</forced_lib>
+<forced_lib>_socket</forced_lib>
+<forced_lib>_sre</forced_lib>
+<forced_lib>_ssl</forced_lib>
+<forced_lib>_struct</forced_lib>
+<forced_lib>_subprocess</forced_lib>
+<forced_lib>_symtable</forced_lib>
+<forced_lib>_warnings</forced_lib>
+<forced_lib>_weakref</forced_lib>
+<forced_lib>_winreg</forced_lib>
+<forced_lib>array</forced_lib>
+<forced_lib>audioop</forced_lib>
+<forced_lib>binascii</forced_lib>
+<forced_lib>cPickle</forced_lib>
+<forced_lib>cStringIO</forced_lib>
+<forced_lib>cmath</forced_lib>
+<forced_lib>datetime</forced_lib>
+<forced_lib>email</forced_lib>
+<forced_lib>errno</forced_lib>
+<forced_lib>exceptions</forced_lib>
+<forced_lib>fcntl</forced_lib>
+<forced_lib>future_builtins</forced_lib>
+<forced_lib>gc</forced_lib>
+<forced_lib>grp</forced_lib>
+<forced_lib>hashlib</forced_lib>
+<forced_lib>imageop</forced_lib>
+<forced_lib>imp</forced_lib>
+<forced_lib>itertools</forced_lib>
+<forced_lib>marshal</forced_lib>
+<forced_lib>math</forced_lib>
+<forced_lib>mmap</forced_lib>
+<forced_lib>msvcrt</forced_lib>
+<forced_lib>nt</forced_lib>
+<forced_lib>numpy</forced_lib>
+<forced_lib>operator</forced_lib>
+<forced_lib>os</forced_lib>
+<forced_lib>os.path</forced_lib>
+<forced_lib>parser</forced_lib>
+<forced_lib>posix</forced_lib>
+<forced_lib>pwd</forced_lib>
+<forced_lib>pytest</forced_lib>
+<forced_lib>scipy</forced_lib>
+<forced_lib>select</forced_lib>
+<forced_lib>signal</forced_lib>
+<forced_lib>socket</forced_lib>
+<forced_lib>spwd</forced_lib>
+<forced_lib>strop</forced_lib>
+<forced_lib>sys</forced_lib>
+<forced_lib>syslog</forced_lib>
+<forced_lib>thread</forced_lib>
+<forced_lib>time</forced_lib>
+<forced_lib>unicodedata</forced_lib>
+<forced_lib>wx</forced_lib>
+<forced_lib>wxPython</forced_lib>
+<forced_lib>xxsubtype</forced_lib>
+<forced_lib>zipimport</forced_lib>
+<forced_lib>zlib</forced_lib>
+</xml>
+
+	at org.python.pydev.core.log.Log.logInfo(Log.java:112)
+	at org.python.pydev.ui.pythonpathconf.AbstractInterpreterEditor.getNewInputObject(AbstractInterpreterEditor.java:1096)
+	at org.python.copiedfromeclipsesrc.PythonListEditor.autoConfigPressed(PythonListEditor.java:124)
+	at org.python.pydev.ui.pythonpathconf.AbstractInterpreterPreferencesPage.createControl(AbstractInterpreterPreferencesPage.java:65)
+	at org.eclipse.jface.preference.PreferenceDialog.createPageControl(PreferenceDialog.java:1501)
+	at org.eclipse.jface.preference.PreferenceDialog$14.run(PreferenceDialog.java:1258)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:42)
+	at org.eclipse.ui.internal.JFaceUtil$1.run(JFaceUtil.java:49)
+	at org.eclipse.jface.util.SafeRunnable.run(SafeRunnable.java:175)
+	at org.eclipse.jface.preference.PreferenceDialog.showPage(PreferenceDialog.java:1252)
+	at org.eclipse.ui.internal.dialogs.FilteredPreferenceDialog.showPage(FilteredPreferenceDialog.java:674)
+	at org.eclipse.jface.preference.PreferenceDialog$10.run(PreferenceDialog.java:708)
+	at org.eclipse.swt.custom.BusyIndicator.showWhile(BusyIndicator.java:70)
+	at org.eclipse.jface.preference.PreferenceDialog$9.selectionChanged(PreferenceDialog.java:704)
+	at org.eclipse.jface.viewers.StructuredViewer$3.run(StructuredViewer.java:888)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:42)
+	at org.eclipse.ui.internal.JFaceUtil$1.run(JFaceUtil.java:49)
+	at org.eclipse.jface.util.SafeRunnable.run(SafeRunnable.java:175)
+	at org.eclipse.jface.viewers.StructuredViewer.firePostSelectionChanged(StructuredViewer.java:886)
+	at org.eclipse.jface.viewers.StructuredViewer.setSelection(StructuredViewer.java:1726)
+	at org.eclipse.jface.viewers.TreeViewer.setSelection(TreeViewer.java:1139)
+	at org.eclipse.jface.preference.PreferenceDialog.selectSavedItem(PreferenceDialog.java:1054)
+	at org.eclipse.ui.internal.dialogs.FilteredPreferenceDialog.selectSavedItem(FilteredPreferenceDialog.java:729)
+	at org.eclipse.jface.preference.PreferenceDialog$4.run(PreferenceDialog.java:375)
+	at org.eclipse.swt.custom.BusyIndicator.showWhile(BusyIndicator.java:70)
+	at org.eclipse.jface.preference.PreferenceDialog.createContents(PreferenceDialog.java:371)
+	at org.eclipse.jface.window.Window.create(Window.java:431)
+	at org.eclipse.jface.dialogs.Dialog.create(Dialog.java:1089)
+	at org.eclipse.ui.internal.dialogs.WorkbenchPreferenceDialog.createDialogOn(WorkbenchPreferenceDialog.java:102)
+	at org.eclipse.ui.dialogs.PreferencesUtil.createPreferenceDialogOn(PreferencesUtil.java:192)
+	at org.eclipse.ui.dialogs.PreferencesUtil.createPreferenceDialogOn(PreferencesUtil.java:116)
+	at org.python.pydev.ui.interpreters.AbstractInterpreterManager$ConfigureInterpreterJob.runInUIThread(AbstractInterpreterManager.java:267)
+	at org.eclipse.ui.progress.UIJob$1.run(UIJob.java:95)
+	at org.eclipse.swt.widgets.RunnableLock.run(RunnableLock.java:35)
+	at org.eclipse.swt.widgets.Synchronizer.runAsyncMessages(Synchronizer.java:135)
+	at org.eclipse.swt.widgets.Display.runAsyncMessages(Display.java:3563)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3212)
+	at org.eclipse.ui.internal.Workbench.runEventLoop(Workbench.java:2701)
+	at org.eclipse.ui.internal.Workbench.runUI(Workbench.java:2665)
+	at org.eclipse.ui.internal.Workbench.access$4(Workbench.java:2499)
+	at org.eclipse.ui.internal.Workbench$7.run(Workbench.java:679)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:332)
+	at org.eclipse.ui.internal.Workbench.createAndRunWorkbench(Workbench.java:668)
+	at org.eclipse.ui.PlatformUI.createAndRunWorkbench(PlatformUI.java:149)
+	at org.eclipse.ui.internal.ide.application.IDEApplication.start(IDEApplication.java:123)
+	at org.eclipse.equinox.internal.app.EclipseAppHandle.run(EclipseAppHandle.java:196)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:110)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:79)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:344)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:179)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:616)
+	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:622)
+	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:577)
+	at org.eclipse.equinox.launcher.Main.run(Main.java:1410)
+	at org.eclipse.equinox.launcher.Main.main(Main.java:1386)
+
+!ENTRY org.python.pydev.core 1 1 2012-08-14 14:59:02.400
+!MESSAGE Restoring info for: /usr/bin/python2.7
+!STACK 0
+java.lang.RuntimeException: Restoring info for: /usr/bin/python2.7
+	at org.python.pydev.ui.interpreters.AbstractInterpreterManager.getInterpretersFromPersistedString(AbstractInterpreterManager.java:493)
+	at org.python.pydev.ui.interpreters.AbstractInterpreterManager.internalRecreateCacheGetInterpreterInfos(AbstractInterpreterManager.java:328)
+	at org.python.pydev.ui.interpreters.AbstractInterpreterManager.setInfos(AbstractInterpreterManager.java:615)
+	at org.python.pydev.ui.pythonpathconf.AbstractInterpreterPreferencesPage$3.run(AbstractInterpreterPreferencesPage.java:257)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:121)
+Caused by: java.io.IOException: Expecting: /home/sebastien/Documents/code/.metadata/.plugins/org.python.pydev/v1_3tswbhuj9gc4kibexhrzgzdx/modulesKeys to exist (and be a file).
+	at org.python.pydev.editor.codecompletion.revisited.ModulesManager.loadFromFile(ModulesManager.java:248)
+	at org.python.pydev.editor.codecompletion.revisited.SystemModulesManager.load(SystemModulesManager.java:369)
+	at org.python.pydev.ui.interpreters.AbstractInterpreterManager.getInterpretersFromPersistedString(AbstractInterpreterManager.java:491)
+	... 4 more
+
+!ENTRY org.python.pydev.core 1 1 2012-08-14 14:59:05.401
+!MESSAGE Finished restoring information for: /usr/bin/python2.7 at: /home/sebastien/Documents/code/.metadata/.plugins/org.python.pydev/v1_3tswbhuj9gc4kibexhrzgzdx
+!STACK 0
+java.lang.RuntimeException: Finished restoring information for: /usr/bin/python2.7 at: /home/sebastien/Documents/code/.metadata/.plugins/org.python.pydev/v1_3tswbhuj9gc4kibexhrzgzdx
+	at org.python.pydev.core.log.Log.logInfo(Log.java:112)
+	at org.python.pydev.ui.interpreters.AbstractInterpreterManager.getInterpretersFromPersistedString(AbstractInterpreterManager.java:538)
+	at org.python.pydev.ui.interpreters.AbstractInterpreterManager.internalRecreateCacheGetInterpreterInfos(AbstractInterpreterManager.java:328)
+	at org.python.pydev.ui.interpreters.AbstractInterpreterManager.setInfos(AbstractInterpreterManager.java:615)
+	at org.python.pydev.ui.pythonpathconf.AbstractInterpreterPreferencesPage$3.run(AbstractInterpreterPreferencesPage.java:257)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:121)
+
+!ENTRY org.python.pydev.core 4 4 2012-08-14 14:59:05.724
+!MESSAGE Info: Rebuilding internal caches: /home/sebastien/Documents/code/.metadata/.plugins/com.python.pydev.analysis/python_v1_3tswbhuj9gc4kibexhrzgzdx/python.pydevsysteminfo (Expected error to be provided and got no error!)
+
+!ENTRY org.eclipse.jface 4 2 2012-08-14 15:26:45.335
+!MESSAGE Problems occurred when invoking code from plug-in: "org.eclipse.jface".
+!STACK 0
+java.lang.NoSuchMethodError: org.eclipse.jface.text.source.DefaultCharacterPairMatcher.<init>([CLjava/lang/String;Z)V
+	at org.eclipse.photran.internal.ui.editor.FortranEditor.configureSourceViewerDecorationSupport(FortranEditor.java:270)
+	at org.eclipse.ui.texteditor.AbstractDecoratedTextEditor.getSourceViewerDecorationSupport(AbstractDecoratedTextEditor.java:943)
+	at org.eclipse.photran.internal.ui.editor.FortranEditor.createSourceViewer(FortranEditor.java:290)
+	at org.eclipse.ui.texteditor.AbstractTextEditor.createPartControl(AbstractTextEditor.java:3403)
+	at org.eclipse.ui.texteditor.StatusTextEditor.createPartControl(StatusTextEditor.java:54)
+	at org.eclipse.ui.texteditor.AbstractDecoratedTextEditor.createPartControl(AbstractDecoratedTextEditor.java:440)
+	at org.eclipse.photran.internal.ui.editor.FortranEditor.createPartControl(FortranEditor.java:184)
+	at org.eclipse.ui.internal.EditorReference.createPartHelper(EditorReference.java:670)
+	at org.eclipse.ui.internal.EditorReference.createPart(EditorReference.java:465)
+	at org.eclipse.ui.internal.WorkbenchPartReference.getPart(WorkbenchPartReference.java:595)
+	at org.eclipse.ui.internal.EditorReference.getEditor(EditorReference.java:289)
+	at org.eclipse.ui.internal.WorkbenchPage.busyOpenEditorBatched(WorkbenchPage.java:2945)
+	at org.eclipse.ui.internal.WorkbenchPage.busyOpenEditor(WorkbenchPage.java:2850)
+	at org.eclipse.ui.internal.WorkbenchPage.access$11(WorkbenchPage.java:2842)
+	at org.eclipse.ui.internal.WorkbenchPage$10.run(WorkbenchPage.java:2793)
+	at org.eclipse.swt.custom.BusyIndicator.showWhile(BusyIndicator.java:70)
+	at org.eclipse.ui.internal.WorkbenchPage.openEditor(WorkbenchPage.java:2789)
+	at org.eclipse.ui.internal.WorkbenchPage.openEditor(WorkbenchPage.java:2773)
+	at org.eclipse.ui.internal.WorkbenchPage.openEditor(WorkbenchPage.java:2756)
+	at org.eclipse.ui.ide.IDE.openEditor(IDE.java:683)
+	at org.python.pydev.navigator.actions.PyOpenResourceAction.openFiles(PyOpenResourceAction.java:101)
+	at org.python.pydev.navigator.actions.PyOpenPythonFileAction.run(PyOpenPythonFileAction.java:85)
+	at org.eclipse.ui.actions.RetargetAction.run(RetargetAction.java:221)
+	at org.eclipse.ui.navigator.CommonNavigatorManager$3.open(CommonNavigatorManager.java:185)
+	at org.eclipse.ui.OpenAndLinkWithEditorHelper$InternalListener.open(OpenAndLinkWithEditorHelper.java:48)
+	at org.eclipse.jface.viewers.StructuredViewer$2.run(StructuredViewer.java:866)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:42)
+	at org.eclipse.ui.internal.JFaceUtil$1.run(JFaceUtil.java:49)
+	at org.eclipse.jface.util.SafeRunnable.run(SafeRunnable.java:175)
+	at org.eclipse.jface.viewers.StructuredViewer.fireOpen(StructuredViewer.java:864)
+	at org.eclipse.jface.viewers.StructuredViewer.handleOpen(StructuredViewer.java:1152)
+	at org.eclipse.ui.navigator.CommonViewer.handleOpen(CommonViewer.java:462)
+	at org.eclipse.jface.viewers.StructuredViewer$6.handleOpen(StructuredViewer.java:1256)
+	at org.eclipse.jface.util.OpenStrategy.fireOpenEvent(OpenStrategy.java:275)
+	at org.eclipse.jface.util.OpenStrategy.access$2(OpenStrategy.java:269)
+	at org.eclipse.jface.util.OpenStrategy$1.mouseSelectItem(OpenStrategy.java:443)
+	at org.eclipse.jface.util.OpenStrategy$1.handleEvent(OpenStrategy.java:376)
+	at org.eclipse.swt.widgets.EventTable.sendEvent(EventTable.java:84)
+	at org.eclipse.swt.widgets.Widget.sendEvent(Widget.java:1258)
+	at org.eclipse.swt.widgets.Display.runDeferredEvents(Display.java:3588)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3209)
+	at org.eclipse.ui.internal.Workbench.runEventLoop(Workbench.java:2701)
+	at org.eclipse.ui.internal.Workbench.runUI(Workbench.java:2665)
+	at org.eclipse.ui.internal.Workbench.access$4(Workbench.java:2499)
+	at org.eclipse.ui.internal.Workbench$7.run(Workbench.java:679)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:332)
+	at org.eclipse.ui.internal.Workbench.createAndRunWorkbench(Workbench.java:668)
+	at org.eclipse.ui.PlatformUI.createAndRunWorkbench(PlatformUI.java:149)
+	at org.eclipse.ui.internal.ide.application.IDEApplication.start(IDEApplication.java:123)
+	at org.eclipse.equinox.internal.app.EclipseAppHandle.run(EclipseAppHandle.java:196)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:110)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:79)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:344)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:179)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:616)
+	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:622)
+	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:577)
+	at org.eclipse.equinox.launcher.Main.run(Main.java:1410)
+	at org.eclipse.equinox.launcher.Main.main(Main.java:1386)
+
+!ENTRY org.eclipse.jface 4 2 2012-08-14 15:26:55.887
+!MESSAGE Problems occurred when invoking code from plug-in: "org.eclipse.jface".
+!STACK 0
+java.lang.NoSuchMethodError: org.eclipse.jface.text.source.DefaultCharacterPairMatcher.<init>([CLjava/lang/String;Z)V
+	at org.eclipse.photran.internal.ui.editor.FortranEditor.configureSourceViewerDecorationSupport(FortranEditor.java:270)
+	at org.eclipse.ui.texteditor.AbstractDecoratedTextEditor.getSourceViewerDecorationSupport(AbstractDecoratedTextEditor.java:943)
+	at org.eclipse.photran.internal.ui.editor.FortranEditor.createSourceViewer(FortranEditor.java:290)
+	at org.eclipse.ui.texteditor.AbstractTextEditor.createPartControl(AbstractTextEditor.java:3403)
+	at org.eclipse.ui.texteditor.StatusTextEditor.createPartControl(StatusTextEditor.java:54)
+	at org.eclipse.ui.texteditor.AbstractDecoratedTextEditor.createPartControl(AbstractDecoratedTextEditor.java:440)
+	at org.eclipse.photran.internal.ui.editor.FortranEditor.createPartControl(FortranEditor.java:184)
+	at org.eclipse.ui.internal.EditorReference.createPartHelper(EditorReference.java:670)
+	at org.eclipse.ui.internal.EditorReference.createPart(EditorReference.java:465)
+	at org.eclipse.ui.internal.WorkbenchPartReference.getPart(WorkbenchPartReference.java:595)
+	at org.eclipse.ui.internal.EditorReference.getEditor(EditorReference.java:289)
+	at org.eclipse.ui.internal.WorkbenchPage.busyOpenEditorBatched(WorkbenchPage.java:2945)
+	at org.eclipse.ui.internal.WorkbenchPage.busyOpenEditor(WorkbenchPage.java:2850)
+	at org.eclipse.ui.internal.WorkbenchPage.access$11(WorkbenchPage.java:2842)
+	at org.eclipse.ui.internal.WorkbenchPage$10.run(WorkbenchPage.java:2793)
+	at org.eclipse.swt.custom.BusyIndicator.showWhile(BusyIndicator.java:70)
+	at org.eclipse.ui.internal.WorkbenchPage.openEditor(WorkbenchPage.java:2789)
+	at org.eclipse.ui.internal.WorkbenchPage.openEditor(WorkbenchPage.java:2773)
+	at org.eclipse.ui.internal.WorkbenchPage.openEditor(WorkbenchPage.java:2756)
+	at org.eclipse.ui.ide.IDE.openEditor(IDE.java:683)
+	at org.python.pydev.navigator.actions.PyOpenResourceAction.openFiles(PyOpenResourceAction.java:101)
+	at org.python.pydev.navigator.actions.PyOpenPythonFileAction.run(PyOpenPythonFileAction.java:85)
+	at org.eclipse.ui.actions.RetargetAction.run(RetargetAction.java:221)
+	at org.eclipse.ui.navigator.CommonNavigatorManager$3.open(CommonNavigatorManager.java:185)
+	at org.eclipse.ui.OpenAndLinkWithEditorHelper$InternalListener.open(OpenAndLinkWithEditorHelper.java:48)
+	at org.eclipse.jface.viewers.StructuredViewer$2.run(StructuredViewer.java:866)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:42)
+	at org.eclipse.ui.internal.JFaceUtil$1.run(JFaceUtil.java:49)
+	at org.eclipse.jface.util.SafeRunnable.run(SafeRunnable.java:175)
+	at org.eclipse.jface.viewers.StructuredViewer.fireOpen(StructuredViewer.java:864)
+	at org.eclipse.jface.viewers.StructuredViewer.handleOpen(StructuredViewer.java:1152)
+	at org.eclipse.ui.navigator.CommonViewer.handleOpen(CommonViewer.java:462)
+	at org.eclipse.jface.viewers.StructuredViewer$6.handleOpen(StructuredViewer.java:1256)
+	at org.eclipse.jface.util.OpenStrategy.fireOpenEvent(OpenStrategy.java:275)
+	at org.eclipse.jface.util.OpenStrategy.access$2(OpenStrategy.java:269)
+	at org.eclipse.jface.util.OpenStrategy$1.mouseSelectItem(OpenStrategy.java:443)
+	at org.eclipse.jface.util.OpenStrategy$1.handleEvent(OpenStrategy.java:376)
+	at org.eclipse.swt.widgets.EventTable.sendEvent(EventTable.java:84)
+	at org.eclipse.swt.widgets.Widget.sendEvent(Widget.java:1258)
+	at org.eclipse.swt.widgets.Display.runDeferredEvents(Display.java:3588)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3209)
+	at org.eclipse.ui.internal.Workbench.runEventLoop(Workbench.java:2701)
+	at org.eclipse.ui.internal.Workbench.runUI(Workbench.java:2665)
+	at org.eclipse.ui.internal.Workbench.access$4(Workbench.java:2499)
+	at org.eclipse.ui.internal.Workbench$7.run(Workbench.java:679)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:332)
+	at org.eclipse.ui.internal.Workbench.createAndRunWorkbench(Workbench.java:668)
+	at org.eclipse.ui.PlatformUI.createAndRunWorkbench(PlatformUI.java:149)
+	at org.eclipse.ui.internal.ide.application.IDEApplication.start(IDEApplication.java:123)
+	at org.eclipse.equinox.internal.app.EclipseAppHandle.run(EclipseAppHandle.java:196)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:110)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:79)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:344)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:179)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:616)
+	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:622)
+	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:577)
+	at org.eclipse.equinox.launcher.Main.run(Main.java:1410)
+	at org.eclipse.equinox.launcher.Main.main(Main.java:1386)
+
+!ENTRY org.eclipse.jface 4 2 2012-08-14 15:27:13.419
+!MESSAGE Problems occurred when invoking code from plug-in: "org.eclipse.jface".
+!STACK 0
+java.lang.NoSuchMethodError: org.eclipse.jface.text.source.DefaultCharacterPairMatcher.<init>([CLjava/lang/String;Z)V
+	at org.eclipse.photran.internal.ui.editor.FortranEditor.configureSourceViewerDecorationSupport(FortranEditor.java:270)
+	at org.eclipse.ui.texteditor.AbstractDecoratedTextEditor.getSourceViewerDecorationSupport(AbstractDecoratedTextEditor.java:943)
+	at org.eclipse.photran.internal.ui.editor.FortranEditor.createSourceViewer(FortranEditor.java:290)
+	at org.eclipse.ui.texteditor.AbstractTextEditor.createPartControl(AbstractTextEditor.java:3403)
+	at org.eclipse.ui.texteditor.StatusTextEditor.createPartControl(StatusTextEditor.java:54)
+	at org.eclipse.ui.texteditor.AbstractDecoratedTextEditor.createPartControl(AbstractDecoratedTextEditor.java:440)
+	at org.eclipse.photran.internal.ui.editor.FortranEditor.createPartControl(FortranEditor.java:184)
+	at org.eclipse.ui.internal.EditorReference.createPartHelper(EditorReference.java:670)
+	at org.eclipse.ui.internal.EditorReference.createPart(EditorReference.java:465)
+	at org.eclipse.ui.internal.WorkbenchPartReference.getPart(WorkbenchPartReference.java:595)
+	at org.eclipse.ui.internal.EditorReference.getEditor(EditorReference.java:289)
+	at org.eclipse.ui.internal.WorkbenchPage.busyOpenEditorBatched(WorkbenchPage.java:2945)
+	at org.eclipse.ui.internal.WorkbenchPage.busyOpenEditor(WorkbenchPage.java:2850)
+	at org.eclipse.ui.internal.WorkbenchPage.access$11(WorkbenchPage.java:2842)
+	at org.eclipse.ui.internal.WorkbenchPage$10.run(WorkbenchPage.java:2793)
+	at org.eclipse.swt.custom.BusyIndicator.showWhile(BusyIndicator.java:70)
+	at org.eclipse.ui.internal.WorkbenchPage.openEditor(WorkbenchPage.java:2789)
+	at org.eclipse.ui.internal.WorkbenchPage.openEditor(WorkbenchPage.java:2773)
+	at org.eclipse.ui.internal.WorkbenchPage.openEditor(WorkbenchPage.java:2756)
+	at org.eclipse.ui.ide.IDE.openEditor(IDE.java:683)
+	at org.python.pydev.navigator.actions.PyOpenResourceAction.openFiles(PyOpenResourceAction.java:101)
+	at org.python.pydev.navigator.actions.PyOpenPythonFileAction.run(PyOpenPythonFileAction.java:85)
+	at org.eclipse.ui.actions.RetargetAction.run(RetargetAction.java:221)
+	at org.eclipse.ui.navigator.CommonNavigatorManager$3.open(CommonNavigatorManager.java:185)
+	at org.eclipse.ui.OpenAndLinkWithEditorHelper$InternalListener.open(OpenAndLinkWithEditorHelper.java:48)
+	at org.eclipse.jface.viewers.StructuredViewer$2.run(StructuredViewer.java:866)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:42)
+	at org.eclipse.ui.internal.JFaceUtil$1.run(JFaceUtil.java:49)
+	at org.eclipse.jface.util.SafeRunnable.run(SafeRunnable.java:175)
+	at org.eclipse.jface.viewers.StructuredViewer.fireOpen(StructuredViewer.java:864)
+	at org.eclipse.jface.viewers.StructuredViewer.handleOpen(StructuredViewer.java:1152)
+	at org.eclipse.ui.navigator.CommonViewer.handleOpen(CommonViewer.java:462)
+	at org.eclipse.jface.viewers.StructuredViewer$6.handleOpen(StructuredViewer.java:1256)
+	at org.eclipse.jface.util.OpenStrategy.fireOpenEvent(OpenStrategy.java:275)
+	at org.eclipse.jface.util.OpenStrategy.access$2(OpenStrategy.java:269)
+	at org.eclipse.jface.util.OpenStrategy$1.mouseSelectItem(OpenStrategy.java:443)
+	at org.eclipse.jface.util.OpenStrategy$1.handleEvent(OpenStrategy.java:376)
+	at org.eclipse.swt.widgets.EventTable.sendEvent(EventTable.java:84)
+	at org.eclipse.swt.widgets.Widget.sendEvent(Widget.java:1258)
+	at org.eclipse.swt.widgets.Display.runDeferredEvents(Display.java:3588)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3209)
+	at org.eclipse.ui.internal.Workbench.runEventLoop(Workbench.java:2701)
+	at org.eclipse.ui.internal.Workbench.runUI(Workbench.java:2665)
+	at org.eclipse.ui.internal.Workbench.access$4(Workbench.java:2499)
+	at org.eclipse.ui.internal.Workbench$7.run(Workbench.java:679)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:332)
+	at org.eclipse.ui.internal.Workbench.createAndRunWorkbench(Workbench.java:668)
+	at org.eclipse.ui.PlatformUI.createAndRunWorkbench(PlatformUI.java:149)
+	at org.eclipse.ui.internal.ide.application.IDEApplication.start(IDEApplication.java:123)
+	at org.eclipse.equinox.internal.app.EclipseAppHandle.run(EclipseAppHandle.java:196)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:110)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:79)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:344)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:179)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:616)
+	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:622)
+	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:577)
+	at org.eclipse.equinox.launcher.Main.run(Main.java:1410)
+	at org.eclipse.equinox.launcher.Main.main(Main.java:1386)
+
+!ENTRY org.eclipse.equinox.p2.operations 4 0 2012-08-14 15:27:50.301
+!MESSAGE Operation details
+!SUBENTRY 1 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:50.301
+!MESSAGE Cannot complete the install because of a conflicting dependency.
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.301
+!MESSAGE Software being installed: Eclipse Java Development Tools 3.8.0.v20120525-1249-8-8nFqlFNOfwKDRGz-pXLdGxEM83 (org.eclipse.jdt.feature.group 3.8.0.v20120525-1249-8-8nFqlFNOfwKDRGz-pXLdGxEM83)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.301
+!MESSAGE Software being installed: Eclipse Platform 3.7.2.M20120208-0800 (org.eclipse.platform.ide 3.7.2.M20120208-0800)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:50.301
+!MESSAGE Only one of the following can be installed at once: 
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.301
+!MESSAGE OSGi System Bundle 3.7.2.dist (org.eclipse.osgi 3.7.2.dist)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.301
+!MESSAGE OSGi System Bundle 3.8.0.v20120529-1548 (org.eclipse.osgi 3.8.0.v20120529-1548)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.301
+!MESSAGE OSGi System Bundle 3.7.1.R37x_v20110808-1106 (org.eclipse.osgi 3.7.1.R37x_v20110808-1106)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.301
+!MESSAGE OSGi System Bundle 3.7.2.v20120110-1415 (org.eclipse.osgi 3.7.2.v20120110-1415)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.301
+!MESSAGE OSGi System Bundle 3.7.0.v20110613 (org.eclipse.osgi 3.7.0.v20110613)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:50.301
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.301
+!MESSAGE From: Eclipse Java Development Tools 3.8.0.v20120525-1249-8-8nFqlFNOfwKDRGz-pXLdGxEM83 (org.eclipse.jdt.feature.group 3.8.0.v20120525-1249-8-8nFqlFNOfwKDRGz-pXLdGxEM83)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.301
+!MESSAGE To: org.eclipse.jdt.launching [3.6.100.v20120523-1953]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:50.301
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.301
+!MESSAGE From: Java Development Tools Launching Support 3.6.100.v20120523-1953 (org.eclipse.jdt.launching 3.6.100.v20120523-1953)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.301
+!MESSAGE To: bundle org.eclipse.osgi [3.8.0,4.0.0)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:50.301
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.301
+!MESSAGE From: Eclipse Platform 3.7.2.v20120207-1839-9gF7UHPDFxGjd-PqDr2jX_4yKaumkoHTz04_q-q (org.eclipse.platform.feature.group 3.7.2.v20120207-1839-9gF7UHPDFxGjd-PqDr2jX_4yKaumkoHTz04_q-q)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.301
+!MESSAGE To: org.eclipse.rcp.feature.group [3.7.2.v20120120-1424-9DB5FmnFq5JCf1UA38R-kz0S0272]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:50.301
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.301
+!MESSAGE From: Eclipse Platform 3.7.2.M20120208-0800 (org.eclipse.platform.ide 3.7.2.M20120208-0800)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.301
+!MESSAGE To: org.eclipse.platform.feature.group [3.7.2.v20120207-1839-9gF7UHPDFxGjd-PqDr2jX_4yKaumkoHTz04_q-q]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:50.301
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.301
+!MESSAGE From: Eclipse RCP 3.7.2.v20120120-1424-9DB5FmnFq5JCf1UA38R-kz0S0272 (org.eclipse.rcp.feature.group 3.7.2.v20120120-1424-9DB5FmnFq5JCf1UA38R-kz0S0272)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.301
+!MESSAGE To: org.eclipse.osgi [3.7.2.v20120110-1415]
+
+!ENTRY org.eclipse.equinox.p2.operations 4 0 2012-08-14 15:27:50.326
+!MESSAGE Operation details
+!SUBENTRY 1 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:50.327
+!MESSAGE Cannot complete the install because of a conflicting dependency.
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.327
+!MESSAGE Software being installed: Eclipse Java Development Tools 3.8.0.v20120525-1249-8-8nFqlFNOfwKDRGz-pXLdGxEM83 (org.eclipse.jdt.feature.group 3.8.0.v20120525-1249-8-8nFqlFNOfwKDRGz-pXLdGxEM83)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.327
+!MESSAGE Software being installed: Eclipse Platform 3.7.2.M20120208-0800 (org.eclipse.platform.ide 3.7.2.M20120208-0800)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:50.327
+!MESSAGE Only one of the following can be installed at once: 
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.327
+!MESSAGE OSGi System Bundle 3.7.2.dist (org.eclipse.osgi 3.7.2.dist)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.327
+!MESSAGE OSGi System Bundle 3.8.0.v20120529-1548 (org.eclipse.osgi 3.8.0.v20120529-1548)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.327
+!MESSAGE OSGi System Bundle 3.7.1.R37x_v20110808-1106 (org.eclipse.osgi 3.7.1.R37x_v20110808-1106)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.327
+!MESSAGE OSGi System Bundle 3.7.2.v20120110-1415 (org.eclipse.osgi 3.7.2.v20120110-1415)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.327
+!MESSAGE OSGi System Bundle 3.7.0.v20110613 (org.eclipse.osgi 3.7.0.v20110613)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:50.327
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.327
+!MESSAGE From: Eclipse Java Development Tools 3.8.0.v20120525-1249-8-8nFqlFNOfwKDRGz-pXLdGxEM83 (org.eclipse.jdt.feature.group 3.8.0.v20120525-1249-8-8nFqlFNOfwKDRGz-pXLdGxEM83)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.327
+!MESSAGE To: org.eclipse.jdt.launching [3.6.100.v20120523-1953]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:50.327
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.327
+!MESSAGE From: Java Development Tools Launching Support 3.6.100.v20120523-1953 (org.eclipse.jdt.launching 3.6.100.v20120523-1953)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.327
+!MESSAGE To: bundle org.eclipse.osgi [3.8.0,4.0.0)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:50.327
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.327
+!MESSAGE From: Eclipse Platform 3.7.2.v20120207-1839-9gF7UHPDFxGjd-PqDr2jX_4yKaumkoHTz04_q-q (org.eclipse.platform.feature.group 3.7.2.v20120207-1839-9gF7UHPDFxGjd-PqDr2jX_4yKaumkoHTz04_q-q)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.327
+!MESSAGE To: org.eclipse.rcp.feature.group [3.7.2.v20120120-1424-9DB5FmnFq5JCf1UA38R-kz0S0272]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:50.327
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.327
+!MESSAGE From: Eclipse Platform 3.7.2.M20120208-0800 (org.eclipse.platform.ide 3.7.2.M20120208-0800)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.327
+!MESSAGE To: org.eclipse.platform.feature.group [3.7.2.v20120207-1839-9gF7UHPDFxGjd-PqDr2jX_4yKaumkoHTz04_q-q]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:50.327
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.327
+!MESSAGE From: Eclipse RCP 3.7.2.v20120120-1424-9DB5FmnFq5JCf1UA38R-kz0S0272 (org.eclipse.rcp.feature.group 3.7.2.v20120120-1424-9DB5FmnFq5JCf1UA38R-kz0S0272)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.327
+!MESSAGE To: org.eclipse.osgi [3.7.2.v20120110-1415]
+
+!ENTRY org.eclipse.equinox.p2.operations 4 0 2012-08-14 15:27:50.333
+!MESSAGE Operation details
+!SUBENTRY 1 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:50.333
+!MESSAGE Cannot complete the install because of a conflicting dependency.
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.333
+!MESSAGE Software being installed: Eclipse Java Development Tools 3.8.0.v20120525-1249-8-8nFqlFNOfwKDRGz-pXLdGxEM83 (org.eclipse.jdt.feature.group 3.8.0.v20120525-1249-8-8nFqlFNOfwKDRGz-pXLdGxEM83)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.333
+!MESSAGE Software being installed: Eclipse Platform 3.7.2.M20120208-0800 (org.eclipse.platform.ide 3.7.2.M20120208-0800)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:50.333
+!MESSAGE Only one of the following can be installed at once: 
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.333
+!MESSAGE OSGi System Bundle 3.7.2.dist (org.eclipse.osgi 3.7.2.dist)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.333
+!MESSAGE OSGi System Bundle 3.8.0.v20120529-1548 (org.eclipse.osgi 3.8.0.v20120529-1548)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.333
+!MESSAGE OSGi System Bundle 3.7.1.R37x_v20110808-1106 (org.eclipse.osgi 3.7.1.R37x_v20110808-1106)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.333
+!MESSAGE OSGi System Bundle 3.7.2.v20120110-1415 (org.eclipse.osgi 3.7.2.v20120110-1415)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.334
+!MESSAGE OSGi System Bundle 3.7.0.v20110613 (org.eclipse.osgi 3.7.0.v20110613)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:50.334
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.334
+!MESSAGE From: Eclipse Java Development Tools 3.8.0.v20120525-1249-8-8nFqlFNOfwKDRGz-pXLdGxEM83 (org.eclipse.jdt.feature.group 3.8.0.v20120525-1249-8-8nFqlFNOfwKDRGz-pXLdGxEM83)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.334
+!MESSAGE To: org.eclipse.jdt.launching [3.6.100.v20120523-1953]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:50.334
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.334
+!MESSAGE From: Java Development Tools Launching Support 3.6.100.v20120523-1953 (org.eclipse.jdt.launching 3.6.100.v20120523-1953)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.334
+!MESSAGE To: bundle org.eclipse.osgi [3.8.0,4.0.0)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:50.334
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.334
+!MESSAGE From: Eclipse Platform 3.7.2.v20120207-1839-9gF7UHPDFxGjd-PqDr2jX_4yKaumkoHTz04_q-q (org.eclipse.platform.feature.group 3.7.2.v20120207-1839-9gF7UHPDFxGjd-PqDr2jX_4yKaumkoHTz04_q-q)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.334
+!MESSAGE To: org.eclipse.rcp.feature.group [3.7.2.v20120120-1424-9DB5FmnFq5JCf1UA38R-kz0S0272]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:50.334
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.334
+!MESSAGE From: Eclipse Platform 3.7.2.M20120208-0800 (org.eclipse.platform.ide 3.7.2.M20120208-0800)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.334
+!MESSAGE To: org.eclipse.platform.feature.group [3.7.2.v20120207-1839-9gF7UHPDFxGjd-PqDr2jX_4yKaumkoHTz04_q-q]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:50.334
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.334
+!MESSAGE From: Eclipse RCP 3.7.2.v20120120-1424-9DB5FmnFq5JCf1UA38R-kz0S0272 (org.eclipse.rcp.feature.group 3.7.2.v20120120-1424-9DB5FmnFq5JCf1UA38R-kz0S0272)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:50.334
+!MESSAGE To: org.eclipse.osgi [3.7.2.v20120110-1415]
+
+!ENTRY org.eclipse.equinox.p2.operations 4 0 2012-08-14 15:27:51.208
+!MESSAGE Operation details
+!SUBENTRY 1 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:51.208
+!MESSAGE Cannot complete the install because of a conflicting dependency.
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.208
+!MESSAGE Software being installed: Eclipse Java Development Tools 3.8.0.v20120525-1249-8-8nFqlFNOfwKDRGz-pXLdGxEM83 (org.eclipse.jdt.feature.group 3.8.0.v20120525-1249-8-8nFqlFNOfwKDRGz-pXLdGxEM83)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.208
+!MESSAGE Software currently installed: Eclipse Platform 3.7.0.I20110613-1736 (org.eclipse.platform.ide 3.7.0.I20110613-1736)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:51.208
+!MESSAGE Only one of the following can be installed at once: 
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.208
+!MESSAGE Common Eclipse Runtime 3.6.100.v20120522-1841 (org.eclipse.equinox.common 3.6.100.v20120522-1841)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.208
+!MESSAGE Common Eclipse Runtime 3.6.0.dist (org.eclipse.equinox.common 3.6.0.dist)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.208
+!MESSAGE Common Eclipse Runtime 3.6.0.v20110523 (org.eclipse.equinox.common 3.6.0.v20110523)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:51.208
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.208
+!MESSAGE From: Eclipse e4 Rich Client Platform 1.1.0.v20120521-2329-8yFTIGF3GGduEYqkQB9M3DKn (org.eclipse.e4.rcp.feature.group 1.1.0.v20120521-2329-8yFTIGF3GGduEYqkQB9M3DKn)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.208
+!MESSAGE To: org.eclipse.equinox.common [3.6.100.v20120522-1841]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:51.208
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.208
+!MESSAGE From: Eclipse Java Development Tools 3.8.0.v20120525-1249-8-8nFqlFNOfwKDRGz-pXLdGxEM83 (org.eclipse.jdt.feature.group 3.8.0.v20120525-1249-8-8nFqlFNOfwKDRGz-pXLdGxEM83)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.208
+!MESSAGE To: org.eclipse.platform.feature.group 3.8.0
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:51.208
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.208
+!MESSAGE From: Eclipse Platform 3.7.2.dist-9nF7UHagFqn9pElwWhC90gLz-soEuSGYmtSeiRH (org.eclipse.platform.feature.group 3.7.2.dist-9nF7UHagFqn9pElwWhC90gLz-soEuSGYmtSeiRH)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.208
+!MESSAGE To: org.eclipse.rcp.feature.group [3.7.2.dist-8R9GFpOFUdy-521934]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:51.208
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.208
+!MESSAGE From: Eclipse Platform 4.2.0.v20120608-135145-9JF7BHV8FyMteji0Oi_ePMz0xuZ8TVo7lV0z0ecb (org.eclipse.platform.feature.group 4.2.0.v20120608-135145-9JF7BHV8FyMteji0Oi_ePMz0xuZ8TVo7lV0z0ecb)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.208
+!MESSAGE To: org.eclipse.rcp.feature.group [4.2.0.v20120528-1648-7IAPA7BrHQicRpNdOz-Obz-rlRCA]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:51.208
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.208
+!MESSAGE From: Eclipse Platform 3.7.0.I20110613-1736 (org.eclipse.platform.ide 3.7.0.I20110613-1736)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.208
+!MESSAGE To: org.eclipse.platform.feature.group [3.7.2.dist-9nF7UHagFqn9pElwWhC90gLz-soEuSGYmtSeiRH]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:51.208
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.208
+!MESSAGE From: Eclipse RCP 3.7.2.dist-8R9GFpOFUdy-521934 (org.eclipse.rcp.feature.group 3.7.2.dist-8R9GFpOFUdy-521934)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.208
+!MESSAGE To: org.eclipse.equinox.common [3.6.0.dist]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:51.208
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.208
+!MESSAGE From: Eclipse RCP 4.2.0.v20120528-1648-7IAPA7BrHQicRpNdOz-Obz-rlRCA (org.eclipse.rcp.feature.group 4.2.0.v20120528-1648-7IAPA7BrHQicRpNdOz-Obz-rlRCA)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.208
+!MESSAGE To: org.eclipse.e4.rcp.feature.group [1.1.0.v20120521-2329-8yFTIGF3GGduEYqkQB9M3DKn]
+
+!ENTRY org.eclipse.equinox.p2.operations 4 0 2012-08-14 15:27:51.209
+!MESSAGE Operation details
+!SUBENTRY 1 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:51.209
+!MESSAGE Cannot complete the install because of a conflicting dependency.
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.209
+!MESSAGE Software being installed: Eclipse Java Development Tools 3.8.0.v20120525-1249-8-8nFqlFNOfwKDRGz-pXLdGxEM83 (org.eclipse.jdt.feature.group 3.8.0.v20120525-1249-8-8nFqlFNOfwKDRGz-pXLdGxEM83)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.209
+!MESSAGE Software currently installed: Eclipse Platform 3.7.0.I20110613-1736 (org.eclipse.platform.ide 3.7.0.I20110613-1736)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:51.209
+!MESSAGE Only one of the following can be installed at once: 
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.209
+!MESSAGE Common Eclipse Runtime 3.6.100.v20120522-1841 (org.eclipse.equinox.common 3.6.100.v20120522-1841)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.209
+!MESSAGE Common Eclipse Runtime 3.6.0.dist (org.eclipse.equinox.common 3.6.0.dist)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.209
+!MESSAGE Common Eclipse Runtime 3.6.0.v20110523 (org.eclipse.equinox.common 3.6.0.v20110523)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:51.210
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.210
+!MESSAGE From: Eclipse e4 Rich Client Platform 1.1.0.v20120521-2329-8yFTIGF3GGduEYqkQB9M3DKn (org.eclipse.e4.rcp.feature.group 1.1.0.v20120521-2329-8yFTIGF3GGduEYqkQB9M3DKn)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.210
+!MESSAGE To: org.eclipse.equinox.common [3.6.100.v20120522-1841]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:51.210
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.210
+!MESSAGE From: Eclipse Java Development Tools 3.8.0.v20120525-1249-8-8nFqlFNOfwKDRGz-pXLdGxEM83 (org.eclipse.jdt.feature.group 3.8.0.v20120525-1249-8-8nFqlFNOfwKDRGz-pXLdGxEM83)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.210
+!MESSAGE To: org.eclipse.platform.feature.group 3.8.0
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:51.210
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.210
+!MESSAGE From: Eclipse Platform 3.7.2.dist-9nF7UHagFqn9pElwWhC90gLz-soEuSGYmtSeiRH (org.eclipse.platform.feature.group 3.7.2.dist-9nF7UHagFqn9pElwWhC90gLz-soEuSGYmtSeiRH)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.210
+!MESSAGE To: org.eclipse.rcp.feature.group [3.7.2.dist-8R9GFpOFUdy-521934]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:51.210
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.210
+!MESSAGE From: Eclipse Platform 4.2.0.v20120608-135145-9JF7BHV8FyMteji0Oi_ePMz0xuZ8TVo7lV0z0ecb (org.eclipse.platform.feature.group 4.2.0.v20120608-135145-9JF7BHV8FyMteji0Oi_ePMz0xuZ8TVo7lV0z0ecb)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.210
+!MESSAGE To: org.eclipse.rcp.feature.group [4.2.0.v20120528-1648-7IAPA7BrHQicRpNdOz-Obz-rlRCA]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:51.210
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.210
+!MESSAGE From: Eclipse Platform 3.7.0.I20110613-1736 (org.eclipse.platform.ide 3.7.0.I20110613-1736)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.210
+!MESSAGE To: org.eclipse.platform.feature.group [3.7.2.dist-9nF7UHagFqn9pElwWhC90gLz-soEuSGYmtSeiRH]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:51.210
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.210
+!MESSAGE From: Eclipse RCP 3.7.2.dist-8R9GFpOFUdy-521934 (org.eclipse.rcp.feature.group 3.7.2.dist-8R9GFpOFUdy-521934)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.210
+!MESSAGE To: org.eclipse.equinox.common [3.6.0.dist]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:27:51.210
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.210
+!MESSAGE From: Eclipse RCP 4.2.0.v20120528-1648-7IAPA7BrHQicRpNdOz-Obz-rlRCA (org.eclipse.rcp.feature.group 4.2.0.v20120528-1648-7IAPA7BrHQicRpNdOz-Obz-rlRCA)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:27:51.210
+!MESSAGE To: org.eclipse.e4.rcp.feature.group [1.1.0.v20120521-2329-8yFTIGF3GGduEYqkQB9M3DKn]
+!SESSION 2012-08-14 15:30:19.177 -----------------------------------------------
+eclipse.buildId=I20110613-1736
+java.version=1.6.0_24
+java.vendor=Sun Microsystems Inc.
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_US
+Command-line arguments:  -os linux -ws gtk -arch x86_64
+
+!ENTRY org.eclipse.equinox.p2.operations 4 0 2012-08-14 15:30:45.564
+!MESSAGE Operation details
+!SUBENTRY 1 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:45.564
+!MESSAGE Cannot complete the install because of a conflicting dependency.
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.564
+!MESSAGE Software being installed: Eclipse Plug-in Development Environment 3.8.0.v20120525-1249-7c7vFitFFt6Zr5a12MM4IKMFZ (org.eclipse.pde.feature.group 3.8.0.v20120525-1249-7c7vFitFFt6Zr5a12MM4IKMFZ)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.564
+!MESSAGE Software being installed: Eclipse Platform 3.7.2.M20120208-0800 (org.eclipse.platform.ide 3.7.2.M20120208-0800)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:45.564
+!MESSAGE Only one of the following can be installed at once: 
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.564
+!MESSAGE Compare Support 3.5.300.v20120522-1148 (org.eclipse.compare 3.5.300.v20120522-1148)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.564
+!MESSAGE Compare Support 3.5.202.R37x_v20111109-0800 (org.eclipse.compare 3.5.202.R37x_v20111109-0800)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.564
+!MESSAGE Compare Support 3.5.201.R37x_v20110817-0800 (org.eclipse.compare 3.5.201.R37x_v20110817-0800)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.564
+!MESSAGE Compare Support 3.5.200.I20110525-0800 (org.eclipse.compare 3.5.200.I20110525-0800)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.564
+!MESSAGE Compare Support 3.5.202.dist (org.eclipse.compare 3.5.202.dist)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:45.564
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.564
+!MESSAGE From: Eclipse Plug-in Development Environment 3.8.0.v20120525-1249-7c7vFitFFt6Zr5a12MM4IKMFZ (org.eclipse.pde.feature.group 3.8.0.v20120525-1249-7c7vFitFFt6Zr5a12MM4IKMFZ)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.564
+!MESSAGE To: org.eclipse.platform.feature.group 3.8.0
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:45.564
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.564
+!MESSAGE From: Eclipse Platform 3.7.2.v20120207-1839-9gF7UHPDFxGjd-PqDr2jX_4yKaumkoHTz04_q-q (org.eclipse.platform.feature.group 3.7.2.v20120207-1839-9gF7UHPDFxGjd-PqDr2jX_4yKaumkoHTz04_q-q)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.564
+!MESSAGE To: org.eclipse.compare [3.5.202.R37x_v20111109-0800]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:45.564
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.564
+!MESSAGE From: Eclipse Platform 4.2.0.v20120608-135145-9JF7BHV8FyMteji0Oi_ePMz0xuZ8TVo7lV0z0ecb (org.eclipse.platform.feature.group 4.2.0.v20120608-135145-9JF7BHV8FyMteji0Oi_ePMz0xuZ8TVo7lV0z0ecb)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.564
+!MESSAGE To: org.eclipse.compare [3.5.300.v20120522-1148]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:45.564
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.564
+!MESSAGE From: Eclipse Platform 3.7.2.M20120208-0800 (org.eclipse.platform.ide 3.7.2.M20120208-0800)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.564
+!MESSAGE To: org.eclipse.platform.feature.group [3.7.2.v20120207-1839-9gF7UHPDFxGjd-PqDr2jX_4yKaumkoHTz04_q-q]
+
+!ENTRY org.eclipse.equinox.p2.operations 4 0 2012-08-14 15:30:45.614
+!MESSAGE Operation details
+!SUBENTRY 1 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:45.614
+!MESSAGE Cannot complete the install because of a conflicting dependency.
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.614
+!MESSAGE Software being installed: Eclipse Plug-in Development Environment 3.8.0.v20120525-1249-7c7vFitFFt6Zr5a12MM4IKMFZ (org.eclipse.pde.feature.group 3.8.0.v20120525-1249-7c7vFitFFt6Zr5a12MM4IKMFZ)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.614
+!MESSAGE Software being installed: Eclipse Platform 3.7.2.M20120208-0800 (org.eclipse.platform.ide 3.7.2.M20120208-0800)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:45.614
+!MESSAGE Only one of the following can be installed at once: 
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.614
+!MESSAGE Compare Support 3.5.300.v20120522-1148 (org.eclipse.compare 3.5.300.v20120522-1148)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.614
+!MESSAGE Compare Support 3.5.202.R37x_v20111109-0800 (org.eclipse.compare 3.5.202.R37x_v20111109-0800)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.614
+!MESSAGE Compare Support 3.5.201.R37x_v20110817-0800 (org.eclipse.compare 3.5.201.R37x_v20110817-0800)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.614
+!MESSAGE Compare Support 3.5.200.I20110525-0800 (org.eclipse.compare 3.5.200.I20110525-0800)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.614
+!MESSAGE Compare Support 3.5.202.dist (org.eclipse.compare 3.5.202.dist)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:45.615
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.615
+!MESSAGE From: Eclipse Plug-in Development Environment 3.8.0.v20120525-1249-7c7vFitFFt6Zr5a12MM4IKMFZ (org.eclipse.pde.feature.group 3.8.0.v20120525-1249-7c7vFitFFt6Zr5a12MM4IKMFZ)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.615
+!MESSAGE To: org.eclipse.platform.feature.group 3.8.0
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:45.615
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.615
+!MESSAGE From: Eclipse Platform 3.7.2.v20120207-1839-9gF7UHPDFxGjd-PqDr2jX_4yKaumkoHTz04_q-q (org.eclipse.platform.feature.group 3.7.2.v20120207-1839-9gF7UHPDFxGjd-PqDr2jX_4yKaumkoHTz04_q-q)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.615
+!MESSAGE To: org.eclipse.compare [3.5.202.R37x_v20111109-0800]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:45.615
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.615
+!MESSAGE From: Eclipse Platform 4.2.0.v20120608-135145-9JF7BHV8FyMteji0Oi_ePMz0xuZ8TVo7lV0z0ecb (org.eclipse.platform.feature.group 4.2.0.v20120608-135145-9JF7BHV8FyMteji0Oi_ePMz0xuZ8TVo7lV0z0ecb)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.615
+!MESSAGE To: org.eclipse.compare [3.5.300.v20120522-1148]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:45.615
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.615
+!MESSAGE From: Eclipse Platform 3.7.2.M20120208-0800 (org.eclipse.platform.ide 3.7.2.M20120208-0800)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.615
+!MESSAGE To: org.eclipse.platform.feature.group [3.7.2.v20120207-1839-9gF7UHPDFxGjd-PqDr2jX_4yKaumkoHTz04_q-q]
+
+!ENTRY org.eclipse.equinox.p2.operations 4 0 2012-08-14 15:30:45.621
+!MESSAGE Operation details
+!SUBENTRY 1 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:45.621
+!MESSAGE Cannot complete the install because of a conflicting dependency.
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.621
+!MESSAGE Software being installed: Eclipse Plug-in Development Environment 3.8.0.v20120525-1249-7c7vFitFFt6Zr5a12MM4IKMFZ (org.eclipse.pde.feature.group 3.8.0.v20120525-1249-7c7vFitFFt6Zr5a12MM4IKMFZ)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.621
+!MESSAGE Software being installed: Eclipse Platform 3.7.2.M20120208-0800 (org.eclipse.platform.ide 3.7.2.M20120208-0800)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:45.621
+!MESSAGE Only one of the following can be installed at once: 
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.621
+!MESSAGE Compare Support 3.5.300.v20120522-1148 (org.eclipse.compare 3.5.300.v20120522-1148)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.622
+!MESSAGE Compare Support 3.5.202.R37x_v20111109-0800 (org.eclipse.compare 3.5.202.R37x_v20111109-0800)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.622
+!MESSAGE Compare Support 3.5.201.R37x_v20110817-0800 (org.eclipse.compare 3.5.201.R37x_v20110817-0800)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.622
+!MESSAGE Compare Support 3.5.200.I20110525-0800 (org.eclipse.compare 3.5.200.I20110525-0800)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.622
+!MESSAGE Compare Support 3.5.202.dist (org.eclipse.compare 3.5.202.dist)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:45.622
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.622
+!MESSAGE From: Eclipse Plug-in Development Environment 3.8.0.v20120525-1249-7c7vFitFFt6Zr5a12MM4IKMFZ (org.eclipse.pde.feature.group 3.8.0.v20120525-1249-7c7vFitFFt6Zr5a12MM4IKMFZ)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.622
+!MESSAGE To: org.eclipse.platform.feature.group 3.8.0
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:45.622
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.622
+!MESSAGE From: Eclipse Platform 3.7.2.v20120207-1839-9gF7UHPDFxGjd-PqDr2jX_4yKaumkoHTz04_q-q (org.eclipse.platform.feature.group 3.7.2.v20120207-1839-9gF7UHPDFxGjd-PqDr2jX_4yKaumkoHTz04_q-q)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.622
+!MESSAGE To: org.eclipse.compare [3.5.202.R37x_v20111109-0800]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:45.622
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.622
+!MESSAGE From: Eclipse Platform 4.2.0.v20120608-135145-9JF7BHV8FyMteji0Oi_ePMz0xuZ8TVo7lV0z0ecb (org.eclipse.platform.feature.group 4.2.0.v20120608-135145-9JF7BHV8FyMteji0Oi_ePMz0xuZ8TVo7lV0z0ecb)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.622
+!MESSAGE To: org.eclipse.compare [3.5.300.v20120522-1148]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:45.622
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.622
+!MESSAGE From: Eclipse Platform 3.7.2.M20120208-0800 (org.eclipse.platform.ide 3.7.2.M20120208-0800)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:45.622
+!MESSAGE To: org.eclipse.platform.feature.group [3.7.2.v20120207-1839-9gF7UHPDFxGjd-PqDr2jX_4yKaumkoHTz04_q-q]
+
+!ENTRY org.eclipse.equinox.p2.operations 4 0 2012-08-14 15:30:46.499
+!MESSAGE Operation details
+!SUBENTRY 1 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:46.499
+!MESSAGE Cannot complete the install because of a conflicting dependency.
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.499
+!MESSAGE Software being installed: Eclipse Plug-in Development Environment 3.8.0.v20120525-1249-7c7vFitFFt6Zr5a12MM4IKMFZ (org.eclipse.pde.feature.group 3.8.0.v20120525-1249-7c7vFitFFt6Zr5a12MM4IKMFZ)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.499
+!MESSAGE Software currently installed: Eclipse Platform 3.7.0.I20110613-1736 (org.eclipse.platform.ide 3.7.0.I20110613-1736)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:46.499
+!MESSAGE Only one of the following can be installed at once: 
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.499
+!MESSAGE Ant Build Tool Core 3.2.300.v20110511 (org.eclipse.ant.core 3.2.300.v20110511)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.499
+!MESSAGE Ant Build Tool Core 3.2.302.v20120110-1739 (org.eclipse.ant.core 3.2.302.v20120110-1739)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.499
+!MESSAGE Ant Build Tool Core 3.2.302.dist (org.eclipse.ant.core 3.2.302.dist)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.499
+!MESSAGE Ant Build Tool Core 3.2.400.v20120523-1752 (org.eclipse.ant.core 3.2.400.v20120523-1752)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:46.499
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.499
+!MESSAGE From: Eclipse Plug-in Development Environment 3.8.0.v20120525-1249-7c7vFitFFt6Zr5a12MM4IKMFZ (org.eclipse.pde.feature.group 3.8.0.v20120525-1249-7c7vFitFFt6Zr5a12MM4IKMFZ)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.499
+!MESSAGE To: org.eclipse.platform.feature.group 3.8.0
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:46.499
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.499
+!MESSAGE From: Eclipse Platform 3.7.2.dist-9nF7UHagFqn9pElwWhC90gLz-soEuSGYmtSeiRH (org.eclipse.platform.feature.group 3.7.2.dist-9nF7UHagFqn9pElwWhC90gLz-soEuSGYmtSeiRH)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.499
+!MESSAGE To: org.eclipse.ant.core [3.2.302.dist]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:46.499
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.499
+!MESSAGE From: Eclipse Platform 4.2.0.v20120608-135145-9JF7BHV8FyMteji0Oi_ePMz0xuZ8TVo7lV0z0ecb (org.eclipse.platform.feature.group 4.2.0.v20120608-135145-9JF7BHV8FyMteji0Oi_ePMz0xuZ8TVo7lV0z0ecb)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.499
+!MESSAGE To: org.eclipse.ant.core [3.2.400.v20120523-1752]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:46.499
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.499
+!MESSAGE From: Eclipse Platform 3.7.0.I20110613-1736 (org.eclipse.platform.ide 3.7.0.I20110613-1736)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.499
+!MESSAGE To: org.eclipse.platform.feature.group [3.7.2.dist-9nF7UHagFqn9pElwWhC90gLz-soEuSGYmtSeiRH]
+
+!ENTRY org.eclipse.equinox.p2.operations 4 0 2012-08-14 15:30:46.500
+!MESSAGE Operation details
+!SUBENTRY 1 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:46.500
+!MESSAGE Cannot complete the install because of a conflicting dependency.
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.500
+!MESSAGE Software being installed: Eclipse Plug-in Development Environment 3.8.0.v20120525-1249-7c7vFitFFt6Zr5a12MM4IKMFZ (org.eclipse.pde.feature.group 3.8.0.v20120525-1249-7c7vFitFFt6Zr5a12MM4IKMFZ)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.500
+!MESSAGE Software currently installed: Eclipse Platform 3.7.0.I20110613-1736 (org.eclipse.platform.ide 3.7.0.I20110613-1736)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:46.500
+!MESSAGE Only one of the following can be installed at once: 
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.500
+!MESSAGE Ant Build Tool Core 3.2.300.v20110511 (org.eclipse.ant.core 3.2.300.v20110511)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.500
+!MESSAGE Ant Build Tool Core 3.2.302.v20120110-1739 (org.eclipse.ant.core 3.2.302.v20120110-1739)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.501
+!MESSAGE Ant Build Tool Core 3.2.302.dist (org.eclipse.ant.core 3.2.302.dist)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.501
+!MESSAGE Ant Build Tool Core 3.2.400.v20120523-1752 (org.eclipse.ant.core 3.2.400.v20120523-1752)
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:46.501
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.501
+!MESSAGE From: Eclipse Plug-in Development Environment 3.8.0.v20120525-1249-7c7vFitFFt6Zr5a12MM4IKMFZ (org.eclipse.pde.feature.group 3.8.0.v20120525-1249-7c7vFitFFt6Zr5a12MM4IKMFZ)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.501
+!MESSAGE To: org.eclipse.platform.feature.group 3.8.0
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:46.501
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.501
+!MESSAGE From: Eclipse Platform 3.7.2.dist-9nF7UHagFqn9pElwWhC90gLz-soEuSGYmtSeiRH (org.eclipse.platform.feature.group 3.7.2.dist-9nF7UHagFqn9pElwWhC90gLz-soEuSGYmtSeiRH)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.501
+!MESSAGE To: org.eclipse.ant.core [3.2.302.dist]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:46.501
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.501
+!MESSAGE From: Eclipse Platform 4.2.0.v20120608-135145-9JF7BHV8FyMteji0Oi_ePMz0xuZ8TVo7lV0z0ecb (org.eclipse.platform.feature.group 4.2.0.v20120608-135145-9JF7BHV8FyMteji0Oi_ePMz0xuZ8TVo7lV0z0ecb)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.501
+!MESSAGE To: org.eclipse.ant.core [3.2.400.v20120523-1752]
+!SUBENTRY 2 org.eclipse.equinox.p2.director 4 1 2012-08-14 15:30:46.501
+!MESSAGE Cannot satisfy dependency:
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.501
+!MESSAGE From: Eclipse Platform 3.7.0.I20110613-1736 (org.eclipse.platform.ide 3.7.0.I20110613-1736)
+!SUBENTRY 3 org.eclipse.equinox.p2.director 4 0 2012-08-14 15:30:46.501
+!MESSAGE To: org.eclipse.platform.feature.group [3.7.2.dist-9nF7UHagFqn9pElwWhC90gLz-soEuSGYmtSeiRH]

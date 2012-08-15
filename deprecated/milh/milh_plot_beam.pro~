@@ -1,0 +1,81 @@
+pro milh_plot_beam, azim=azim, elev=elev, radar=radar, date=date, time=time
+
+common radarinfo
+
+; Millstone Hill coords
+mh_lat = 42.6195
+mh_lon = 288.50827
+mh_rho = 0.14600+6378.
+
+if ~keyword_set(date) then $
+  get_date, date=date
+if ~keyword_set(time) then $
+  get_date, time=time
+parse_date, date, year, month, day
+parse_time, time, hr, mn
+if ~keyword_set(elev) then $
+  elev = 45.
+if ~keyword_set(azim) then $
+  azim = -80.
+nazim = n_elements(azim)+1
+nelev = n_elements(elev)+1
+nrad = n_elements(radar)+1
+nbeams = 16
+
+beams = indgen(nbeams)
+beam_info = dblarr(nelev,nazim,nbeams,nrad,2)
+
+jul = julday(month, day, year, hr, mn)
+
+WINDOW, 1, xsize=800, ysize=800
+; Output to post script file
+; set_plot,'PS',/copy
+; device,/landscape,/COLOR,BITS_PER_PIXEL=8,filename="milh_overlap.ps"
+map_plot_panel, jul=jul, coords='mlt', /no_fill, $
+  xrange=[-40,30], yrange=[-50,10]
+overlay_isr, 'MSH', jul=jul, coord='mlt'
+; overlay radar fov and gbm stations
+overlay_fov, name=radar, jul=jul, coords='mlt', /no_fill, /grid
+
+; We will track the MH beam for 2000 km in 20 km increments
+mh_beam_arr = dblarr(101,3)
+
+; Iterate through elv angles in 5 degree increments starting at 5.5
+for e=0,nelev-2 do begin
+  ; Iterate backwards through azimuths starting at -80 degrees in 1 degree steps
+  for a=0,nazim-2 do begin
+    ; Iterate through all possible ranges, 0 to 2000 km (track the MH beam)
+    for r=0,100 do begin
+      range = r*20.
+      ; Find the elevation of MH beam at this range
+      fldpnt,mh_rho,mh_lat,mh_lon,azim[a],elev[e],range,frho,flat,flon
+      ; Store the coords of the beam
+      mh_beam_arr(r,0) = frho - 6378.
+      mh_beam_arr(r,1) = flat
+      mh_beam_arr(r,2) = flon
+
+      ; Plot the MH beam
+      n_xy_e = calc_stereo_coords(flon,flat)
+      plots,n_xy_e(0),n_xy_e(1),/normal,/continue,col=0
+      ; Go through Radars
+      for rad=0,nrad-2 do begin
+	for b=0,nbeams-1 do begin
+	  for range=1,75 do begin
+	    ; The the coordinated for r-b cell
+	    stid = network[where(network.code[0] eq 'bks')].ID
+	    pos = rbpos(range,height=300,station=stid,beam=b,lagfr=1200,smsep=300,/CENTER,/GEO)
+	    distance,flat,flon,pos(0),pos(1),d
+	    ; The the MH beam is cutting through a r-b cell
+	    if((d lt beam_info(e,a,b,rad,0) OR beam_info(e,a,b,rad,0) eq 0) AND d lt 40.) then begin
+	      beam_info(e,a,b,rad,0) = mh_beam_arr(r,0)
+	      beam_info(e,a,b,rad,1) = r*20.
+	    endif
+	  endfor
+	endfor
+      endfor
+    endfor
+  endfor
+endfor
+
+
+END

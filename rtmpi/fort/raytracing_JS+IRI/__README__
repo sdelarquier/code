@@ -1,0 +1,21 @@
+This is an unofficial release of the Jones & Stephenson ray tracing code coupled with IRI-2007.
+
+The current version has not been tested in over a year, and has undergone multiple edits from multiple 
+contributors (for better or for worse). Use with extreme caution.
+
+To compile the code, use the provided Makefile by typing:
+	> make clean
+	> make
+
+As a default, the makefile uses gfortran, but you can edit the FC variable inside Makefile for your prefered 
+Fortran compiler (keeping in mind that this code has only ever been tested with gfortran, and that compilers 
+are not all the same).
+
+The code produces various output files, some ascii, some binary, which are all placed in the 'out' directory.
+The simplest file to look at is 'outfile.dat' which simply provides information on each caluclated ray.
+
+As most of the people who have once played with the J&S ray tracing code, you will get severly annoyed with
+the fortran 77 syntax, strange conventions, and global variables. When this time comes, you will do what we
+all have done, write your own ray tracing code!
+
+Good luck!

@@ -1,0 +1,31 @@
+pro	get_distance, blat, blon, elat, elon, step
+
+Rpol = 6356.7523142
+Requ = 6378.137
+
+npoints = 180.
+flat = blat + dindgen(npoints+1)*(elat-blat)/npoints
+flon = blon + dindgen(npoints+1)*(elon-blon)/npoints
+
+; Find length of an arcdegree of latitude
+thtmp = flat*!PI/180.
+latDeg = !PI/180.*Requ*Rpol*Requ*Rpol/ $
+     	SQRT(Requ*Requ*COS(thtmp)*COS(thtmp) + $
+     	     Rpol*Rpol*SIN(thtmp)*SIN(thtmp))/ $
+     	(Requ*Requ*COS(thtmp)*COS(thtmp) + $
+     	     Rpol*Rpol*SIN(thtmp)*SIN(thtmp))
+
+; Find length of an arcdegree of longitude
+thtmp = flat*!PI/180.
+lonDeg = !PI/180.*Requ*Requ*COS(thtmp) / $
+	SQRT(Requ*Requ*COS(thtmp)*COS(thtmp) + $
+	     Rpol*Rpol*SIN(thtmp)*SIN(thtmp))
+
+
+; Find distance
+step = TOTAL(SQRT((flat[1:(npoints)]-flat[0:(npoints-1)])^2 * $
+		    ((latDeg[1:npoints]+latDeg[0:(npoints-1)])/2.)^2 + $
+		  (flon[1:(npoints)]-flon[0:(npoints-1)])^2 * $
+		    ((lonDeg[1:npoints]+lonDeg[0:(npoints-1)])/2.)^2), /double)
+
+end
