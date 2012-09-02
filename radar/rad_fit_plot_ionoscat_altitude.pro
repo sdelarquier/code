@@ -3,7 +3,7 @@
 ; For now, the aspect contours are only available for bks and for the configuration in 2011 (before the new electronics)
 ;
 ; Last update: Feb, 23, 2012
-pro rad_fit_plot_ionoscat_altitude, date, radar, beam, ps=ps, xrange=xrange, yrange=yrange, dtime=dtime, radhist=radhist, rthist=rthist
+pro rad_fit_plot_ionoscat_altitude, date, radar, beam, ps=ps, xrange=xrange, yrange=yrange, dtime=dtime, radhist=radhist, rthist=rthist, alt_steps=alt_steps
 
 common rt_data_blk
 common radarinfo
@@ -39,11 +39,6 @@ endfor
 radarsite = network[radID].site[s]
 nbeams = radarsite.maxbeam
 beams = beam
-
-; Set scatter edge finding
-scathresh = .4
-edges = fltarr(2,2)
-slope = fltarr(2,2)
 
 ; Set plot limits
 if ~keyword_set(xrange) then $
@@ -83,115 +78,102 @@ free_lun, unit
 ; Ray-tracing
 ;*******************************************
 ; Run ray tracing and set histogram
-hist = fltarr(3, 71, nelev_steps+1)
-histalt = fltarr(3, 71, nalt_steps+1)
+hist = fltarr(n_elements(beams), 71, nelev_steps+1)
+histalt = fltarr(n_elements(beams), 71, nalt_steps+1)
 corrvalt = fltarr(71, nelev_steps+1)
 parse_date, date, tyy, tmm, tdd
-rtdate = date;tyy*10000L+tmm*100L+01
+; rtdate = date
+rtdate = tyy*10000L+tmm*100L+01
 rt_run, rtdate, radar, time=[0,1200]
 
 ; Find midnight
 rad_calc_sunset, rtdate, radar, 7, 70, $
-	solnoon=solnoon
+    solnoon=solnoon
 julmidnight = solnoon[20] - 0.5d
 
 ; zeros power where undefined
 pinds = where(rt_data.power eq 10000. and rt_data.gscatter ne 2b, ccpinds)
 if ccpinds gt 0 then $
-	rt_data.power[pinds] = 0.
+    rt_data.power[pinds] = 0.
 
 ; Build histogram
 indsmidnight = where(rt_data.juls ge julmidnight-dtime/24.d and $
-			rt_data.juls le julmidnight+dtime/24.d, nnighttimes)
+    rt_data.juls le julmidnight+dtime/24.d, nnighttimes)
 if nnighttimes gt 0 then begin
-	for it=0,nnighttimes-1 do begin
-		caldat, rt_data.juls[indsmidnight[it]], mm, dd, yy, hr, mn
-		tdate = yy*10000L + mm*100L + dd
-		ttime = hr*100L + mn
+    for it=0,nnighttimes-1 do begin
+        caldat, rt_data.juls[indsmidnight[it]], mm, dd, yy, hr, mn
+        tdate = yy*10000L + mm*100L + dd
+        ttime = hr*100L + mn
 
-		; Set tolerance (in degree) for how much deviation from perfect aspect condition is allowed
-		tol = 1.
+        ; Set tolerance (in degree) for how much deviation from perfect aspect condition is allowed
+        tol = 1.
 
-		; latitude/longitude distribution (expressed as angle from radar with Earth center)
-		ndip = n_elements(rt_data.dip[indsmidnight[it],0,0,*])
-		thtdip = findgen(ndip)*2500./Rav/ndip
+        ; latitude/longitude distribution (expressed as angle from radar with Earth center)
+        ndip = n_elements(rt_data.dip[indsmidnight[it],0,0,*])
+        thtdip = findgen(ndip)*2500./Rav/ndip
 
-; 		for nb=0,n_elements(beams)-1 do begin
-; 			ib = beams[nb]
-; 			elev = rt_data.elevation[indsmidnight[it],ib,*]
-; 			power = rt_data.power[indsmidnight[it],ib,*]
-; 			scat = rt_data.gscatter[indsmidnight[it],ib,*]
-; 			for ng=2,50 do begin
-; 				for nel=0,nelev_steps-2 do begin
-; 					if (elev[ng] ge elev_steps[nel] and elev[ng] lt elev_steps[nel+1] and scat[ng] eq 2b) then $
-; 						hist[nb,ng,nel] = hist[nb,ng,nel] + 1./( rt_data.power[indsmidnight[it],ib,ng] / min(rt_data.power[indsmidnight,*,*]) )
-; 				endfor
-; 			endfor
-; 		; end beam loop
-; 		endfor
+        for nb=0,n_elements(beams)-1 do begin
+            ib = beams[nb]
 
-		for nb=0,n_elements(beams)-1 do begin
-			ib = beams[nb]
+            ; Test for data availability
+            rt_read_rays, rtdate, rt_info.name, ttime, beams[nb], rt_data.tfreq[indsmidnight[it]], radpos=radpos, thtpos=thtpos, grppth=grppth, raysteps=raysteps, code=code
+            if ~code then $
+                return
+            ; Count element of matrix
+            nrays = n_elements(radpos[*,0])
 
-			; Test for data availability
-			rt_read_rays, rtdate, rt_info.name, ttime, beams[nb], rt_data.tfreq[indsmidnight[it]], radpos=radpos, thtpos=thtpos, grppth=grppth, raysteps=raysteps, code=code
-			if ~code then $
-				return
-			; Count element of matrix
-			nrays = n_elements(radpos[*,0])
+            for nr=0,nrays-1 do begin
+                telev = rt_info.elev_beg + nr*rt_info.elev_stp
+                nrsteps = raysteps[nr]
+                for ns=1,nrsteps-1 do begin
+                    if grppth[nr,ns-1] gt 180e3 then begin
+                        ; Calculate k vector
+                        kx = radpos[nr,ns]*sin(thtpos[nr,ns]-thtpos[nr,ns-1])
+                        kz = radpos[nr,ns]*cos(thtpos[nr,ns]-thtpos[nr,ns-1]) - radpos[nr,ns-1]
+                        kvect = sqrt( kx^2. + kz^2. )
+                        
+                        ; Middle of the step: position and index in B grid
+                        midtht = (thtpos[nr,ns]-thtpos[nr,ns-1])/2. + thtpos[nr,ns-1]
+                        diff = min(midtht-thtdip, thtind, /abs)
+                        
+                        ; Dip and declination at this position
+                        middip = rt_data.dip[indsmidnight[it],ib,0,thtind]
+                        middec = rt_data.dip[indsmidnight[it],ib,1,thtind]
 
-			for nr=0,nrays-1 do begin
-				telev = rt_info.elev_beg + nr*rt_info.elev_stp
-				nrsteps = raysteps[nr]
-				for ns=1,nrsteps-1 do begin
-					if grppth[nr,ns-1] gt 180e3 then begin
-						; Calculate k vector
-						kx = radpos[nr,ns]*sin(thtpos[nr,ns]-thtpos[nr,ns-1])
-						kz = radpos[nr,ns]*cos(thtpos[nr,ns]-thtpos[nr,ns-1]) - radpos[nr,ns-1]
-						kvect = sqrt( kx^2. + kz^2. )
-						
-						; Middle of the step: position and index in B grid
-						midtht = (thtpos[nr,ns]-thtpos[nr,ns-1])/2. + thtpos[nr,ns-1]
-						diff = min(midtht-thtdip, thtind, /abs)
-						
-						; Dip and declination at this position
-						middip = rt_data.dip[indsmidnight[it],ib,0,thtind]
-						middec = rt_data.dip[indsmidnight[it],ib,1,thtind]
+                        ; calculate vector magnetic field
+                        Bx = cos(-middip*!dtor) * cos(rt_data.azim[indsmidnight[it],ib]*!dtor - middec*!dtor)
+                        Bz = sin(-middip*!dtor)
+                        
+                        ; calculate cosine of aspect angle
+                        cos_aspect = (Bx*kx + Bz*kz)/kvect
+                        
+                        if abs(cos_aspect) le cos(!pi/2. - tol*!dtor) then begin
+                            nel = round((telev - elrange[0])/elstep)
+                            nalt = round((radpos[nr,ns]*1e-3-Rav - altrange[0])/altstep)
+                            ng = round((grppth[nr,ns-1]*1e-3-180.)/45.)
+                            addhist = 1./( rt_data.power[indsmidnight[it],ib,ng] / min(rt_data.power[indsmidnight,*,*]) )
+                            if finite(addhist) then begin
+                                tran = 180.+ng*45.
+                                talt = radpos[nr,ns]*1e-3-Rav
+                                tvalt = sqrt(tran^2 + Rav^2 + 2.*tran*Rav*sin(telev*!dtor)) - Rav
+                                corrvalt[ng,nel] = (tvalt - talt)/tran
+                                if talt lt 150. then continue
+                                if nel ge 0 and nel lt nelev_steps then hist[nb,ng,nel] = hist[nb,ng,nel] + addhist
+                                if nalt ge 0 and nalt lt nalt_steps then histalt[nb,ng,nalt] = histalt[nb,ng,nalt] + addhist
+                            endif
+                        endif
 
-						; calculate vector magnetic field
-						Bx = cos(-middip*!dtor) * cos(rt_data.azim[indsmidnight[it],ib]*!dtor - middec*!dtor)
-						Bz = sin(-middip*!dtor)
-						
-						; calculate cosine of aspect angle
-						cos_aspect = (Bx*kx + Bz*kz)/kvect
-						
-						if abs(cos_aspect) le cos(!pi/2. - tol*!dtor) then begin
-							nel = round((telev - elrange[0])/elstep)
-							nalt = round((radpos[nr,ns]*1e-3-Rav - altrange[0])/altstep)
-							ng = round((grppth[nr,ns-1]*1e-3-180.)/45.)
-							addhist = 1./( rt_data.power[indsmidnight[it],ib,ng] / min(rt_data.power[indsmidnight,*,*]) )
-							if finite(addhist) then begin
-								tran = 180.+ng*45.
-								talt = radpos[nr,ns]*1e-3-Rav
-								tvalt = sqrt(tran^2 + Rav^2 + 2.*tran*Rav*sin(telev*!dtor)) - Rav
-								corrvalt[ng,nel] = (tvalt - talt)/tran
-; 								print, talt, tvalt, (tvalt - talt)/tran
-								if nel ge 0 and nel lt nelev_steps then hist[nb,ng,nel] = hist[nb,ng,nel] + addhist
-								if nalt ge 0 and nalt lt nalt_steps then histalt[nb,ng,nalt] = histalt[nb,ng,nalt] + addhist
-							endif
-						endif
-
-					endif
-				; end ray steps loop
-				endfor
-			; end rays loop
-			endfor
-		; end beam loop
-		endfor
-; 	end time loop
-	endfor
+                    endif
+                ; end ray steps loop
+                endfor
+            ; end rays loop
+            endfor
+        ; end beam loop
+        endfor
+    ; end time loop
+    endfor
 endif
-rthist = hist
+rthist = histalt
 hist = hist/max(hist[*,10:*,*])
 histalt = histalt/max(histalt[*,10:*,*])
 valt2palt = mean(corrvalt[where(corrvalt gt 0.)])
@@ -262,8 +244,9 @@ xyouts, .5, .91, $
 ;*******************************************
 ; Radar: SCATTER 
 ;*******************************************
-hist = fltarr(3,71,nelev_steps+1)
-radhist = hist
+hist = fltarr(n_elements(beams),71,nelev_steps+1)
+histalt = fltarr(n_elements(beams), 71, nalt_steps+1)
+radhist = histalt
 rad_fit_read, date, radar, time=[0,1200], /filter, /ajground, /catfile, catpath='~/tmp/'
 
 data_index = rad_fit_get_data_index()
@@ -278,29 +261,42 @@ rad_calc_sunset, date, radar, 7, 70, $
 julmidnight = solnoon[20] - 0.5d
 
 for ib=0,n_elements(beams)-1 do begin
-	binds = where((*rad_fit_data[data_index]).beam eq beams[ib] and $
-				(*rad_fit_data[data_index]).juls ge julmidnight-dtime/24.d and $
-				(*rad_fit_data[data_index]).juls le julmidnight+dtime/24.d and $
-				(*rad_fit_data[data_index]).tfreq ge 10e3 and $
-				(*rad_fit_data[data_index]).tfreq le 12e3, ccinds)
-	if ccinds le 0 then $
-		continue
+    binds = where((*rad_fit_data[data_index]).beam eq beams[ib] and $
+                (*rad_fit_data[data_index]).juls ge julmidnight-dtime/24.d and $
+                (*rad_fit_data[data_index]).juls le julmidnight+dtime/24.d and $
+                (*rad_fit_data[data_index]).tfreq ge 10e3 and $
+                (*rad_fit_data[data_index]).tfreq le 12e3, ccinds)
+    if ccinds le 0 then $
+        continue
 
-	elev = (*rad_fit_data[data_index]).elevation[binds,*]
-	power = (*rad_fit_data[data_index]).power[binds,*]
-	scat = (*rad_fit_data[data_index]).gscatter[binds,*]
-	for ng=5,50 do begin
-		if ng lt xrange[1] then begin
-			for nel=0,nelev_steps-2 do begin
-				elinds = where(elev[*,ng] ge elev_steps[nel] and elev[*,ng] lt elev_steps[nel+1] and $
-							scat[*,ng] eq 0b and power[*,ng] ne 10000. and power[*,ng] ge 6., ccel)
-				if ccel gt 0. then $
-					hist[ib,ng,nel] = hist[ib,ng,nel] + ccel
-			endfor
-		endif
-	endfor
+    elev = (*rad_fit_data[data_index]).elevation[binds,*]
+    power = (*rad_fit_data[data_index]).power[binds,*]
+    scat = (*rad_fit_data[data_index]).gscatter[binds,*]
+    frang = ( (*rad_fit_data[data_index]).lagfr[binds,*]*0.15 )#(1. + fltarr(1,n_elements(elev[0,*])))
+    rsep = ( (*rad_fit_data[data_index]).smsep[binds,*]*0.15 )#(1. + fltarr(1,n_elements(elev[0,*])))
+    range = frang + ( ( fltarr( n_elements(elev[*,0]) ) + 1. )#indgen(1,n_elements(elev[0,*])) ) * rsep
+    valti = sqrt( range^2 + Rav^2 + 2.*range*Rav*sin(elev*!dtor) ) - Rav
+    alti = valti - valt2palt*range
+    for ng=5,50 do begin
+        if ng lt xrange[1] then begin
+            for nel=0,nelev_steps-2 do begin
+                elinds = where(elev[*,ng] ge elev_steps[nel] and elev[*,ng] lt elev_steps[nel+1] and $
+                            scat[*,ng] eq 0b and power[*,ng] ne 10000. and power[*,ng] ge 6., ccel)
+                if ccel gt 0. then begin
+                    hist[ib,ng,nel] = hist[ib,ng,nel] + ccel
+                endif
+            endfor
+            for nalt=0,nalt_steps-2 do begin
+                altinds = where(alti[*,ng] ge alt_steps[nalt] and alti[*,ng] lt alt_steps[nalt+1] and $
+                            scat[*,ng] eq 0b and power[*,ng] ne 10000. and power[*,ng] ge 6., ccalt)
+                if ccalt gt 0. then begin
+                    histalt[ib,ng,nalt] = histalt[ib,ng,nalt] + ccalt
+                endif
+            endfor
+        endif
+    endfor
 endfor
-radhist = hist
+radhist = histalt
 hist = hist/max(hist[*,10:*,*])
 
 ; Plot virtual altitude

@@ -251,7 +251,7 @@ FOR nt=0, tsteps-1 DO BEGIN
 				; get color
 				color_ind = (MAX(where(lvl le ((ydata[nt,nb,r] > scale[0]) < scale[1]))) > 0)
 				col = cin[color_ind]
-				
+
 				; finally plot the point
 				POLYFILL,[start_time,start_time,end_time,end_time], $
 						[fov_loc_center[r],fov_loc_center[r+1], $
@@ -315,11 +315,19 @@ if keyword_set(sun) then begin
 	loadct, 0
 
 	tinbound = where(risetime ne 0., cc)
-	if cc gt 0. then $
-		oplot, risetime[tinbound], fov_loc_center[tinbound], linestyle=2, thick=3, col=sunlinecol
+	if cc gt 0. then begin
+		for ig=0,n_elements(tinbound)-2 do begin
+			if abs(risetime[tinbound[ig]] - risetime[tinbound[ig+1]]) lt 2.d/24.d then $
+				oplot, risetime[tinbound[ig:ig+1]], fov_loc_center[tinbound[ig:ig+1]], linestyle=2, thick=3, col=sunlinecol
+		endfor
+	endif
 	tinbound = where(settime ne 0., cc)
-	if cc gt 0. then $
-		oplot, settime[tinbound], fov_loc_center[tinbound], linestyle=2, thick=3, col=sunlinecol
+	if cc gt 0. then begin
+		for ig=0,n_elements(tinbound)-2 do begin
+			if abs(settime[tinbound[ig]] - settime[tinbound[ig+1]]) lt 2.d/24.d then $
+				oplot, settime[tinbound[ig:ig+1]], fov_loc_center[tinbound[ig:ig+1]], linestyle=2, thick=3, col=sunlinecol
+		endfor
+	endif
 
 ; 	xyouts, risetime[nleg], fov_loc_center[nleg]-(fov_loc_center[nleg+1]-fov_loc_center[nleg])*2., 'Sunrise', align=.5, col=sunlinecol, charsize=charsize
 ; 	xyouts, settime[nleg], fov_loc_center[nleg]-(fov_loc_center[nleg+1]-fov_loc_center[nleg])*2., 'Sunset', align=.5, col=sunlinecol, charsize=charsize

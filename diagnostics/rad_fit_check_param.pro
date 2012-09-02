@@ -59,8 +59,13 @@ xrange = [juld, juld+1.d]
 
 ; If you need a standalone postscript...
 if keyword_set(ratio) then fileparam = 'nave-intt' else fileparam = param
-if keyword_set(ps) then $
-	ps_open, '~/Desktop/check_'+fileparam+'_'+strtrim(tdate,2)+'_'+radar+'.ps'
+if keyword_set(ps) then begin
+	if size(ps,/type) eq 7 then $
+		filename = ps $
+	else $
+		filename = '~/Desktop/check_'+fileparam+'_'+strtrim(tdate,2)+'_'+radar
+	ps_open, filename+'.ps'
+endif
 
 ; Adjust position for right axis labels
 if ~keyword_set(position) then $
@@ -226,6 +231,12 @@ endfor
 if keyword_set(clock) then begin
 	; Calculate scan times
 	scaninds = where( (*rad_fit_data[data_index]).scan_mark eq 1 , ccscan)
+	; If no scan flags, then force it
+	if ccscan le 1 then begin
+		rad_fit_force_scan_flag, data_index, scan_mark=scan_mark
+		scaninds = where( scan_mark eq 1 , ccscan)
+		force_flag = '(forced)'
+	endif else force_flag = ''
 	if ccscan gt 0 then begin
 		scantime = fltarr(ccscan-1)
 		scanjuls = dblarr(ccscan-1)
@@ -233,7 +244,10 @@ if keyword_set(clock) then begin
 			scantime[iscan] = ( (*rad_fit_data[data_index]).juls[scaninds[iscan+1]-1] + (*rad_fit_data[data_index]).intt[scaninds[iscan+1]-1]/86400.d - (*rad_fit_data[data_index]).juls[scaninds[iscan]] )*1440.d
 			scanjuls[iscan] = atime[scaninds[iscan]]
 		endfor
-	endif else scantime = 0
+	endif else begin
+		scantime = 0
+		scanjuls = 0.d
+	endelse
 	; Add an integration/scan time time axis
 	yrange = [0., 18.]
 	plot, xrange, yrange, /nodata, position=pos, xstyle=5, ystyle=5
@@ -242,9 +256,9 @@ if keyword_set(clock) then begin
 	; Add axis titles
 	loadct, 10
 	xyouts, pos[2]+.07, pos[1]+(pos[3]-pos[1])/2., 'Integration time [s]', col=120, align=.5, orientation=90., /normal, charsize=charsize
-	xyouts, pos[2]+.1, pos[1]+(pos[3]-pos[1])/2., 'Scan time [min]', col=50, align=.5, orientation=90., /normal, charsize=charsize
+	xyouts, pos[2]+.1, pos[1]+(pos[3]-pos[1])/2., 'Scan time [min]'+force_flag, col=50, align=.5, orientation=90., /normal, charsize=charsize
 	; Plot scan time (in green)
-	oplot, scanjuls, scantime, col=50, psym=8, symsize=.1;, linestyle=2
+	plots, scanjuls, scantime, col=50, psym=8, symsize=.1;, linestyle=2
 	; Plot integration time (in blue)
 	oplot, atime, (*rad_fit_data[data_index]).intt, col=120, psym=8, symsize=.1
 endif else if ~keyword_set(scanbeams) then begin
@@ -260,6 +274,12 @@ if keyword_set(scanbeams) then begin
 	; Get beam number at begining of scan and rotate through them
 	; (scan 0 -> beam 0, scan 1 -> beam 1, ..., scan N -> beam0 + N mod nbeams)
 	scaninds = where( (*rad_fit_data[data_index]).scan_mark eq 1 , ccscan)
+	; If no scan flags, then force it
+	if ccscan le 1 then begin
+		rad_fit_force_scan_flag, data_index, scan_mark=scan_mark
+		scaninds = where( scan_mark eq 1 , ccscan)
+		force_flag = '(forced)'
+	endif else force_flag = ''
 	if ccscan gt 0 then begin
 		scanbeam = fltarr(ccscan-1)
 		scanjuls = dblarr(ccscan-1)
@@ -269,7 +289,10 @@ if keyword_set(scanbeams) then begin
 			scanjuls[iscan] = atime[scaninds[iscan]]
 			if scaninds[iscan]+1+offset ge scaninds[iscan+1] then offset = 0 else offset += 1
 		endfor
-	endif else scantime = 0
+	endif else begin
+		scanbeam = 0
+		scanjuls = 0.d
+	endelse
 	; Add an Beam/Freq axis
 	yrange = [0., 36.]
 	plot, xrange, yrange, /nodata, position=pos, xstyle=5, ystyle=5
@@ -277,9 +300,9 @@ if keyword_set(scanbeams) then begin
 		ytickv=indgen(7)*4., yticks=7, yminor=4, yticklen=yticklen
 	; Add axis titles
 	loadct, 10
-	xyouts, pos[2]+.07, pos[1]+(pos[3]-pos[1])/2., 'Beam #', col=120, align=.5, orientation=90., /normal, charsize=charsize
+	xyouts, pos[2]+.07, pos[1]+(pos[3]-pos[1])/2., 'Beam #'+force_flag, col=120, align=.5, orientation=90., /normal, charsize=charsize
 	; Plot beams
-	oplot, scanjuls, scanbeam, col=120, psym=8, symsize=.1
+	plots, scanjuls, scanbeam, col=120, psym=8, symsize=.1
 	; Add a note to explain this crazy beam plot...
 	if ~keyword_set(noxlabels) then begin
 		xyouts, .5, pos[1]-.1, 'Note on Beam #: a dot is plotted showing the beam # of the k!Eth!N record of the k!Eth!N scan.', $
@@ -305,40 +328,45 @@ gapinds = where(iddiff ne 0, ccgap)
 ; If cpid changes, then mark and annotate it (in gray)
 cpidpos = 1		; used to switch the position of the cpid name to avoid overlap
 if ccgap gt 0 then begin
-	for igap=0,ccgap-1 do begin
+	step = 1
+	if ccgap gt 24 then step = round(ccgap/10)
+	igap = 0L
+	while igap lt ccgap do begin
 		; Plot cpid change marker
 		oplot, atime[gapinds[igap]]*[1,1], yrange, col=120, linestyle=2
 		; Plot cpid name and number
 		xyouts, atime[gapinds[igap]]+(xrange[1]-xrange[0])*10.d/1440.d, yrange[1] - (yrange[1]-yrange[0])/15. - cpidpos * (yrange[1]-yrange[0])/15., $
 			rad_cpid_translate((*rad_fit_data[data_index]).scan_id[gapinds[igap]+1])+' ('+strtrim((*rad_fit_data[data_index]).scan_id[gapinds[igap]+1], 2)+')', $
 			align=0., /data, col=120, charsize=charsize*.7
+
+		igap += step
 		
 		; Plot average and deviation of main parameter over the time the previous mode was run (only if the mode ran for more than 2 hours)
 		if keyword_set(average) then begin
-			if igap eq 0 then previd = 0 else previd = gapinds[igap-1]
-			if (atime[gapinds[igap]]-atime[previd]) lt 2.d/24.d then continue
-			datachunck = xdata[previd:gapinds[igap]]
+			if igap-step eq 0 then previd = 0 else previd = gapinds[igap-step-1]
+			if (atime[gapinds[igap-step]]-atime[previd]) lt 2.d/24.d then continue
+			datachunck = xdata[previd:gapinds[igap-step]]
 			xmean = median( datachunck[sort(datachunck)] ) 
 			strxmean = strtrim(string(xmean, format='(I4)'),2)
-			xyouts, atime[gapinds[igap]]-(xrange[1]-xrange[0])*10.d/1440.d, yrange[1] - (yrange[1]-yrange[0])/15. - (1-cpidpos) * (yrange[1]-yrange[0])/15., strxmean, align=1., /data, charsize=charsize*.9
+			xyouts, atime[gapinds[igap-step]]-(xrange[1]-xrange[0])*10.d/1440.d, yrange[1] - (yrange[1]-yrange[0])/15. - (1-cpidpos) * (yrange[1]-yrange[0])/15., strxmean, align=1., /data, charsize=charsize*.9
 		endif
 		; Add min/max/camping beam if reuqested
 		if keyword_set(scanbeams) then begin
+			if igap-step eq 0 then previd = 0 else previd = gapinds[igap-step-1]
+			if (atime[gapinds[igap-step]]-atime[previd]) lt 2.d/24.d then continue
 			loadct, 10
-			if igap eq 0 then previd = 0 else previd = gapinds[igap-1]
-			if (atime[gapinds[igap]]-atime[previd]) lt 2.d/24.d then continue
-			datachunck = (*rad_fit_data[data_index]).beam[previd:gapinds[igap]]
+			datachunck = (*rad_fit_data[data_index]).beam[previd:gapinds[igap-step]]
 			maxbeam = max( datachunck ) 
 			minbeam = min( datachunck ) 
 			strmaxbeam = strtrim(string(maxbeam, format='(I2)'),2)
 			strminbeam = strtrim(string(minbeam, format='(I2)'),2)
-			xyouts, atime[gapinds[igap]]-(xrange[1]-xrange[0])*10.d/1440.d, maxbeam, strmaxbeam, align=1., /data, charsize=charsize*.9, col=120
-			xyouts, atime[gapinds[igap]]-(xrange[1]-xrange[0])*10.d/1440.d, minbeam, strminbeam, align=1., /data, charsize=charsize*.9, col=120
+			xyouts, atime[gapinds[igap-step]]-(xrange[1]-xrange[0])*10.d/1440.d, maxbeam, strmaxbeam, align=1., /data, charsize=charsize*.9, col=120
+			xyouts, atime[gapinds[igap-step]]-(xrange[1]-xrange[0])*10.d/1440.d, minbeam, strminbeam, align=1., /data, charsize=charsize*.9, col=120
 			loadct, 0
 		endif
 
 		cpidpos = 1 - cpidpos
-	endfor
+	endwhile
 
 	; Plot average and deviation of main parameter over the time the last mode was run
 	if keyword_set(average) then begin

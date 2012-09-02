@@ -145,8 +145,8 @@ proj = calc_stereo_coords(magco[0], magco[1], rotate=rotate)
 ; Start plotting
 map_plot_panel, position=position, date=date, coords=coords, charsize=charsize, grid_linecolor=1, $
 		hemisphere=hemisphere, coast_linecolor=0, /iso, /no_fill, yrange=yrange, xrange=xrange, rotate=rotate, grid_charsize=charsize, /no_label
-overlay_radar, rotate=rotate, charsize=charsize, coords=coords, names=radar
-xyouts, proj[0]*1.01, proj[1]*1.01, 'Buenos Aires', charsize=charsize, charthick=2
+overlay_radar, rotate=rotate, charsize=charsize, coords=coords, names=radar, /annotate
+; xyouts, proj[0]*1.01, proj[1]*1.01, radar, charsize=charsize*1.5, charthick=4
 
 lati = rt_info.glat
 longi = rt_info.glon

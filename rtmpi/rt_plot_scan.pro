@@ -34,7 +34,7 @@
 ;
 ; MODIFICATION HISTORY:
 ; Written by Sebastien de Larquier, Jan. 2012
-;	Last modified 02-2012
+;	Last modified 05-2012
 ;-
 pro rt_plot_scan, time, date=date, $
 	param=param, coords=coords, rotate=rotate, $

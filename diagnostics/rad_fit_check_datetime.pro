@@ -58,8 +58,13 @@ parse_date, tdate, year, month, day
 juld = julday(month, day, year, 0, 0)
 
 ; If you need a standalone postscript...
-if keyword_set(ps) then $
-	ps_open, '~/Desktop/check_datetime_'+strtrim(tdate,2)+'_'+radar+'.ps'
+if keyword_set(ps) then begin
+	if size(ps,/type) eq 7 then $
+		filename = ps $
+	else $
+		filename = '~/Desktop/check_clock_'+strtrim(tdate,2)+'_'+radar
+	ps_open, filename+'.ps'
+endif
 
 ; Adjust position
 if ~keyword_set(position) then $
@@ -123,7 +128,9 @@ oplot, (*rad_fit_data[data_index]).juls, psym=3
 
 ; If no time threshold is passed, default to 10 times the max integration time
 if ~keyword_set(threshold) then $
-	julthresh = 10.*max((*rad_fit_data[data_index]).intt)/60.d/1440.d
+	julthresh = 10.*max((*rad_fit_data[data_index]).intt)/60.d/1440.d $
+else $
+	julthresh = threshold/1440.d
 
 
 ; ****************************
@@ -153,27 +160,35 @@ xyouts, .5, .05, 'Note on gaps: a gap is marked when two consecutive records are
 ;- Integration/Scan time
 ; ****************************
 ; Calculate scan times
-scaninds = where( (*rad_fit_data[data_index]).scan_mark eq 1 )
-ccscan = n_elements(scaninds)
-if ccscan gt 0 then begin
+scaninds = where( (*rad_fit_data[data_index]).scan_mark eq 1 , ccscan)
+; If no scan flags, then force it
+if ccscan le 1 then begin
+	rad_fit_force_scan_flag, data_index, scan_mark=scan_mark
+	scaninds = where( scan_mark eq 1 , ccscan)
+	force_flag = '(forced)'
+endif else force_flag = ''
+if ccscan gt 1 then begin
 	scantime = fltarr(ccscan-1)
 	scanrec = fltarr(ccscan-1)
 	for iscan=0,ccscan-2 do begin
 		scantime[iscan] = ( (*rad_fit_data[data_index]).juls[scaninds[iscan+1]-1] + (*rad_fit_data[data_index]).intt[scaninds[iscan+1]-1]/86400.d - (*rad_fit_data[data_index]).juls[scaninds[iscan]] )*1440.d
 		scanrec[iscan] = scaninds[iscan]
 	endfor
-endif else scantime = 0
+endif else begin
+	scantime = 0
+	scanrec = 0
+endelse
 ; Add an integration/scan time time axis
 intrange = [0., 18.]
 axis, /yaxis, /data, ystyle=1, yticklen=yticklen, yrange=intrange, ytitle='', charsize=charsize, $
 	ytickv=indgen(4)*3., yticks=4, yminor=3
 ; Add axis titles
 loadct, 10
-xyouts, position[2]+.04, position[1]+(position[3]-position[1])/2., 'Integration time [s]', col=120, align=.5, orientation=90., /normal, charsize=charsize
-xyouts, position[2]+.07, position[1]+(position[3]-position[1])/2., 'Scan time [min]', col=50, align=.5, orientation=90., /normal, charsize=charsize
+xyouts, position[2]+.07, position[1]+(position[3]-position[1])/2., 'Integration time [s]', col=120, align=.5, orientation=90., /normal, charsize=charsize
+xyouts, position[2]+.1, position[1]+(position[3]-position[1])/2., 'Scan time [min]'+force_flag, col=50, align=.5, orientation=90., /normal, charsize=charsize
 ; Plot scan time (in green)
 load_usersym, /circle
-oplot, scanrec, yrange[0] + (yrange[1]-yrange[0])/intrange[1]*scantime, col=50, psym=8, symsize=.1;, linestyle=2
+plots, scanrec, yrange[0] + (yrange[1]-yrange[0])/intrange[1]*scantime, col=50, psym=8, symsize=.1;, linestyle=2
 ; Plot integration time (in blue)
 oplot, yrange[0] + (yrange[1]-yrange[0])/intrange[1]*(*rad_fit_data[data_index]).intt, col=120
 
@@ -192,14 +207,17 @@ gapinds = where(iddiff ne 0, ccgap)
 ; If cpid changes, then mark and annotate it (in gray)
 offset = 1
 if ccgap gt 0 then begin
-	for igap=0,ccgap-1 do begin
+	step = 1
+	if ccgap gt 24 then step = round(ccgap/10)
+	igap = 0L
+	while igap lt ccgap do begin
 		oplot, gapinds[igap]*[1,1], yrange, col=100, linestyle=2
-; 		oplot, xrange, (*rad_fit_data[data_index]).juls[gapinds[igap]]*[1,1], col=100, linestyle=2
 		xyouts, gapinds[igap]+(xrange[1]-xrange[0])/100., yrange[1] - (yrange[1]-yrange[0])*2.d/24.d - offset*(yrange[1]-yrange[0])*2.d/24.d, $
 			rad_cpid_translate((*rad_fit_data[data_index]).scan_id[gapinds[igap]+1])+' ('+strtrim((*rad_fit_data[data_index]).scan_id[gapinds[igap]+1], 2)+')', $
 			align=0., /data, col=100, charsize=charsize*.7
 		offset = 1 - offset
-	endfor
+		igap += step
+	endwhile
 endif
 rad_load_colortable, /aj
 

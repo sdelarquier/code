@@ -43,8 +43,8 @@ pro rad_fit_check_param_all, param, date=date, time=time, $
 midlat = ['cvw', 'cve', 'fhw', 'fhe', 'bks', 'wal']
 midlatbeams = [12,12,10,10,13,07]
 ; Declare high-latitude radars
-highlat = ['sas', 'kap', 'gbr', 'sto']
-highlatbeams = [07,07,07,07]
+highlat = ['kod','pgr','sas', 'kap', 'gbr', 'sto']
+highlatbeams = [07,07,07,07,07,07]
 
 ; For now, default data format is fitacf
 datafmt='fitacf'
@@ -128,8 +128,8 @@ endfor
 
 ps_close, /no_f
 spawn, 'ps2png.sh '+filename+'.ps'
-spawn, 'rm -f '+filename+'.ps'
 spawn, 'convert -units PixelsPerInch -extent 2300x3200 -density 96 '+filename+'*.png '+filename+'.pdf'
+spawn, 'rm -f '+filename+'.ps'
 spawn, 'rm -f '+filename+'*.png'
 
 end

@@ -78,7 +78,7 @@
 ; Based on Lasse Clausen, RAD_FIT_READ
 ; Based on Nitya Ravindran, RT
 ; Written by Sebastien de Larquier, Sept. 2010
-; Last modified 02-2012
+; Last modified 05-2012
 ;-
 pro 	RT_RUN, date, radar, dhour=dhour, ltime=ltime, $
 	time=time, beam=beam, nhop=nhop, azim=azim, nmf2=nmf2, hmf2=hmf2, $
@@ -143,7 +143,7 @@ if radar eq 'custom' then begin
 		prinfo, 'No azimuth specified. Setting it to 0.'
 		azim = 0.
 	endif
-        rad_set_customradar, geopos[0], geopos[1], azim
+	rad_set_customradar, geopos[0], geopos[1], azim
 	radarsite = network[0].site[0]
 	
         if n_elements(beam) lt 1 then $
@@ -154,7 +154,7 @@ if radar eq 'custom' then begin
 	; Calculate azimuth limits and step
 	azim = [rt_get_azim(radar, beam[0], date[0]), $
 	        	rt_get_azim(radar, beam[n_elements(beam)-1], date[0]), $
-		    	radarsite.bmsep]
+						radarsite.bmsep]
 endif else begin
 	radID = where(network.code[0,*] eq radar)
 	tval = TimeYMDHMSToEpoch(year, month, day, shour, sminutes, 0)
@@ -197,11 +197,11 @@ if n_elements(mpdout) gt 1 then begin
 endif
 
 ; Some useful parameters
-ngates		= 70
-range_gate	= 180L + 45L*lindgen(ngates+1)
-Re			= 6370.
-P			= 180. + findgen(ngates)*45.
-minpower	= 4.
+ngates 		= 70
+range_gate 	= 180L + 45L*lindgen(ngates+1)
+Re 			= 6370.
+P 			= 180. + findgen(ngates)*45.
+minpower 	= 4.
 
 ;******************************************************************************************************
 ; Some file management and testing
@@ -456,7 +456,6 @@ IF ~code OR ~rcode OR keyword_set(force) THEN BEGIN
 	if ccgnd gt 0 then begin
 		rt_data.power[ginds] = 10.*alog10( rt_data.lagpower[ginds]/max(rt_data.lagpower[ginds]) )
 	endif
-	print, max(rt_data.lagpower[ginds]), max(rt_data.lagpower[ionosinds])
 	noinds = where(rt_data.gscatter eq 0, ccno)
 	if ccno gt 0 then $
 		rt_data.power[noinds] = 10000.

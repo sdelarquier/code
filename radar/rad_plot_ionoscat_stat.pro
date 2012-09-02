@@ -1,9 +1,11 @@
-pro	rad_plot_ionoscat_stat, radar, beam
+pro	rad_plot_ionoscat_stat, radar, beam, maxvar=maxvar, tsample=tsample, hmf2var=hmf2var
 
-openr, unit, 'ionoscat_edges_'+radar+'.dat', /get_lun
+if ~keyword_set(tsample) then $
+    tsample=1.
+
+openr, unit, '~/Documents/code/radar/data/ionoscat_edges_'+radar+'.dat', /get_lun
 njuls = 0L
 readu, unit, njuls
-print, njuls
 juls = dblarr(njuls)
 edges = fltarr(njuls,4)
 readu, unit, juls, edges
@@ -20,8 +22,9 @@ free_lun, unit
 ; help, njuls, juls, edges, nbeams, ngates, radhist, rthist, nmf2, hmf2
 
 ; Generate time array with 1 month steps for the given time period
-julbins = timegen(start=juls[0], final=juls[njuls-1], units='Months', step_size=1)
-
+julbins = timegen(start=julday(01,01,2009), final=julday(05,01,2011), units='month', step_size=1)
+njbins = n_elements(julbins)
+; julbins = interpol(tjulbins, 2*n_elements(tjulbins)+1)
 
 ; ********************************************************
 ; Radar data distribution - range
@@ -30,23 +33,32 @@ set_format, /portrait
 ; charsize = 1.2
 ps_open, '~/Desktop/tsr_ran_distrib_'+radar+'.ps'
 
-position = [.1, .51, .8, .9]
-xrange = [juls[0], juls[njuls-1]]
+position = [.1, .51, .9, .9]
+xrange = [julbins[0], julbins[njbins-1]]
 yrange = [0, 2000]/100
 date_label = label_date(date_format=['%M','%Y'])
 plot, xrange, yrange, /nodata, position=position, charsize=charsize, $
 	xtickformat=['label_date','label_date'], xtickunits=['Month','Year'], xtickinterval=4, xstyle=5, ystyle=5
-histfull = dblarr(n_elements(julbins), ngates)
-for id=0,njuls-1 do begin
-	inds = where(julbins gt juls[id], cc)
-	if cc le 0 then continue
-	histfull[inds[0]-1, *] = radhist[id,beam,*]
+; Rebin histogram
+datadays = lonarr(njbins)
+maxindsd = lonarr(njbins)
+histfull = dblarr(njbins, ngates)
+for ibin=0,njbins-2 do begin
+    inds = where(juls ge julbins[ibin] and juls lt julbins[ibin+1], cc)
+    if cc le 0 then continue
+    histfull[ibin, *] = total( radhist[inds,beam,*], 1 )
+    dinds = where( total( radhist[inds,beam,*], 3 ) ne 0, dcc)
+    histfull[ibin, *] = histfull[ibin, *]/float(dcc)
+    datadays[ibin] = dcc
+;     histfull[ibin, *] = histfull[ibin, *] / max(histfull[ibin, *])
+    tmax = max(histfull[ibin, *], max_ind)
+    maxindsd[ibin] = max_ind
 endfor
 histfull = histfull / max(histfull)
-for ibin=0,n_elements(julbins)-2 do begin
+for ibin=0,njbins-2 do begin
 	for ir=0,ngates-2 do begin
 		col = bytscl(histfull[ibin,ir], min=0., max=1., top=250)+2b
-		if ((180.+(ir+1)*45.)/100. le yrange[1]) and col gt 0 then $
+		if ((180.+(ir+1)*45.)/100. le yrange[1]) and col gt 2 then $
 			polyfill, julbins[ibin]*[1,1,0,0] + julbins[ibin+1]*[0,0,1,1], (180.+[ir,ir+1,ir+1,ir]*45.)/100., color=col
 	endfor
 endfor
@@ -55,36 +67,45 @@ plot, xrange, yrange, /nodata, position=position, charsize=charsize, $
 	xstyle=1, ystyle=9, xticklen=1, yticklen=1, xgridstyle=1, ygridstyle=1, xcharsize=.001
 plot, xrange, yrange, /nodata, position=position, charsize=charsize, $
 	xtickformat=['',''], xtickunits=['Month','Year'], xtickinterval=4, $
-	ytitle='Slant range [x100 km]', xstyle=9, xtickname=replicate(' ',60), xcharsize=.001
+	ytitle='Slant range [x100 km]', xstyle=9, ystyle=9, xtickname=replicate(' ',60), xcharsize=.001
+nsamples = njbins*1./tsample
+jshift = julbins + (julbins[1:*]-julbins[0:njbins-2])/2.
+maxvar = interpol(maxindsd[0:njbins-2],nsamples)
+hmf2var = interpol(hmf2,juls,jshift)
+oplot, interpol(jshift,nsamples), (180.+maxvar*45.)/100., thick=4
+; Show number of days with data for each time bin
+plot, xrange, [0,31], /nodata, xstyle=1, ystyle=1, $
+    xtickname=replicate(' ',60), ytickname=replicate(' ',60), $
+    position=[position[0], position[3], position[2], position[3]+.03]
+for ibin=0,njbins-2 do begin
+    polyfill, julbins[ibin]*[1,1,0,0] + julbins[ibin+1]*[0,0,1,1], datadays[ibin]*[0,1,1,0], col=0
+endfor
 
 ; ********************************************************
 ; RT distribution - range
 ; ********************************************************
-position = [.1, .15, .8, .5]
-xrange = [juls[0], juls[njuls-1]]
+position = [.1, .15, .9, .5]
 yrange = [0, 2000]/100
 date_label = label_date(date_format=['%M','%Y'])
 plot, xrange, yrange, /nodata, position=position, charsize=charsize, $
 	xtickformat=['label_date','label_date'], xtickunits=['Month','Year'], xtickinterval=4, xstyle=5, ystyle=5
-for id=dav,njuls-2-dav do begin
-; 	if edges[id,1] gt 0 then begin
-; 		nzinds = where( reform(max(rthist[id-dav:id+dav,beam,*], dimension=3)) ne 0., ccnz )
-		maxav = total( max(rthist[id-dav:id+dav,beam,*], dimension=3)*weights/total(weights),1);[nzinds]), 1 )
-; 		caldat, juls[id], tmm, tdd, tyy
-; 		if tyy*10000L+tmm*100L+tdd eq 20090101 then $
-; 			print, reform(rthist[id,beam,0:30])
-; 		print, tyy, tmm, tdd, maxav, reform(rthist[id,beam,10:15])
-		for ir=0,ngates-1 do begin
-; 			nzinds = where( reform(rthist[id-dav:id+dav,beam,ir]) ne 0., ccnz )
-; 			if ccnz ne 0 then $
-				runav = total( rthist[id-dav:id+dav,beam,ir]*weights/total(weights),1);[nzinds]), 1 ) $
-; 			else $
-; 				runav = 0.
-			col = bytscl(runav / maxav, min=0., max=1., top=250)+2b
-			if ((180.+(ir+1)*45.)/100. le yrange[1]) and col gt 0 then $
-				polyfill, juls[id]*[1,1,0,0] + juls[id+1]*[0,0,1,1], (180.+[ir,ir+1,ir+1,ir]*45.)/100., color=col
-		endfor
-; 	endif
+; Rebin histogram
+rthistfull = dblarr(njbins, ngates)
+for ibin=0,njbins-2 do begin
+    inds = where(juls ge julbins[ibin] and juls lt julbins[ibin+1], cc)
+    if cc le 0 then continue
+    rthistfull[ibin, *] = total( rthist[inds,beam,*], 1 )
+    dinds = where( total( rthist[inds,beam,*], 3 ) ne 0, dcc)
+    rthistfull[ibin, *] = rthistfull[ibin, *]/float(dcc)
+;     rthistfull[ibin, *] = rthistfull[ibin, *] / max(rthistfull[ibin, *])
+endfor
+rthistfull = rthistfull / max(rthistfull)
+for ibin=0,njbins-2 do begin
+    for ir=0,ngates-1 do begin
+        col = bytscl(rthistfull[ibin,ir], min=0., max=1., top=250)+2b
+        if ((180.+(ir+1)*45.)/100. le yrange[1]) and col gt 2 then $
+            polyfill, julbins[ibin]*[1,1,0,0] + julbins[ibin+1]*[0,0,1,1], (180.+[ir,ir+1,ir+1,ir]*45.)/100., color=col
+    endfor
 endfor
 plot, xrange, yrange, /nodata, position=position, charsize=charsize, $
 	xtickformat='label_date', xtickunits='Month', xtickinterval=4, ytickname=replicate(' ',60), $
@@ -93,7 +114,7 @@ plot, xrange, yrange, /nodata, position=position, charsize=charsize, $
 	xtickformat=['label_date','label_date'], xtickunits=['Month','Year'], xtickinterval=4, $
 	ytitle='Slant range [x100 km]', xstyle=1, xtickname=replicate(' ',60)
 
-xyouts, .5, .91, radar+', beam '+strtrim(beam,2), align=.5, /normal, charsize=charsize
+xyouts, .5, .94, radar+', beam '+strtrim(beam,2), align=.5, /normal, charsize=charsize
 plot_colorbar, position=[.91,.1,.93,.9], scale=[0,1], /continuous, legend='Scatter distribution', $
 	/no_rotate, level_format='(f4.1)', /keep_first_last, charsize=charsize, nlevels=5
 
@@ -124,71 +145,71 @@ set_format, /portrait
 ; charsize = 1.2
 ps_open, '~/Desktop/tsr_azim_distrib_'+radar+'.ps'
 
-position = [.1, .51, .8, .9]
-xrange = [juls[0], juls[njuls-1]]
+position = [.1, .51, .9, .9]
 yrange = [0, nbeams]
 date_label = label_date(date_format=['%M','%Y'])
 plot, xrange, yrange, /nodata, position=position, charsize=charsize, $
 	xtickformat=['label_date','label_date'], xtickunits=['Month','Year'], xtickinterval=4, xstyle=5, ystyle=5
-dav = 15
-weights = ( (dav+1-abs(findgen(2*dav)-dav))/float(dav+1) )
-weights = weights/total(weights)
-for id=dav,njuls-2-dav do begin
-	if edges[id,1] gt 0 then begin
-		Arunav = fltarr(nbeams)
-		for ib=0,nbeams-1 do begin
-			nzinds = where( reform(total(radhist[id-dav:id+dav,ib,*],3)) ne 0., ccnz)
-			if ccnz ne 0 then $
-				Arunav[ib] = total( total(radhist[id-dav:id+dav,ib,*],3)*weights/total(weights[nzinds]), 1 ) $
-			else $
-				Arunav[ib] = 0.
-		endfor
-		maxav = max(Arunav, nan)
-		for ib=0,nbeams-1 do begin
-			runav = Arunav[ib]
-			col = bytscl(runav / maxav, min=0., max=1., top=250)+2b
-			if (ib+1 le yrange[1]) and col gt 0 then $
-				polyfill, juls[id]*[1,1,0,0] + juls[id+1]*[0,0,1,1], [ib,ib+1,ib+1,ib], color=col
-		endfor
-	endif
+; Rebin histogram
+histfull = dblarr(njbins, nbeams)
+datadays = lonarr(njbins)
+for ibin=0,njbins-2 do begin
+    inds = where(juls ge julbins[ibin] and juls lt julbins[ibin+1], cc)
+    if cc le 0 then continue
+    histfull[ibin, *] = total( total( radhist[inds,*,*], 3 ), 1 )
+    dinds = where( total( total( radhist[inds,*,*], 3 ), 2 ) gt 0, dcc)
+    histfull[ibin, *] = histfull[ibin, *]/float(dcc)
+    datadays[ibin] = dcc
+;     histfull[ibin, *] = histfull[ibin, *] / max(histfull[ibin, *])
+endfor
+histfull = histfull / max(histfull)
+for ibin=0,njbins-2 do begin
+    for ib=0,nbeams-2 do begin
+        col = bytscl(histfull[ibin,ib], min=0., max=1., top=250)+2b
+            if (ib+1 le yrange[1]) and col gt 2 then $
+            polyfill, julbins[ibin]*[1,1,0,0] + julbins[ibin+1]*[0,0,1,1], [ib,ib+1,ib+1,ib], color=col
+    endfor
 endfor
 plot, xrange, yrange, /nodata, position=position, charsize=charsize, $
 	xtickformat='label_date', xtickunits='Month', xtickinterval=4, ytickname=replicate(' ',60), $
 	xstyle=1, ystyle=9, xticklen=1, yticklen=1, xgridstyle=1, ygridstyle=1, xcharsize=.001
 plot, xrange, yrange, /nodata, position=position, charsize=charsize, $
 	xtickformat=['',''], xtickunits=['Month','Year'], xtickinterval=4, $
-	ytitle='Beam #', xstyle=9, xtickname=replicate(' ',60), xcharsize=.001
+	ytitle='Beam #', xstyle=9, ystyle=1, yminor=4, yticks=4, xtickname=replicate(' ',60), xcharsize=.001
+; Show number of days with data for each time bin
+plot, xrange, [0,31], /nodata, xstyle=1, ystyle=1, $
+    xtickname=replicate(' ',60), ytickname=replicate(' ',60), $
+    position=[position[0], position[3], position[2], position[3]+.03]
+for ibin=0,njbins-2 do begin
+    polyfill, julbins[ibin]*[1,1,0,0] + julbins[ibin+1]*[0,0,1,1], datadays[ibin]*[0,1,1,0], col=0
+endfor
 
 
 ; ********************************************************
 ; RT distribution - azim
 ; ********************************************************
-position = [.1, .15, .8, .5]
-xrange = [juls[0], juls[njuls-1]]
+position = [.1, .15, .9, .5]
 yrange = [0, nbeams]
 date_label = label_date(date_format=['%M','%Y'])
 plot, xrange, yrange, /nodata, position=position, charsize=charsize, $
 	xtickformat=['label_date','label_date'], xtickunits=['Month','Year'], xtickinterval=4, xstyle=5, ystyle=5
-dav = 15
-weights = ( (dav+1-abs(findgen(2*dav)-dav))/float(dav+1) )
-weights = weights/total(weights)
-for id=dav,njuls-2-dav do begin
-		Arunav = fltarr(nbeams)
-		for ib=0,nbeams-1 do begin
-			nzinds = where( reform(total(rthist[id-dav:id+dav,ib,*],3)) ne 0., ccnz)
-			if ccnz ne 0 then $
-				Arunav[ib] = total( total(rthist[id-dav:id+dav,ib,*],3)*weights/total(weights[nzinds]), 1) $
-			else $
-				runav = 0.
-		endfor
-		maxav = max(Arunav, /nan)
-		for ib=0,nbeams-1 do begin
-			runav = Arunav[ib]
-			col = bytscl(runav / maxav, min=0., max=1., top=250)+2b
-			if (ib+1 le yrange[1]) and col gt 0 then $
-				polyfill, juls[id]*[1,1,0,0] + juls[id+1]*[0,0,1,1], [ib,ib+1,ib+1,ib], color=col
-		endfor
-; 	endif
+; Rebin histogram
+rthistfull = dblarr(njbins, nbeams)
+for ibin=0,njbins-2 do begin
+    inds = where(juls ge julbins[ibin] and juls lt julbins[ibin+1], cc)
+    if cc le 0 then continue
+    rthistfull[ibin, *] = total( total( rthist[inds,*,*], 3 ), 1 )
+    dinds = where( total( total( rthist[inds,*,*], 3 ), 2 ) ne 0, dcc)
+    rthistfull[ibin, *] = rthistfull[ibin, *]/float(dcc)
+;     rthistfull[ibin, *] = rthistfull[ibin, *] / max(rthistfull[ibin, *])
+endfor
+rthistfull = rthistfull / max(rthistfull)
+for ibin=0,njbins-2 do begin
+    for ib=0,nbeams-2 do begin
+        col = bytscl(rthistfull[ibin,ib], min=0., max=1., top=250)+2b
+            if (ib+1 le yrange[1]) and col gt 2 then $
+            polyfill, julbins[ibin]*[1,1,0,0] + julbins[ibin+1]*[0,0,1,1], [ib,ib+1,ib+1,ib], color=col
+    endfor
 endfor
 plot, xrange, yrange, /nodata, position=position, charsize=charsize, $
 	xtickformat='label_date', xtickunits='Month', xtickinterval=4, ytickname=replicate(' ',60), $

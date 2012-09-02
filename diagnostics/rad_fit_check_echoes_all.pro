@@ -44,8 +44,10 @@ pro rad_fit_check_echoes_all, date=date, $
 midlat = ['cvw', 'cve', 'fhw', 'fhe', 'bks', 'wal']
 midlatbeams = [12,12,10,10,13,07]
 ; Declare high-latitude radars
-highlat = ['sas', 'kap', 'gbr', 'sto']
-highlatbeams = [07,07,07,07]
+;highlat = ['sas', 'kap', 'gbr', 'sto']
+;highlatbeams = [07,07,07,07]
+highlat = ['kod','pgr','sas', 'kap', 'gbr', 'sto']
+highlatbeams = [07,07,07,07,07,07]
 
 ; For now, default data format is fitacf
 datafmt='fitacf'

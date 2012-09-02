@@ -50,6 +50,12 @@ spawn, 'wget '+swgdir+strmonth, res, err
 ; Make sure it the download worked
 if total( stregex(err, 'OK', /extract) eq 'OK' ) eq 0 then begin
 	prinfo, 'The schedule download failed... What did you do? Aborting!'
+	; Empty schedule
+	schedule = {nsch: 0, $
+				time: 0L, $
+				name: '' }
+	; Swicth back to original directory
+	cd, pwd
 	return
 endif
 

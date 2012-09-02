@@ -43,7 +43,8 @@ pro rad_fit_check_datetime_all, date=date, time=time, $
 ; Declare mid-latitude radars
 midlat = ['cvw', 'cve', 'fhw', 'fhe', 'bks', 'wal']
 ; Declare high-latitude radars
-highlat = ['sas', 'kap', 'gbr', 'sto']
+;highlat = ['sas', 'kap', 'gbr', 'sto']
+highlat = ['kod','pgr','sas', 'kap', 'gbr', 'sto']
 
 ; For now, default data format is fitacf
 datafmt='fitacf'
@@ -108,11 +109,9 @@ for irad=0,n_elements(midlat)-1 do begin
 endfor
 
 ps_close, /no_f
-; spawn, 'ps2pdf '+filename+'.ps '+filename+'.pdf'
-; spawn, 'rm -f '+filename+'.ps'
 spawn, 'ps2png.sh '+filename+'.ps'
-spawn, 'rm -f '+filename+'.ps'
 spawn, 'convert -units PixelsPerInch -extent 2300x3200 -density 96 '+filename+'*.png '+filename+'.pdf'
+spawn, 'rm -f '+filename+'.ps'
 spawn, 'rm -f '+filename+'*.png'
 
 end

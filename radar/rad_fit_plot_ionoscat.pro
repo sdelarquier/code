@@ -5,7 +5,8 @@
 ; edges outputs the leading and trailing edge of the scatter distribution for each beam (threshold at 75% scatter)
 ;
 ; Last update: Feb, 23, 2012
-pro rad_fit_plot_ionoscat, date, radar, ps=ps, xrange=xrange, yrange=yrange, rtrun=rtrun, vel=vel, time=time, dtime=dtime, edges=edges, radhist=radhist, rthist=rthist
+pro rad_fit_plot_ionoscat, date, radar, ps=ps, xrange=xrange, yrange=yrange, rtrun=rtrun, time=time, dtime=dtime, edges=edges, $
+    radhist=radhist, rthist=rthist, radalt=radalt, rtalt=rtalt
 
 common rt_data_blk
 common radarinfo
@@ -103,10 +104,12 @@ if keyword_set(rtrun) then begin
 	map_plot_panel, xmaps, 1, xmaps-xmap-1, 0, date=date, coords='magn', /iso, /no_fill, yrange=yrange, xrange=xrange, coast_linecolor=1
 	
 	hist = fltarr(nbeams,ngates+1)
+    alt = 100. + findgen(40)*10.
+    rtalt = fltarr(nbeams,n_elements(alt))
 	rthist = hist
 	parse_date, date, tyy, tmm, tdd
-; 	rtdate = tyy*10000L+tmm*100L+01
-	rtdate = date
+	rtdate = tyy*10000L+tmm*100L+01
+; 	rtdate = date
 	rt_run, rtdate, radar, time=[0,1200], /no_rays
 	
 	; Find midnight
@@ -131,8 +134,10 @@ if keyword_set(rtrun) then begin
 		for it=0,nnighttimes-1 do begin
 			for ib=0,nbeams-1 do begin
 				for ig=0,ngates do begin
-					if rt_data.power[indsmidnight[it],ib,ig] lt 0. and rt_data.gscatter[indsmidnight[it],ib,ig] eq 2b then $
-						hist[ib,ig] = hist[ib,ig] + 1./( rt_data.power[indsmidnight[it],ib,ig] / min(rt_data.power[indsmidnight,*,*]) )
+                    if rt_data.altitude[indsmidnight[it],ib,ig] lt 150. then continue
+                    if rt_data.power[indsmidnight[it],ib,ig] lt 0. and rt_data.gscatter[indsmidnight[it],ib,ig] eq 2b then begin
+                        hist[ib,ig] = hist[ib,ig] + 1./( rt_data.power[indsmidnight[it],ib,ig] / min(rt_data.power[indsmidnight,*,*]) )
+                    endif
 				endfor
 			endfor
 		endfor
@@ -183,91 +188,6 @@ if keyword_set(rtrun) then begin
 endif
 
 
-if keyword_set(vel) then begin
-	;*******************************************
-	; Radar: VELOCITY
-	;*******************************************
-	vscale = [-50,50]
-	map_plot_panel, xmaps, 1, xmaps-xmap-1, 0, date=date, coords='magn', /iso, /no_fill, yrange=yrange, xrange=xrange, coast_linecolor=1
-
-	rad_fit_read, date, radar, time=[0,1200], /filter, /ajground, /catfile, catpath='~/tmp/'
-	data_index = rad_fit_get_data_index()
-	if data_index eq -1 then $
-		return
-
-	; Find midnight
-	rad_calc_sunset, date, radar, 7, 70, $
-		solnoon=solnoon
-	julmidnight = solnoon[20] - 0.5d
-	if keyword_set(time) then begin
-		parse_date, date, yy, mm, dd
-		parse_time, time, hr, mn
-		julmidnight = julday(dd, mm, yy, hr, mn)
-	endif
-		
-
-	; Histogram construction
-	nvel = fltarr(nbeams,ngates+1)
-	velhist = fltarr(nbeams,ngates+1)
-	for ib=0,nbeams-1 do begin
-		; velocity median
-		binds = where((*rad_fit_data[data_index]).beam eq ib and $
-					(*rad_fit_data[data_index]).juls ge julmidnight-dtime/24.d and $
-					(*rad_fit_data[data_index]).juls le julmidnight+dtime/24.d and $
-					(*rad_fit_data[data_index]).tfreq ge 10e3 and $
-					(*rad_fit_data[data_index]).tfreq le 12e3, ccinds)
-		if ccinds le 0 then begin
-			velhist[ib,*] = 10000.
-			continue
-		endif
-
-		velocity = (*rad_fit_data[data_index]).velocity[binds,*]
-		power = (*rad_fit_data[data_index]).power[binds,*]
-		scat = (*rad_fit_data[data_index]).gscatter[binds,*]
-		for ng=0,ngates do begin
-			pinds = where(velocity[*,ng] ne 10000. and power[*,ng] ge 6. and scat[*,ng] eq 0b, ccpinds)
-			if ccpinds gt 0 then $
-				velhist[ib,ng] = MEDIAN(velocity[pinds]) $
-			else $
-				velhist[ib,ng] = 10000.
-		endfor
-	endfor
-
-	; Plot beam-range grid
-	;loadct, 4, file='/tmp/colors2.tbl'
-	for ib=0,nbeams-1 do begin
-		for ig=0,ngates do begin
-			xx = fov_loc_full[0,*,ib,ig]
-			yy = fov_loc_full[1,*,ib,ig]
-			if velhist[ib,ig] ne 10000. then $
-				polyfill, xx, yy, col=(bytscl(-velhist[ib,ig], min=vscale[0], max=vscale[1], top=250)+125b mod 250)
-	; 		plots, [xx, xx[0]], [yy, yy[0]], thick=1
-			if (ib eq nbeams-1) then $
-				plots, xx[1:2], yy[1:2];, thick=2, col=200
-			if ~(ib mod 4) then $
-				plots, [xx[0],xx[3]], [yy[0],yy[3]];, thick=2, col=200
-			if ~(ig mod 5) then $
-				plots, xx[0:1], yy[0:1];, thick=2, col=200
-			if (ig eq ngates-1) then $
-				plots, xx[2:3], yy[2:3];, thick=2, col=200
-		endfor
-	endfor
-	;loadct, 0, file='/tmp/colors2.tbl'
-
-	; Plot map
-	map_plot_panel, xmaps, 1, xmaps-xmap-1, 0, date=date, coords='magn', /iso, /no_fill, yrange=yrange, xrange=xrange, coast_linecolor=1
-	overlay_radar, name=radar, /anno, coords='magn', charsize=charsize
-
-	;loadct, 4, file='/tmp/colors2.tbl'
-	plot_colorbar, xmaps, 1, xmaps-xmap-1, 0, charthick=charthick, /continuous, $
-		nlevels=4, scale=vscale, charsize=charsize, $
-		legend='Velocity [m/s]', $
-		level_format='(F6.1)', /keep_first_last_label, /horizontal
-	;loadct, 0, file='/tmp/colors2.tbl'
-	xmap = xmap + 1
-endif
-
-
 ;*******************************************
 ; Radar: SCATTER 
 ;*******************************************
@@ -296,6 +216,8 @@ endif
 
 ; Histogram construction
 hist = fltarr(nbeams,ngates+1)
+alt = 100. + findgen(40)*10.
+radalt = fltarr(nbeams,n_elements(alt))
 for ib=0,nbeams-1 do begin
 	; scatter histogram
 	binds = where((*rad_fit_data[data_index]).beam eq ib and $

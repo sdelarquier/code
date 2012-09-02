@@ -59,8 +59,13 @@ juld = julday(month, day, year, 0, 0)
 xrange = [juld, juld+1.d]
 
 ; If you need a standalone postscript...
-if keyword_set(ps) then $
-	ps_open, '~/Desktop/check_echoes_'+strtrim(tdate,2)+'_'+radar+'.ps'
+if keyword_set(ps) then begin
+	if size(ps,/type) eq 7 then $
+		filename = ps $
+	else $
+		filename = '~/Desktop/check_array_'+strtrim(tdate,2)+'_'+radar
+	ps_open, filename+'.ps'
+endif
 
 ; Adjust position for right axis labels
 if ~keyword_set(position) then $

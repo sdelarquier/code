@@ -59,8 +59,13 @@ juld = julday(month, day, year, 0, 0)
 xrange = [juld, juld+1.d]
 
 ; If you need a standalone postscript...
-if keyword_set(ps) then $
-	ps_open, '~/Desktop/check_echoes_'+strtrim(tdate,2)+'_'+radar+'.ps'
+if keyword_set(ps) then begin
+	if size(ps,/type) eq 7 then $
+		filename = ps $
+	else $
+		filename = '~/Desktop/check_echoes_'+strtrim(tdate,2)+'_'+radar
+	ps_open, filename+'.ps'
+endif
 
 ; Adjust position for right axis labels
 if ~keyword_set(position) then $
@@ -272,17 +277,20 @@ gapinds = where(iddiff ne 0, ccgap)
 ; If cpid changes, then mark and annotate it (in gray)
 cpidpos = 0		; used to switch the position of the cpid name to avoid overlap
 if ccgap gt 0 then begin
-	for igap=0,ccgap-1 do begin
+	step = 1
+	if ccgap gt 24 then step = round(ccgap/10)
+	igap = 0L
+	while igap lt ccgap do begin
 		; Plot cpid change marker
 		oplot, time[gapinds[igap]]*[1,1], yrange, col=120, linestyle=2
 		; Plot cpid name and number
 		xyouts, time[gapinds[igap]]+(xrange[1]-xrange[0])/10./1440., yrange[1] - (yrange[1]-yrange[0])/15. - cpidpos * (yrange[1]-yrange[0])/15., $
 			rad_cpid_translate((*rad_fit_data[data_index]).scan_id[gapinds[igap]+1])+' ('+strtrim((*rad_fit_data[data_index]).scan_id[gapinds[igap]+1], 2)+')', $
 			align=0., /data, col=120, charsize=charsize*.7
+			
 		cpidpos = 1 - cpidpos
-		
-
-	endfor
+		igap += step
+	endwhile
 endif 
 rad_load_colortable, /aj
 

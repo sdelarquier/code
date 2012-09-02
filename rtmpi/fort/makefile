@@ -4,7 +4,6 @@ FC := gfortran
 FFLAGS := -w -O2 -fbacktrace
 
 EXEC := iri/iri igrf/igrf_run
-# cond/sigp hwm/hwm_run
 
 IRIDIR := iri/
 IRIOBJS := $(IRIDIR)irisub.o $(IRIDIR)irifun.o $(IRIDIR)iritec.o $(IRIDIR)iridreg.o $(IRIDIR)iriflip.for $(IRIDIR)cira.o
