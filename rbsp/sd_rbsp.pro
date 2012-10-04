@@ -108,8 +108,8 @@ for ipos=0,nelem-1 do begin
 			lati=datA.geolat[ipos], longi=datA.geolon[ipos], $
 			alti=datA.altitude[ipos]*[1.,1.,1.], $
 			cgm=cgm, geo=geo
-		print, 'A-->'
-		print, reform(geo[0,*,*])
+		;print, 'A-->'
+		;print, reform(geo[0,*,*])
 		if geo[0,1,0] gt 0. then begin
 			fp_pos[0,ipos,0,0] = geo[0,1,0]
 			fp_pos[0,ipos,0,1] = geo[0,1,1]
@@ -133,8 +133,8 @@ for ipos=0,nelem-1 do begin
 			lati=datB.geolat[ipos], longi=datB.geolon[ipos], $
 			alti=datB.altitude[ipos]*[1.,1.,1.], $
 			cgm=cgm, geo=geo
-		print, 'B-->'
-		print, reform(geo[0,*,*])
+		;print, 'B-->'
+		;print, reform(geo[0,*,*])
 		if geo[0,1,0] gt 0. then begin
 			fp_pos[1,ipos,0,0] = geo[0,1,0]
 			fp_pos[1,ipos,0,1] = geo[0,1,1]
@@ -159,6 +159,12 @@ for ipos=0,nelem-1 do begin
 		spawn, 'rm '+psname+'.ps'
 	endif
 endfor
+
+plots, range[0], range[0] - (range[1]-range[0])*.1, psym=8, symsize=.5, color=200
+plots, range[0] + (range[1]-range[0])/2., range[0] - (range[1]-range[0])*.1, psym=8, symsize=.5, color=50
+loadct, 0
+xyouts, range[0] + (range[1]-range[0])/2. + (range[1]-range[0])*.05, range[0] - (range[1]-range[0])*.11, 'RBSP A' 
+xyouts, range[0] + (range[1]-range[0])*.05, range[0] - (range[1]-range[0])*.11, 'RBSP B' 
 
 if keyword_set(anim) then $
 	spawn, 'convert -delay 20 rbpos*.png rbpos_anim.gif'
