@@ -6,13 +6,18 @@
 ; Written by Sebastien.
 ; Aug. 1, 2012
 ; --------------------------------------------------------------------
-pro sd_rbsp, fp_pos=fp_pos, rbpos=rbpos, anim=anim
+pro sd_rbsp, fp_pos=fp_pos, rbpos=rbpos, anim=anim, ext=ext
 
 common radarinfo
+
+months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+
 
 ; RBSP A
 ; Read file
 file = 'orbitposA.dat'
+if keyword_set(ext) then $
+    file = file+'.'+strtrim(ext,2)
 openr, fin, file, /get_lun
 ; Skip header
 bla = ''
@@ -36,6 +41,8 @@ free_lun, fin
 ; RBSP B
 ; Read file
 file = 'orbitposB.dat'
+if keyword_set(ext) then $
+    file = file+'.'+strtrim(ext,2)
 openr, fin, file, /get_lun
 ; Skip header
 bla = ''
@@ -72,11 +79,11 @@ endif else $
 	rad_plot_fov, radar, xrange=range, yrange=range, coords='geog', /fillanno
 
 ; Print dates
-strdate = strtrim(datA.day[0],2)+'/'+strtrim(datA.month[0],2)+'/'+ $
+strdate = strtrim(datA.day[0],2)+'/'+months[datA.month[0]-1]+'/'+ $
 	strtrim(datA.year[0],2)+' - '+ $
 	strtrim(string(datA.hour[0],format='(I02)'),2)+':'+ $
 	strtrim(string(datA.minute[0],format='(I02)'),2)+'!C'+ $
-	strtrim(datA.day[nelemA-1],2)+'/'+strtrim(datA.month[nelemA-1],2)+'/'+ $
+	strtrim(datA.day[nelemA-1],2)+'/'+months[datA.month[nelemA-1]-1]+'/'+ $
 	strtrim(datA.year[nelemA-1],2)+' - '+ $
 	strtrim(string(datA.hour[nelemA-1],format='(I02)'),2)+':'+ $
 	strtrim(string(datA.minute[nelemA-1],format='(I02)'),2)
@@ -183,8 +190,14 @@ if keyword_set(anim) then $
 ; plots, stpos[0], stpos[1], psym=1, symsize=1, color=250
 
 ; Close postscript
-if ~keyword_set(anim) then $
+if ~keyword_set(anim) then begin
 	ps_close, /no_f
+	if ~keyword_set(ext) then $
+		spawn, 'ps2pdf ~/Desktop/rbpos.ps ~/Desktop/rbpos.pdf' $
+	else $
+		spawn, 'ps2pdf ~/Desktop/rbpos.ps ~/Desktop/rbpos.'+strtrim(ext,2)+'.pdf'
+	spawn, 'rm -f ~/Desktop/rbpos.ps'
+endif
 
 rbpos = fp_pos
 
