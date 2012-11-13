@@ -8,4 +8,7 @@
 /rtmpi/fort
 *.png
 *.mod
+*.pdf
+*.svg
+*.dat
 .DS_store
