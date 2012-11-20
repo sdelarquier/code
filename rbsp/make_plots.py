@@ -27,6 +27,8 @@ def trace(date=None, fig=True):
 Trace RBSP footprints for a given date (python datetime object)
 of for all the available dates 
     """
+    datapath = '/home/sebastien/Documents/code/rbsp/data/'
+
     # Read the data
     year, month, day, hour, minute, second, altA, latA, lonA = np.genfromtxt('orbitposA.dat', unpack=True, skiprows=1)
     dates = []
@@ -61,7 +63,7 @@ of for all the available dates
             rhos = altA[np.array(inds)]
             traceA = ts.tsygTrace(lats, lons, rhos, datetime=sdates)
             # Save traces
-            traceA.save( 'trace.{}.A.dat'.format(day.strftime('%Y%m%d')) )
+            traceA.save( datapath+'trace.{}.A.dat'.format(day.strftime('%Y%m%d')) )
 
         # Then B
         inds = [d.date()==day.date() for d in datesB]
@@ -73,76 +75,80 @@ of for all the available dates
             rhos = altB[np.array(inds)]
             traceB = ts.tsygTrace(lats, lons, rhos, datetime=sdates)
             # Save traces
-            traceB.save( 'trace.{}.B.dat'.format(day.strftime('%Y%m%d')) )
+            traceB.save( datapath+'trace.{}.B.dat'.format(day.strftime('%Y%m%d')) )
 
     if fig: plot(traceA=traceA, traceB=traceB)
 
 
-def plot(date=None, traceA=None, traceB=None, saveDb=True):
+def plot(date=None, traceA=None, traceB=None, saveDb=True, noPlot=False):
     """
 Plot RBSP footprints
     """
     assert not date==None or not (traceA==None and traceB==None), 'Either give a date, or a trace for A and B'
 
+    datapath = '/home/sebastien/Documents/code/rbsp/data/'
+    imgpath = '/home/sebastien/Documents/code/rbsp/img/'
+
     # Read trace
     if not traceA:
-        traceA = ts.tsygTrace(filename='trace.{}.A.dat'.format(date.strftime('%Y%m%d')))
+        traceA = ts.tsygTrace(filename=datapath+'trace.{}.A.dat'.format(date.strftime('%Y%m%d')))
     if not traceB:
-        traceB = ts.tsygTrace(filename='trace.{}.B.dat'.format(date.strftime('%Y%m%d')))
+        traceB = ts.tsygTrace(filename=datapath+'trace.{}.B.dat'.format(date.strftime('%Y%m%d')))
     if not date:
         date = traceA.datetime[0]
 
-    # Init figure
-    fig = pylab.figure(figsize=(11,6.5))
-    pylab.rcParams.update({'font.size': 14})
-    fovCol = (.5,.6,.6)
-    fovAlpha = .2
+    if not noPlot:
+        # Init figure
+        fig = pylab.figure(figsize=(11,6.5))
+        pylab.rcParams.update({'font.size': 14})
+        fovCol = (.5,.6,.6)
+        fovAlpha = .2
 
-    # NH
-    ax1 = fig.add_subplot(121)
-    m1 = Basemap(projection='npstere',boundinglat=35,lon_0=270,resolution='l')
-    m1.drawcoastlines(color='.5')
-    m1.fillcontinents(color=(.8,.8,.8))
-    # draw parallels and meridians.
-    m1.drawparallels(np.arange(-80.,81.,20.), color='.6')
-    m1.drawmeridians(np.arange(-180.,181.,20.), color='.6')
-    m1.drawmapboundary()
-    # Draw FP
-    x, y = m1(traceA.lonNH, traceA.latNH)
-    m1.scatter(x, y, color='r', zorder=4, s=5)
-    x, y = m1(traceB.lonNH, traceB.latNH)
-    m1.scatter(x, y, color='b', zorder=4, s=5)
-    overlayFov(m1, all=True, hemi='north', maxGate=75, dateTime=traceA.datetime[0], 
-        fovColor=fovCol, lineColor=fovCol, lineWidth=0, fovAlpha=fovAlpha)
+        # NH
+        ax1 = fig.add_subplot(121)
+        m1 = Basemap(projection='npstere',boundinglat=35,lon_0=270,resolution='l')
+        m1.drawcoastlines(color='.5')
+        m1.fillcontinents(color=(.8,.8,.8))
+        # draw parallels and meridians.
+        m1.drawparallels(np.arange(-80.,81.,20.), color='.6')
+        m1.drawmeridians(np.arange(-180.,181.,20.), color='.6')
+        m1.drawmapboundary()
+        # Draw FP
+        x, y = m1(traceA.lonNH, traceA.latNH)
+        m1.scatter(x, y, color='r', zorder=4, s=5)
+        x, y = m1(traceB.lonNH, traceB.latNH)
+        m1.scatter(x, y, color='b', zorder=4, s=5)
+        overlayFov(m1, all=True, hemi='north', maxGate=75, dateTime=traceA.datetime[0], 
+            fovColor=fovCol, lineColor=fovCol, lineWidth=0, fovAlpha=fovAlpha)
 
-    # SH
-    ax2 = fig.add_subplot(122)
-    m2 = Basemap(projection='spstere',boundinglat=-35,lon_0=270,resolution='l')
-    m2.drawcoastlines(color='.5')
-    m2.fillcontinents(color=(.8,.8,.8))
-    # draw parallels and meridians.
-    m2.drawparallels(np.arange(-80.,81.,20.), color='.6')
-    m2.drawmeridians(np.arange(-180.,181.,20.), color='.6')
-    m2.drawmapboundary()
-    # Draw FP
-    x, y = m2(traceA.lonSH, traceA.latSH)
-    m2.scatter(x, y, color='r', zorder=4, s=5)
-    x, y = m2(traceB.lonSH, traceB.latSH)
-    m2.scatter(x, y, color='b', zorder=4, s=5)
-    overlayFov(m2, all=True, hemi='south', maxGate=75, dateTime=traceA.datetime[0],
-        fovColor=fovCol, lineColor=fovCol, lineWidth=0, fovAlpha=fovAlpha)
+        # SH
+        ax2 = fig.add_subplot(122)
+        m2 = Basemap(projection='spstere',boundinglat=-35,lon_0=270,resolution='l')
+        m2.drawcoastlines(color='.5')
+        m2.fillcontinents(color=(.8,.8,.8))
+        # draw parallels and meridians.
+        m2.drawparallels(np.arange(-80.,81.,20.), color='.6')
+        m2.drawmeridians(np.arange(-180.,181.,20.), color='.6')
+        m2.drawmapboundary()
+        # Draw FP
+        x, y = m2(traceA.lonSH, traceA.latSH)
+        m2.scatter(x, y, color='r', zorder=4, s=5)
+        x, y = m2(traceB.lonSH, traceB.latSH)
+        m2.scatter(x, y, color='b', zorder=4, s=5)
+        overlayFov(m2, all=True, hemi='south', maxGate=75, dateTime=traceA.datetime[0],
+            fovColor=fovCol, lineColor=fovCol, lineWidth=0, fovAlpha=fovAlpha)
 
-    fig.tight_layout()
+        fig.tight_layout()
 
-    Title = '{}'.format(date.strftime('%Y - %b - %d'))
-    fig.text(.02, .92, Title)
-    fig.text(.02, .09, 'RBSP-A', color='r', va='top')
-    fig.text(.1, .09, 'RBSP-B', color='b', va='top')
+        Title = '{}'.format(date.strftime('%Y - %b - %d'))
+        fig.text(.02, .92, Title)
+        fig.text(.02, .09, 'RBSP-A', color='r', va='top')
+        fig.text(.1, .09, 'RBSP-B', color='b', va='top')
 
-    Title = '{}'.format(date.strftime('%Y - %b - %d'))
-    fig.text(.51, .92, Title)
-    fig.text(.51, .09, 'RBSP-A', color='r', va='top')
-    fig.text(.59, .09, 'RBSP-B', color='b', va='top')
+        Title = '{}'.format(date.strftime('%Y - %b - %d'))
+        fig.text(.51, .92, Title)
+        fig.text(.51, .09, 'RBSP-A', color='r', va='top')
+        fig.text(.59, .09, 'RBSP-B', color='b', va='top')
 
     # List apogees
     minsA = np.r_[True, traceA.rho[1:] >= traceA.rho[:-1]] & np.r_[traceA.rho[:-1] > traceA.rho[1:], True]
@@ -168,16 +174,18 @@ Plot RBSP footprints
     for i in xrange(len(lonANH)):
         apoA_NH += '({}UT, {:4.2f}E, {:4.2f}N) | '.format(timeA[i].strftime('%H:%M'), lonANH[i], latANH[i])
         tradANH = rads.getRadarsByPosition(latANH[i], lonANH[i], 300., datetime=timeA[i])
-        x, y = m1(lonANH[i], latANH[i])
-        ax1.text(x, y, timeA[i].strftime('%H:%M'), zorder=5, clip_on=True, color=(.3,0,0), fontsize=10, ha='left')
+        if not noPlot:
+            x, y = m1(lonANH[i], latANH[i])
+            ax1.text(x, y, timeA[i].strftime('%H:%M'), zorder=5, clip_on=True, color=(.3,0,0), fontsize=10, ha='left')
         if tradANH: 
             radsANH.append( tradANH )
         writeToDb(timeA[i], latANH[i], lonANH[i], 'A', tradANH)
 
         apoA_SH += '({}UT, {:4.2f}E, {:4.2f}N) | '.format(timeA[i].strftime('%H:%M'), lonASH[i], latASH[i])
         tradASH = rads.getRadarsByPosition(latASH[i], lonASH[i], 300., datetime=timeA[i])
-        x, y = m2(lonASH[i], latASH[i])
-        ax2.text(x, y, timeA[i].strftime('%H:%M'), zorder=5, clip_on=True, color=(.3,0,0), fontsize=10, ha='left')
+        if not noPlot:
+            x, y = m2(lonASH[i], latASH[i])
+            ax2.text(x, y, timeA[i].strftime('%H:%M'), zorder=5, clip_on=True, color=(.3,0,0), fontsize=10, ha='left')
         if tradASH: 
             radsASH.append( tradASH )
         if saveDb: writeToDb(timeA[i], latASH[i], lonASH[i], 'A', tradASH)
@@ -189,26 +197,29 @@ Plot RBSP footprints
     for i in xrange(len(lonBNH)):
         apoB_NH += '({}UT, {:4.2f}E, {:4.2f}N) '.format(timeB[i].strftime('%H:%M'), lonBNH[i], latBNH[i])
         tradBNH = rads.getRadarsByPosition(latBNH[i], lonBNH[i], 300., datetime=timeB[i])
-        x, y = m1(lonBNH[i], latBNH[i])
-        ax1.text(x, y, timeB[i].strftime('%H:%M'), zorder=5, clip_on=True, color=(0,0,.3), fontsize=10, ha='right')
+        if not noPlot:
+            x, y = m1(lonBNH[i], latBNH[i])
+            ax1.text(x, y, timeB[i].strftime('%H:%M'), zorder=5, clip_on=True, color=(0,0,.3), fontsize=10, ha='right')
         if tradBNH: 
             radsBNH.append( tradBNH )
         writeToDb(timeB[i], latBNH[i], lonBNH[i], 'B', tradBNH)
 
         apoB_SH += '({}UT, {:4.2f}E, {:4.2f}N) '.format(timeB[i].strftime('%H:%M'), lonBSH[i], latBSH[i])
         tradBSH = rads.getRadarsByPosition(latBSH[i], lonBSH[i], 300., datetime=timeB[i])
-        x, y = m2(lonBSH[i], latBSH[i])
-        ax2.text(x, y, timeB[i].strftime('%H:%M'), zorder=5, clip_on=True, color=(0,0,.3), fontsize=10, ha='right')
+        if not noPlot:
+            x, y = m2(lonBSH[i], latBSH[i])
+            ax2.text(x, y, timeB[i].strftime('%H:%M'), zorder=5, clip_on=True, color=(0,0,.3), fontsize=10, ha='right')
         if tradBSH: 
             radsBSH.append( tradBSH )
         if saveDb: writeToDb(timeB[i], latBSH[i], lonBSH[i], 'B', tradBSH)
 
-    fig.savefig( 'rbsp.map.{}.pdf'.format(date.strftime('%Y%m%d')) )
-    fig.savefig( 'rbsp.map.{}.svg'.format(date.strftime('%Y%m%d')) )
+    if not noPlot:
+        fig.savefig( imgpath+'rbsp.map.{}.pdf'.format(date.strftime('%Y%m%d')) )
+        fig.savefig( imgpath+'rbsp.map.{}.svg'.format(date.strftime('%Y%m%d')) )
 
-    if __name__ == '__main__':
-        fig.clf()
-        pylab.close(fig)
+        if __name__ == '__main__':
+            fig.clf()
+            pylab.close(fig)
 
 
 def createDb():
@@ -305,7 +316,9 @@ Command-line call
         """ Uncomment this line to (re)generate footpoints from RBSP orbit coordinates (GEO) """
         # trace(date=date)
         """ Set this to False if you do not want to update the DB """
-        saveDb = False
+        saveDb = True
+        """ Set this to True if you do not want to plot (can still write to DB) """
+        noPlot = True
         """ Uncomment this line to (re)generate RBSP footpoints plots """
-    	plot(date=date, saveDb=saveDb)
+    	plot(date=date, saveDb=saveDb, noPlot=noPlot)
     	print '{} plotted.'.format(date.date())

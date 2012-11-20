@@ -45,7 +45,7 @@ if ~keyword_set(xrange) then $
 	xrange = [0.,40.]*45.
 if ~keyword_set(yrange) then $
 	yrange = [100.,500.]
-charsize = 1.2
+charsize = 1.0
 
 ; Set elevation range
 elrange = [5.,55.]
@@ -55,8 +55,8 @@ elev_steps = elrange[0] + findgen(nelev_steps)*(elrange[1]-elrange[0])/nelev_ste
 
 ; Set altitude range
 altrange = yrange
-altstep = 5.
-nalt_steps = (altrange[1]-altrange[0])/altstep
+nalt_steps = nelev_steps;(altrange[1]-altrange[0])/altstep
+altstep = (altrange[1]-altrange[0])/nalt_steps;5.
 alt_steps = altrange[0] + findgen(nalt_steps)*(altrange[1]-altrange[0])/nalt_steps
 
 ; Read aspect angle contours from file
@@ -177,10 +177,11 @@ rthist = histalt
 hist = hist/max(hist[*,10:*,*])
 histalt = histalt/max(histalt[*,10:*,*])
 valt2palt = mean(corrvalt[where(corrvalt gt 0.)])
+print, 'Valt -> Palt: ', valt2palt
 
 ; Plot virtual altitude
 ib = 0
-pos = [.53,.51,.9,.9]
+pos = [.51,.51,.9,.9]
 ytickname = replicate(' ',60)
 ytitle = ''
 xtickname = replicate(' ',60)
@@ -202,11 +203,11 @@ for ir=0,70 do begin
 	endfor
 endfor
 ; Plot physical altitude
-pos = [.53,.1,.9,.5]
+pos = [.51,.1,.9,.5]
 ytickname = replicate(' ',60)
 ytitle = ''
 xtickname = ''
-xtitle = 'Slant range [km]'
+xtitle = 'Ground range [km]'
 plot, xrange, yrange, /nodata, xstyle=1, ystyle=1, position=pos, $
 	xtickname=xtickname, ytickname=ytickname, xtitle=xtitle, ytitle=ytitle, $
 	xticklen=1, xgridstyle=1, yticklen=1, ygridstyle=1, charsize=charsize
@@ -217,26 +218,28 @@ for ir=0,70 do begin
 			
 			rancell = 180.+[ir,ir+1,ir+1,ir]*45.
 			alticell = alt_steps[ialt]*[1,1,0,0] + alt_steps[ialt+1]*[0,0,1,1]
-; 			print, alticell
+			valticell = alticell + valt2palt*rancell
+			elevcell = !radeg*asin( ((alticell+Rav)^2 - (rancell^2 + Rav^2))/(2.*rancell*Rav) )
+			grancell = Rav*asin( rancell*cos(elevcell*!dtor)/(valticell+Rav) )
 			if col gt 3b and max(alticell) le yrange[1] and min(alticell) ge yrange[0] then begin
-				polyfill, rancell, alticell, col=col
+				polyfill, grancell, alticell, col=col
 			endif
 		endif
 	endfor
 endfor
-iri_run, date, 225, param='alti', lati=radarsite.geolat, longi=radarsite.geolon, /ut, nel=nel
-oplot, nel*500., 100.+findgen(500)
-print, 'IRI 225', min(nel), max(nel)
-iri_run, date, 525, param='alti', lati=radarsite.geolat, longi=radarsite.geolon, /ut, nel=nel
-oplot, nel*500., 100.+findgen(500)
-print, 'IRI 525', min(nel), max(nel)
-iri_run, date, 825, param='alti', lati=radarsite.geolat, longi=radarsite.geolon, /ut, nel=nel
-oplot, nel*500., 100.+findgen(500)
-print, 'IRI 825', min(nel), max(nel)
+;iri_run, date, 225, param='alti', lati=radarsite.geolat, longi=radarsite.geolon, /ut, nel=nel
+;oplot, nel*500., 100.+findgen(500)
+;print, 'IRI 225', min(nel), max(nel)
+;iri_run, date, 525, param='alti', lati=radarsite.geolat, longi=radarsite.geolon, /ut, nel=nel
+;oplot, nel*500., 100.+findgen(500)
+;print, 'IRI 525', min(nel), max(nel)
+;iri_run, date, 825, param='alti', lati=radarsite.geolat, longi=radarsite.geolon, /ut, nel=nel
+;oplot, nel*500., 100.+findgen(500)
+;print, 'IRI 825', min(nel), max(nel)
 ; print, nel
 
 xyouts, .5, .91, $
-		radar+', '+STRMID(format_juldate(julmidnight),0,17)+textoidl('\pm')+'3:00 UT', $
+		radar+', beam '+strtrim(beam,2)+', '+STRMID(format_juldate(julmidnight),0,17)+textoidl('\pm')+'3:00 UT', $
 		align=.5, /normal, charsize=charsize
 
 
@@ -301,7 +304,7 @@ hist = hist/max(hist[*,10:*,*])
 
 ; Plot virtual altitude
 ib = 0
-pos = [.1,.51,.48,.9]
+pos = [.1,.51,.49,.9]
 ytickname = ''
 ytitle = 'Virtual height [km]'
 xtickname = replicate(' ',60)
@@ -323,11 +326,11 @@ for ir=0,70 do begin
 	endfor
 endfor
 ; Plot physical altitude
-pos = [.1,.1,.48,.5]
+pos = [.1,.1,.49,.5]
 ytickname = ''
 ytitle = 'Altitude [km]'
 xtickname = ''
-xtitle = 'Slant range [km]'
+xtitle = 'Ground range [km]'
 plot, xrange, yrange, /nodata, xstyle=1, ystyle=1, position=pos, $
 	xtickname=xtickname, ytickname=ytickname, xtitle=xtitle, ytitle=ytitle, $
 	xticklen=1, xgridstyle=1, yticklen=1, ygridstyle=1, charsize=charsize
@@ -338,38 +341,39 @@ for ir=0,70 do begin
 			
 			rancell = 180.+[ir,ir+1,ir+1,ir]*45.
 			elevcell = elev_steps[iel]*[1,1,0,0] + elev_steps[iel+1]*[0,0,1,1]
-			alticell = sqrt(rancell^2 + Rav^2 + 2.*rancell*Rav*sin(elevcell*!dtor)) - Rav
-			if col gt 3b and max(alticell) le yrange[1] and min(alticell) ge yrange[0] then $
-				polyfill, rancell, alticell - valt2palt*rancell, col=col
+                        valticell = sqrt(rancell^2 + Rav^2 + 2.*rancell*Rav*sin(elevcell*!dtor)) - Rav                
+                        grancell = Rav*asin( rancell*cos(elevcell*!dtor)/(valticell+Rav) )
+			if col gt 3b and max(valticell) le yrange[1] and min(valticell) ge yrange[0] then $
+				polyfill, grancell, valticell - valt2palt*rancell, col=col
 		endif
 	endfor
 endfor
 ; Plot Millstone Hill densities (for Nov 17 2010)
-if date eq 20101118 then begin
-	load_usersym, /circle, /no_fill
-	mlh_read, data, mlh_alt, mlh_juls
-	sjul = julday(11, 18, 2010, 2, 25)
-	fjul = julday(11, 18, 2010, 8, 25)
-	inds = where(data.el1 eq 12.00 and data.az1 eq -90. and mlh_juls ge sjul and mlh_juls le fjul and mlh_alt ge 200. and mlh_alt le 500.)
-	altbins = mlh_alt[inds[UNIQ(mlh_alt[inds], SORT(mlh_alt[inds]))]]
-	mlh_nel = fltarr(n_elements(altbins))
-	mlh_nel_dev = fltarr(n_elements(altbins))
-	dnel = .05
-	nelbins = dnel + findgen(ceil(2./dnel))*dnel
-	for ialt=0,n_elements(altbins)-2 do begin
-		indalts = inds[where(mlh_alt[inds] ge altbins[ialt] and mlh_alt[inds] lt altbins[ialt+1])]
-		for iel=0,n_elements(nelbins)-2 do begin
-			nelalts = where(10.^(data.popl[indalts]-11.) ge nelbins[iel] and 10.^(data.popl[indalts]-11.) lt nelbins[iel+1], cc)
-			if cc gt 0 then begin
-				plots, nelbins[iel]*500., altbins[ialt], psym=8, symsize=cc/50., col=0
-			endif
-		endfor
-		mlh_nel[ialt] = mean( 10.^(data.popl[indalts]-11.) )
-		mlh_nel_dev[ialt] = meanabsdev( 10.^(data.popl[indalts]-11.) )
-	endfor
-endif
+;if date eq 20101118 then begin
+;	load_usersym, /circle, /no_fill
+;	mlh_read, data, mlh_alt, mlh_juls
+;	sjul = julday(11, 18, 2010, 2, 25)
+;	fjul = julday(11, 18, 2010, 8, 25)
+;	inds = where(data.el1 eq 12.00 and data.az1 eq -90. and mlh_juls ge sjul and mlh_juls le fjul and mlh_alt ge 200. and mlh_alt le 500.)
+;	altbins = mlh_alt[inds[UNIQ(mlh_alt[inds], SORT(mlh_alt[inds]))]]
+;	mlh_nel = fltarr(n_elements(altbins))
+;	mlh_nel_dev = fltarr(n_elements(altbins))
+;	dnel = .05
+;	nelbins = dnel + findgen(ceil(2./dnel))*dnel
+;	for ialt=0,n_elements(altbins)-2 do begin
+;		indalts = inds[where(mlh_alt[inds] ge altbins[ialt] and mlh_alt[inds] lt altbins[ialt+1])]
+;		for iel=0,n_elements(nelbins)-2 do begin
+;			nelalts = where(10.^(data.popl[indalts]-11.) ge nelbins[iel] and 10.^(data.popl[indalts]-11.) lt nelbins[iel+1], cc)
+;			if cc gt 0 then begin
+;				plots, nelbins[iel]*500., altbins[ialt], psym=8, symsize=cc/50., col=0
+;			endif
+;		endfor
+;		mlh_nel[ialt] = mean( 10.^(data.popl[indalts]-11.) )
+;		mlh_nel_dev[ialt] = meanabsdev( 10.^(data.popl[indalts]-11.) )
+;	endfor
+;endif
 
-bpos = [.91,.1,.925,.9]
+bpos = [.91,.1,.925,.5]
 plot_colorbar, /vert, charthick=charthick, /continuous, $
 	nlevels=4, scale=[0,1], position=bpos, charsize=charsize, $
 	legend='Scatter distribution', /no_rotate, $

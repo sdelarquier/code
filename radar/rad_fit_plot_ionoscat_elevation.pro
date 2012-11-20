@@ -53,7 +53,7 @@ if ~keyword_set(xrange) then $
 	xrange = [0.,40.]*45.
 if ~keyword_set(yrange) then $
 	yrange = [5.,40.]
-charsize = 1.2
+charsize = 1.
 
 ; Set elevation range
 elrange = [5.,40.]
@@ -184,7 +184,7 @@ hist = hist/max(hist[*,10:*,*])
 
 ; Plot results
 for ib=0,n_elements(beams)-1 do begin
-	pos = [.51,.1,.91,.55]
+	pos = [.51,.1,.9,.5]
 	ytickname = replicate(' ',60)
 	ytitle = ''
 	xtitle = 'Slant range [km]'
@@ -226,7 +226,7 @@ for ib=0,n_elements(beams)-1 do begin
 ; 	print, edges[1,0], edges[1,1]
 endfor
 
-xyouts, .75, .85, $
+xyouts, .5, .52, $
 	radar+', '+STRMID(format_juldate(julmidnight),0,17)+textoidl('\pm')+'3:00 UT', $
 	align=.5, /normal, charsize=charsize
 
@@ -278,7 +278,7 @@ hist = hist/max(hist[*,10:*,*])
 
 ; Plot results
 for ib=0,n_elements(beams)-1 do begin
-	pos = [.1,.1,.5,.55]
+	pos = [.1,.1,.49,.5]
 	ytickname = ''
 	ytitle = 'Elevation angle'
 	xtitle = 'Slant range [km]'
@@ -296,7 +296,7 @@ for ib=0,n_elements(beams)-1 do begin
 		endfor
 	endfor
 	contour, aspect[beams[ib],*,*], asparanges, aspaelev, /overplot, levels=[60.,70., 80., 85., 89.], c_labels=1b+bytarr(5), c_charsize=charsize
-	xyouts, pos[0]+(pos[2]-pos[0])/2., pos[3]*.97, 'Beam '+strtrim(beams[ib],2), /normal, charsize=charsize, align=.5
+	xyouts, pos[0]+(pos[2]-pos[0])/2., pos[3]*.95, 'Beam '+strtrim(beams[ib],2), /normal, charsize=charsize, align=.5
 	; Find scatter limits and slope (within threshold)
 	x = (fltarr(1,nelev_steps+1)+1.) ## (180.+findgen(71,1)*45.)
 	y = transpose([elev_steps, elev_steps[nelev_steps-1]+elstep]) ## (fltarr(71,1)+1.)
@@ -322,11 +322,18 @@ for ib=0,n_elements(beams)-1 do begin
 ; 	oplot, x, f, linestyle=4, thick=2
 endfor
 
-bpos = [.1,.81,.5,.83]
-plot_colorbar, /horiz, charthick=charthick, /continuous, $
-	nlevels=4, scale=[0,1], position=bpos, charsize=charsize, $
-	legend='Scatter distribution', /no_rotate, $
-	level_format='(F4.2)', /keep_first_last_label
+;bpos = [.1,.56,.49,.58]
+;plot_colorbar, /horiz, charthick=charthick, /continuous, $
+;	nlevels=4, scale=[0,1], position=bpos, charsize=charsize, $
+;	legend='Scatter distribution', /no_rotate, $
+;	level_format='(F4.2)', /keep_first_last_label
+
+bpos = [.91,.1,.925,.5]
+plot_colorbar, /vert, charthick=charthick, /continuous, $
+        nlevels=4, scale=[0,1], position=bpos, charsize=charsize, $
+        legend='Scatter distribution', /no_rotate, $
+        level_format='(F4.2)', /keep_first_last_label
+
 
 
 if keyword_set(ps) then $
