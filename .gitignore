@@ -11,4 +11,8 @@
 *.pdf
 *.svg
 *.dat
+*.hdf5
 .DS_store
+mho/data
+rbsp/data
+rbsp/img

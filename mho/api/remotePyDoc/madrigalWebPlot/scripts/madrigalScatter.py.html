@@ -1,0 +1,71 @@
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+          "http://www.w3.org/TR/html40/loose.dtd">
+
+        <html>
+         
+        <head>
+        <title>Module: madrigalScatter</title>
+        </head>
+
+        <body bgcolor="#ffffff">
+
+        <p><i><a href="../../index.html">Table of Contents</a></i></p>
+        
+        <table border="0" cellpadding="5" cellspacing="0" width="100%">
+        <tr bgcolor="#88bbee">
+            <th rowspan="2"
+                valign="top"
+                align="left"
+                width="10%"><font color="#000000">Module: madrigalScatter</font>
+            </th>
+            <th align="right"><font color="#000000">madrigalWebPlot/scripts/madrigalScatter.py</font></th>
+        </tr>
+        <tr>
+        <td>
+        <p>madrigalScatter.py is a remote command-line application  that creates scatter plots from Madrigal data</p>
+
+<p>Usage:</p>
+<PRE>
+    python madrigalScatter.py  --url=madrigalUrl --file=filename --parm=parameter
+    --output=outputFile --name=userName --email=userEmail --affiliation=userAffilitation
+    [--filter=filterString --title=plotTitle --startHour=startHour --endHour=endHour
+    --yMin=y_minimum --yMax=y_maximum]
+
+</PRE>
+
+<p>See http://madrigal.haystack.mit.edu/madrigal/ug_commandLine.html#isprint
+for details of how filters work.  Optional startHour and endHour are UT hours, with 0
+being midnight UT on the day the experiment started.  Default is entire experiment.</p>
+
+<p>Example:</p>
+<PRE>
+    python madrigalScatter.py  --url=http://madrigal.haystack.mit.edu/madrigal \
+    --file=/opt/madrigal/experiments/1998/mlh/20jan98/mlh980120g.002 --parm=systmp \
+    --output=/tmp/mlh_20jan98.png --name=&amp;quot;Bill Rideout&amp;quot; --email=brideout@haystack.mit.edu \
+    --affiliation=MIT --filter=&amp;quot;filter=elm,80,90&amp;quot;
+
+</PRE>
+
+<p>Requires Matplotlib be installed
+</p>
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+</td></tr>
+</table>
+
+        </td>
+        </tr>
+        </table>
+
+        <hr>
+
+        <p><i><a href="../../index.html">Table of Contents</a></i></p>
+
+        <font size="-2"><i>This document was automatically generated
+        on Fri May  1 10:49:34 2009 by
+        <a href="http://happydoc.sourceforge.net">HappyDoc</a> version
+        r1_5</i></font>
+        
+        </body>
+        </html>
+        

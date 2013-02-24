@@ -84,7 +84,7 @@ corrvalt = fltarr(71, nelev_steps+1)
 parse_date, date, tyy, tmm, tdd
 ; rtdate = date
 rtdate = tyy*10000L+tmm*100L+01
-rt_run, rtdate, radar, time=[0,1200]
+rt_run, rtdate, radar, time=[0,1200], hmf2=
 
 ; Find midnight
 rad_calc_sunset, rtdate, radar, 7, 70, $
@@ -213,7 +213,7 @@ plot, xrange, yrange, /nodata, xstyle=1, ystyle=1, position=pos, $
 	xticklen=1, xgridstyle=1, yticklen=1, ygridstyle=1, charsize=charsize
 for ir=0,70 do begin
 	for ialt=0,nalt_steps-2 do begin
-		if ir*45.+180. ge xrange[0] and (ir+1)*45.+180. le xrange[1] then begin
+		if ir*45.+180. ge xrange[0] then begin; and (ir+1)*45.+180. le xrange[1] then begin
 			col = bytscl(histalt(ib,ir,ialt), min=0, max=1, top=250) + 3b
 			
 			rancell = 180.+[ir,ir+1,ir+1,ir]*45.
@@ -221,12 +221,19 @@ for ir=0,70 do begin
 			valticell = alticell + valt2palt*rancell
 			elevcell = !radeg*asin( ((alticell+Rav)^2 - (rancell^2 + Rav^2))/(2.*rancell*Rav) )
 			grancell = Rav*asin( rancell*cos(elevcell*!dtor)/(valticell+Rav) )
+            if max(grancell) gt xrange[1] then continue
 			if col gt 3b and max(alticell) le yrange[1] and min(alticell) ge yrange[0] then begin
 				polyfill, grancell, alticell, col=col
 			endif
 		endif
 	endfor
 endfor
+xarr = asparanges # Replicate(1, N_Elements(aspaelev))
+yarr = Replicate(1, N_Elements(asparanges)) # aspaelev
+aspalt = sqrt(xarr^2 + Rav^2 + 2.*xarr*Rav*sin(yarr*!dtor)) - Rav
+aspgran = Rav*asin( xarr*cos(yarr*!dtor)/(aspalt+Rav) )
+contour, aspect[beam,*,*], aspgran, aspalt, /overplot, levels=[89.], c_charsize=charsize, c_label=[0]
+contour, aspect[0,*,*], aspgran, aspalt, /overplot, levels=[89.], c_charsize=charsize, c_linestyle=2, c_label=[0]
 ;iri_run, date, 225, param='alti', lati=radarsite.geolat, longi=radarsite.geolon, /ut, nel=nel
 ;oplot, nel*500., 100.+findgen(500)
 ;print, 'IRI 225', min(nel), max(nel)
@@ -336,18 +343,26 @@ plot, xrange, yrange, /nodata, xstyle=1, ystyle=1, position=pos, $
 	xticklen=1, xgridstyle=1, yticklen=1, ygridstyle=1, charsize=charsize
 for ir=0,70 do begin
 	for iel=0,nelev_steps-2 do begin
-		if ir*45.+180. ge xrange[0] and (ir+1)*45.+180. le xrange[1] then begin
+		if ir*45.+180. ge xrange[0] then begin; and (ir+1)*45.+180. le xrange[1] then begin
 			col = bytscl(hist(ib,ir,iel), min=0, max=1, top=250) + 3b
 			
 			rancell = 180.+[ir,ir+1,ir+1,ir]*45.
 			elevcell = elev_steps[iel]*[1,1,0,0] + elev_steps[iel+1]*[0,0,1,1]
-                        valticell = sqrt(rancell^2 + Rav^2 + 2.*rancell*Rav*sin(elevcell*!dtor)) - Rav                
-                        grancell = Rav*asin( rancell*cos(elevcell*!dtor)/(valticell+Rav) )
+            valticell = sqrt(rancell^2 + Rav^2 + 2.*rancell*Rav*sin(elevcell*!dtor)) - Rav                
+            grancell = Rav*asin( rancell*cos(elevcell*!dtor)/(valticell+Rav) )
 			if col gt 3b and max(valticell) le yrange[1] and min(valticell) ge yrange[0] then $
 				polyfill, grancell, valticell - valt2palt*rancell, col=col
 		endif
 	endfor
 endfor
+; print, size(asparanges), size(aspaelev)
+xarr = asparanges # Replicate(1, N_Elements(aspaelev))
+yarr = Replicate(1, N_Elements(asparanges)) # aspaelev
+; print, size(xarr), size(yarr), size(aspect[beam,*,*])
+aspalt = sqrt(xarr^2 + Rav^2 + 2.*xarr*Rav*sin(yarr*!dtor)) - Rav
+aspgran = Rav*asin( xarr*cos(yarr*!dtor)/(aspalt+Rav) )
+contour, aspect[beam,*,*], aspgran, aspalt, /overplot, levels=[89.], c_charsize=charsize, c_label=[0]
+contour, aspect[0,*,*], aspgran, aspalt, /overplot, levels=[89.], c_charsize=charsize, c_linestyle=2, c_label=[0]
 ; Plot Millstone Hill densities (for Nov 17 2010)
 ;if date eq 20101118 then begin
 ;	load_usersym, /circle, /no_fill

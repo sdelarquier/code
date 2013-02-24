@@ -30,13 +30,13 @@ of for all the available dates
     datapath = '/home/sebastien/Documents/code/rbsp/data/'
 
     # Read the data
-    year, month, day, hour, minute, second, altA, latA, lonA = np.genfromtxt('orbitposA.dat', unpack=True, skiprows=1)
+    year, month, day, hour, minute, second, altA, latA, lonA = np.genfromtxt('data/orbitposA.dat', unpack=True, skiprows=1)
     dates = []
     for y,m,d,h,mn,s in zip(year, month, day, hour, minute, second):
         dates.append( datetime( int(y),int(m),int(d),int(h),int(mn),int(s) ) )
     datesA = np.array(dates)
 
-    year, month, day, hour, minute, second, altB, latB, lonB = np.genfromtxt('orbitposB.dat', unpack=True, skiprows=1)
+    year, month, day, hour, minute, second, altB, latB, lonB = np.genfromtxt('data/orbitposB.dat', unpack=True, skiprows=1)
     dates = []
     for y,m,d,h,mn,s in zip(year, month, day, hour, minute, second):
         dates.append( datetime( int(y),int(m),int(d),int(h),int(mn),int(s) ) )
@@ -80,6 +80,32 @@ of for all the available dates
     if fig: plot(traceA=traceA, traceB=traceB)
 
 
+def textHighlighted(xy, text, ax=None, zorder=None, color='k', fontsize=None):
+    """
+Text with highlighted contour
+    """
+    import matplotlib as mp
+    
+    text_path = mp.text.TextPath( (0,0), text, size=fontsize )
+    
+    p1 = mp.patches.PathPatch(text_path, ec="w", lw=2, fc="w", alpha=0.8, zorder=zorder, 
+                       transform=mp.transforms.IdentityTransform())
+    p2 = mp.patches.PathPatch(text_path, ec="none", fc=color, zorder=zorder, 
+                       transform=mp.transforms.IdentityTransform())
+    
+    offsetbox2 = mp.offsetbox.AuxTransformBox(mp.transforms.IdentityTransform())
+    offsetbox2.add_artist(p1)
+    offsetbox2.add_artist(p2)
+    ab = mp.offsetbox.AnnotationBbox(
+                offsetbox2, xy,
+                box_alignment=(.5,0),
+                frameon=False
+                )
+    
+    if not ax: ax = gca()
+    ax.add_artist(ab)
+
+
 def plot(date=None, traceA=None, traceB=None, saveDb=True, noPlot=False):
     """
 Plot RBSP footprints
@@ -115,9 +141,9 @@ Plot RBSP footprints
         m1.drawmapboundary()
         # Draw FP
         x, y = m1(traceA.lonNH, traceA.latNH)
-        m1.scatter(x, y, color='r', zorder=4, s=5)
+        m1.scatter(x, y, color='r', zorder=3, s=5)
         x, y = m1(traceB.lonNH, traceB.latNH)
-        m1.scatter(x, y, color='b', zorder=4, s=5)
+        m1.scatter(x, y, color='b', zorder=3, s=5)
         overlayFov(m1, all=True, hemi='north', maxGate=75, dateTime=traceA.datetime[0], 
             fovColor=fovCol, lineColor=fovCol, lineWidth=0, fovAlpha=fovAlpha)
 
@@ -132,9 +158,9 @@ Plot RBSP footprints
         m2.drawmapboundary()
         # Draw FP
         x, y = m2(traceA.lonSH, traceA.latSH)
-        m2.scatter(x, y, color='r', zorder=4, s=5)
+        m2.scatter(x, y, color='r', zorder=3, s=5)
         x, y = m2(traceB.lonSH, traceB.latSH)
-        m2.scatter(x, y, color='b', zorder=4, s=5)
+        m2.scatter(x, y, color='b', zorder=3, s=5)
         overlayFov(m2, all=True, hemi='south', maxGate=75, dateTime=traceA.datetime[0],
             fovColor=fovCol, lineColor=fovCol, lineWidth=0, fovAlpha=fovAlpha)
 
@@ -142,13 +168,13 @@ Plot RBSP footprints
 
         Title = '{}'.format(date.strftime('%Y - %b - %d'))
         fig.text(.02, .92, Title)
-        fig.text(.02, .09, 'RBSP-A', color='r', va='top')
-        fig.text(.1, .09, 'RBSP-B', color='b', va='top')
+        fig.text(.02, .09, 'VAP-A', color='r', va='top')
+        fig.text(.1, .09, 'VAP-B', color='b', va='top')
 
         Title = '{}'.format(date.strftime('%Y - %b - %d'))
         fig.text(.51, .92, Title)
-        fig.text(.51, .09, 'RBSP-A', color='r', va='top')
-        fig.text(.59, .09, 'RBSP-B', color='b', va='top')
+        fig.text(.51, .09, 'VAP-A', color='r', va='top')
+        fig.text(.59, .09, 'VAP-B', color='b', va='top')
 
     # List apogees
     minsA = np.r_[True, traceA.rho[1:] >= traceA.rho[:-1]] & np.r_[traceA.rho[:-1] > traceA.rho[1:], True]
@@ -176,7 +202,8 @@ Plot RBSP footprints
         tradANH = rads.getRadarsByPosition(latANH[i], lonANH[i], 300., datetime=timeA[i])
         if not noPlot:
             x, y = m1(lonANH[i], latANH[i])
-            ax1.text(x, y, timeA[i].strftime('%H:%M'), zorder=5, clip_on=True, color=(.3,0,0), fontsize=10, ha='left')
+            # ax1.text(x, y, timeA[i].strftime('%H:%M'), zorder=5, clip_on=True, color=(.3,0,0), fontsize=10, ha='center')
+            textHighlighted((x,y), timeA[i].strftime('%H:%M'), ax=ax1, zorder=6, color=(.3,0,0), fontsize=10)
         if tradANH: 
             radsANH.append( tradANH )
         writeToDb(timeA[i], latANH[i], lonANH[i], 'A', tradANH)
@@ -185,7 +212,8 @@ Plot RBSP footprints
         tradASH = rads.getRadarsByPosition(latASH[i], lonASH[i], 300., datetime=timeA[i])
         if not noPlot:
             x, y = m2(lonASH[i], latASH[i])
-            ax2.text(x, y, timeA[i].strftime('%H:%M'), zorder=5, clip_on=True, color=(.3,0,0), fontsize=10, ha='left')
+            # ax2.text(x, y, timeA[i].strftime('%H:%M'), zorder=5, clip_on=True, color=(.3,0,0), fontsize=10, ha='center')
+            textHighlighted((x,y), timeA[i].strftime('%H:%M'), ax=ax2, zorder=6, color=(.3,0,0), fontsize=10)
         if tradASH: 
             radsASH.append( tradASH )
         if saveDb: writeToDb(timeA[i], latASH[i], lonASH[i], 'A', tradASH)
@@ -199,7 +227,8 @@ Plot RBSP footprints
         tradBNH = rads.getRadarsByPosition(latBNH[i], lonBNH[i], 300., datetime=timeB[i])
         if not noPlot:
             x, y = m1(lonBNH[i], latBNH[i])
-            ax1.text(x, y, timeB[i].strftime('%H:%M'), zorder=5, clip_on=True, color=(0,0,.3), fontsize=10, ha='right')
+            # ax1.text(x, y, timeB[i].strftime('%H:%M'), zorder=5, clip_on=True, color=(0,0,.3), fontsize=10, ha='center')
+            textHighlighted((x,y), timeB[i].strftime('%H:%M'), ax=ax1, zorder=6, color=(0,0,.3), fontsize=10)
         if tradBNH: 
             radsBNH.append( tradBNH )
         writeToDb(timeB[i], latBNH[i], lonBNH[i], 'B', tradBNH)
@@ -208,7 +237,8 @@ Plot RBSP footprints
         tradBSH = rads.getRadarsByPosition(latBSH[i], lonBSH[i], 300., datetime=timeB[i])
         if not noPlot:
             x, y = m2(lonBSH[i], latBSH[i])
-            ax2.text(x, y, timeB[i].strftime('%H:%M'), zorder=5, clip_on=True, color=(0,0,.3), fontsize=10, ha='right')
+            # ax2.text(x, y, timeB[i].strftime('%H:%M'), zorder=5, clip_on=True, color=(0,0,.3), fontsize=10, ha='center')
+            textHighlighted((x,y), timeB[i].strftime('%H:%M'), ax=ax2, zorder=6, color=(0,0,.3), fontsize=10)
         if tradBSH: 
             radsBSH.append( tradBSH )
         if saveDb: writeToDb(timeB[i], latBSH[i], lonBSH[i], 'B', tradBSH)
@@ -314,11 +344,11 @@ Command-line call
     """ Start editing here """
     for date in dates:
         """ Uncomment this line to (re)generate footpoints from RBSP orbit coordinates (GEO) """
-        # trace(date=date)
+        trace(date=date)
         """ Set this to False if you do not want to update the DB """
         saveDb = True
         """ Set this to True if you do not want to plot (can still write to DB) """
-        noPlot = True
+        noPlot = False
         """ Uncomment this line to (re)generate RBSP footpoints plots """
     	plot(date=date, saveDb=saveDb, noPlot=noPlot)
     	print '{} plotted.'.format(date.date())

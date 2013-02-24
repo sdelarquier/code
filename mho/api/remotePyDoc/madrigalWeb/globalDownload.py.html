@@ -1,0 +1,572 @@
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+          "http://www.w3.org/TR/html40/loose.dtd">
+
+        <html>
+         
+        <head>
+        <title>Module: globalDownload</title>
+        </head>
+
+        <body bgcolor="#ffffff">
+
+        <p><i><a href="../index.html">Table of Contents</a></i></p>
+        
+        <table border="0" cellpadding="5" cellspacing="0" width="100%">
+        <tr bgcolor="#88bbee">
+            <th rowspan="2"
+                valign="top"
+                align="left"
+                width="10%"><font color="#000000">Module: globalDownload</font>
+            </th>
+            <th align="right"><font color="#000000">madrigalWeb/globalDownload.py</font></th>
+        </tr>
+        <tr>
+        <td>
+        <h3>This script runs a global search through Madrigal data from a given URL, and downloads all matching files.</h3>
+<p>    This script is a stand-alone application, and can be run from anywhere with a connection to the internet.
+    It runs on either unix or windows.  It requires only the MadrigalWeb python module to be installed.</p>
+
+<p>    Usage:</p>
+<p>        globalDownload.py --url=&lt;Madrigal url&gt; --outputDir=&lt;output directory&gt; \
+            --user_fullname=&lt;user fullname&gt; --user_email=&lt;user email&gt; \
+            --user_affiliation=&lt;user affiliation&gt; --format=&lt;ascii,hdf5&gt; <a href="#options">[options]</a></p>
+
+<p>        where:</p>
+
+<p>        --url=&lt;Madrigal url&gt; - url to homepage of site to be searched
+                                  (ie, http://madrigal.haystack.mit.edu/madrigal/)
+                                  This is required.</p>
+
+<p>        --outputDir=&lt;output directory&gt; - the output directory to store all files in.  Default is to store
+            all files in the same directory, and a number is added to the filename if a file might be overwritten.  Set
+            --tree flag to store all files in the same directory structure they appear in Madrigal.  This
+            allows all files to keep their original names. </p>
+
+<p>        --user_fullname=&lt;user fullname&gt; - the full user name (probably in quotes unless your name is
+                                          Sting or Madonna)</p>
+
+<p>        --user_email=&lt;user email&gt;</p>
+
+<p>        --user_affiliation=&lt;user affiliation&gt; - user affiliation.  Use quotes if it contains spaces.</p>
+
+<p>        --format=&lt;ascii or hdf5&gt;</p>
+
+<p>        and options are:</p>
+
+<p>        --startDate=&lt;MM/DD/YYYY&gt; - start date to filter experiments before.  Defaults to allow all experiments.</p>
+
+<p>        --endDate=&lt;MM/DD/YYYY&gt; - end date to filter experiments after.  Defaults to allow all experiments.</p>
+
+<p>        --inst=&lt;instrument list&gt; - comma separated list of instrument codes or names.  See Madrigal documentation
+                                   for this list.  Defaults to allow all instruments. If names are given, the
+                                   argument must be enclosed in double quotes.  An asterick will perform matching as
+                                   in glob.  For example:</p>
+<PRE>
+           --inst=10,30
+
+           --inst=&amp;quot;Jicamarca IS Radar,Arecibo*&amp;quot;
+
+</PRE>
+
+<p>        --expName  - filter experiments by the experiment name.  Give all or part of the experiment name. Matching
+                     is case insensitive.  Default is no filtering by experiment name.</p>
+
+<p>        --kindat=&lt;kind of data list&gt; - comma separated list of kind of data codes.  See Madrigal documentation
+                                       for this list.  Defaults to allow all kinds of data.  If names are given, the
+                                       argument must be enclosed in double quotes.  An asterick will perform matching as
+                                       in glob. For example:</p>
+<PRE>
+            --kindat=3001,13201
+
+            --kindat=&amp;quot;INSCAL Basic Derived Parameters,*efwind*,2001&amp;quot;
+
+</PRE>
+
+<p>        --seasonalStartDate=&lt;MM/DD&gt; - seasonal start date to filter experiments before.  Use this to select only part of the
+                                year to collect data.  Defaults to Jan 1.  Example:  </p>
+<p>            --seasonalStartDate=07/01 would only allow experiments after July 1st from each year.</p>
+
+
+<p>        --seasonalEndDate=&lt;MM/DD&gt; - seasonal end date to filter experiments after.  Use this to select only part of the
+                                    year to collect data.  Defaults to Dec 31.  Example:  </p>
+<p>            --seasonalEndDate=10/31 would only allow experiments before Oct 31 of each year.</p>
+
+
+<p>        --tree - add if you want to store the downloaded files in the same hierarchy as in Madrigal: 
+            &lt;YYYY/&lt;instCode&gt;/&lt;experimentDir&gt;.  Without --tree, stores all downloaded files in one directory.</p>
+
+<p>        --includeNonDefault - if given, include all files, including history.  Default is to search only default files.</p>
+
+<p>        --verbose - if given, print each file processed info to stdout.  Default is to run silently.</p>
+
+
+<p>    Example:</p>
+<p>        globalDownload.py --url=http://madrigal.haystack.mit.edu/madrigal --outputDir=/tmp --user_fullname=&quot;Bill Rideout&quot; 
+           --user_email=brideout@haystack.mit.edu --user_affiliation=MIT --startDate=01/01/1998 
+           --endDate=-01/30/1998 --inst=30</p>
+
+
+
+<p>$Id: globalDownload.py 4087 2012-11-08 18:24:49Z brideout $
+</p>
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Functions">Functions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+<a href="#filterExperimentFilesUsingFileDesc">filterExperimentFilesUsingFileDesc</a><br>
+<a href="#filterExperimentFilesUsingKindat">filterExperimentFilesUsingKindat</a><br>
+<a href="#filterExperimentFilesUsingStatus">filterExperimentFilesUsingStatus</a><br>
+<a href="#filterExperimentsUsingExpName">filterExperimentsUsingExpName</a><br>
+<a href="#filterExperimentsUsingSeason">filterExperimentsUsingSeason</a><br>
+<a href="#getExperimentFileList">getExperimentFileList</a><br>
+<a href="#getInstrumentList">getInstrumentList</a><br>
+<a href="#getSubdirectoryFromFullFile">getSubdirectoryFromFullFile</a><br>
+<a href="#getTimesOfExperiment">getTimesOfExperiment</a><br>
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="filterExperimentFilesUsingFileDesc"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">filterExperimentFilesUsingFileDesc&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+filterExperimentFilesUsingFileDesc ( expFileList,  fileDesc )
+
+</pre></font>
+<p>filterExperimentFilesUsingFileDesc returns a subset of the experiment files in expFileList with filtered
+       using fileDesc string and case-insensitive fnmatch.</p>
+<p>    Input:</p>
+<p>        expFileList - a list of MadrigalExperimentFile objects to be filtered.</p>
+
+
+<p>    Returns:</p>
+<p>        a subset of expFileList with default status</p>
+
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="filterExperimentFilesUsingKindat"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">filterExperimentFilesUsingKindat&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+filterExperimentFilesUsingKindat ( expFileList,  kindat )
+
+</pre></font>
+<h3>filterExperimentFilesUsingKindat returns a subset of the experiment files in expFileList whose kindat is found in kindat argument.</h3>
+<p>    Input:</p>
+<p>        expFileList - a list of MadrigalExperimentFile objects to be filtered</p>
+
+<p>        kindat - the kindat argument passed in by the user - comma separated list of kind of data codes.  If names are given, the
+                argument must be enclosed in double quotes.  An asterick will perform matching as in glob.</p>
+
+
+<p>    Returns:</p>
+<p>        a subset of expFileList whose kindat values are accepted</p>
+
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="filterExperimentFilesUsingStatus"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">filterExperimentFilesUsingStatus&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+filterExperimentFilesUsingStatus ( expFileList )
+
+</pre></font>
+<h3>filterExperimentFilesUsingStatus returns a subset of the experiment files in expFileList with default status.</h3>
+<p>    Input:</p>
+<p>        expFileList - a list of MadrigalExperimentFile objects to be filtered.</p>
+
+
+<p>    Returns:</p>
+<p>        a subset of expFileList with default status</p>
+
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="filterExperimentsUsingExpName"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">filterExperimentsUsingExpName&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+filterExperimentsUsingExpName ( expList,  expName )
+
+</pre></font>
+<h3>filterExperimentsUsingExpName returns a subset of the experiments in expList whose name matches.</h3>
+<p>    Input:</p>
+<p>        expList - a list of MadrigalExperiment objects to be filtered</p>
+
+<p>        expName  - filter experiments by the experiment name.  Can be all or part of the experiment name. Matching
+                     is case insensitive.</p>
+
+
+<p>    Returns:</p>
+<p>        a subset of expList whose names are accepted</p>
+
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="filterExperimentsUsingSeason"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">filterExperimentsUsingSeason&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+filterExperimentsUsingSeason (
+        expList,
+        seasonalStartDate,
+        seasonalEndDate,
+        )
+
+</pre></font>
+<h3>filterExperimentsUsingSeason returns a subset of the experiments in expList whose date is within the given season.</h3>
+<p>    Input:</p>
+<p>        expList - a list of MadrigalExperiment objects to be filtered</p>
+
+<p>        seasonalStartDate - in form MM/DD - seasonal start date to filter experiments before</p>
+
+<p>        seasonalEndDate - in form MM/DD - seasonal end date to filter experiments after</p>
+
+
+<p>    Returns:</p>
+<p>        a subset of expList whose times are accepted</p>
+
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'seasonalEndDate must be in form MM/DD: ' + str( seasonalEndDate )<br>
+ValueError, 'seasonalStartDate must be in form MM/DD: ' + str( seasonalStartDate )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getExperimentFileList"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getExperimentFileList&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getExperimentFileList (
+        server,
+        expList,
+        includeNonDefault,
+        )
+
+</pre></font>
+<h3>getExperimentFileList returns a list of MadrigalExperimentFile objects given an experiment list.</h3>
+<p>    Inputs:</p>
+<PRE>
+        server - the active MadrigalData object to get information from
+
+        expList - the list of desired MadrigalExperiment objects
+
+        includeNonDefault - 1 if should include non-default files, 0 otherwise
+
+</PRE>
+
+<p>    Returns:</p>
+<p>        a list of MadrigalExperimentFile objects</p>
+
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getInstrumentList"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getInstrumentList&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getInstrumentList ( inst,  server )
+
+</pre></font>
+<h3>getInstrumentList takes the user argument inst and coverts it into a list of instrument codes.</h3>
+<p>    Inputs:</p>
+<p>        inst - a string containing a comma separated list of instrument codes or names.  If names are given,
+                the argument must be enclosed in double quotes.  An asterick will perform matching as in glob.
+                Both names and codes may be mixed together.</p>
+
+<p>        server - the active MadrigalData object to get information from</p>
+
+
+<p>    Returns:</p>
+<p>        a list of instrument codes (int).  Instrument code 0 means all instruments</p>
+
+
+
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getSubdirectoryFromFullFile"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getSubdirectoryFromFullFile&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getSubdirectoryFromFullFile ( fullFilename )
+
+</pre></font>
+<h3>get the subdirectory to store this file in from the full file name</h3>
+<p>    Return everything after experiments* and before filename</p>
+
+
+<table border="0" cellpadding="5" cellspacing="0" width="100%">
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="Exceptions">Exceptions</a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        
+ValueError, 'Illegal filename %s' %( fullFilename )<br>
+
+</td></tr>
+</table>
+
+        <tr>
+            <th bgcolor="#99ccff"
+                rowspan="2"
+                valign="top"
+                align="left"
+                width="20%"
+                >
+                <font color="#000000">
+                  <a name="getTimesOfExperiment"></a>&nbsp;
+                </font>
+            </th>
+            <th bgcolor="#99ccff"
+                valign="top"
+                align="left"
+                >
+                <font color="#000000">getTimesOfExperiment&nbsp;</font>
+            </th>
+        </tr>
+        <tr>
+        <td>
+        <font color="#000088"><pre>
+getTimesOfExperiment ( expList,  expId )
+
+</pre></font>
+<h3>getTimesOfExperiment returns a list of the start and end time of the experiment given expId.</h3>
+<p>    Input:</p>
+<p>        expList - the list of MadrigalExperiment objects</p>
+
+<p>        expId - the experiment id</p>
+
+
+<p>    Returns:</p>
+<p>        a list of:
+            (startyear,
+            startmonth,
+            startday,
+            starthour,
+            startmin,
+            startsec,
+            endyear,
+            endmonth,
+            endday,
+            endhour,
+            endmin,
+            endsec)</p>
+
+
+
+</td></tr>
+</td></tr>
+</table>
+
+        </td>
+        </tr>
+        </table>
+
+        <hr>
+
+        <p><i><a href="../index.html">Table of Contents</a></i></p>
+
+        <font size="-2"><i>This document was automatically generated
+        on Thu Nov  8 14:17:24 2012 by
+        <a href="http://happydoc.sourceforge.net">HappyDoc</a> version
+        r1_5</i></font>
+        
+        </body>
+        </html>
+        
