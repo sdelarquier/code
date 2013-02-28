@@ -186,8 +186,8 @@ if ~keyword_set(nhop) then $
 	nhop = 1L
 
 ; Get path to davit
-davit_lib = getenv("DAVIT_LIB")
-;davit_lib = ''
+;davit_lib = getenv("DAVIT_LIB")
+davit_lib = '~/Documents/code/rtmpi'
 
 ; Start MPD
 spawn, 'mpdtrace', mpdout

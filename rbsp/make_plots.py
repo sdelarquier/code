@@ -61,7 +61,7 @@ of for all the available dates
             lats = latA[np.array(inds)]
             lons = lonA[np.array(inds)]
             rhos = altA[np.array(inds)]
-            traceA = ts.tsygTrace(lats, lons, rhos, datetime=sdates)
+            traceA = ts.tsygTrace(lats, lons, rhos, datetime=sdates, rmin=1.047)
             # Save traces
             traceA.save( datapath+'trace.{}.A.dat'.format(day.strftime('%Y%m%d')) )
 
@@ -73,7 +73,7 @@ of for all the available dates
             lats = latB[np.array(inds)]
             lons = lonB[np.array(inds)]
             rhos = altB[np.array(inds)]
-            traceB = ts.tsygTrace(lats, lons, rhos, datetime=sdates)
+            traceB = ts.tsygTrace(lats, lons, rhos, datetime=sdates, rmin=1.047)
             # Save traces
             traceB.save( datapath+'trace.{}.B.dat'.format(day.strftime('%Y%m%d')) )
 
@@ -206,7 +206,7 @@ Plot RBSP footprints
             textHighlighted((x,y), timeA[i].strftime('%H:%M'), ax=ax1, zorder=6, color=(.3,0,0), fontsize=10)
         if tradANH: 
             radsANH.append( tradANH )
-        writeToDb(timeA[i], latANH[i], lonANH[i], 'A', tradANH)
+        if saveDb: writeToDb(timeA[i], latANH[i], lonANH[i], 'A', tradANH)
 
         apoA_SH += '({}UT, {:4.2f}E, {:4.2f}N) | '.format(timeA[i].strftime('%H:%M'), lonASH[i], latASH[i])
         tradASH = rads.getRadarsByPosition(latASH[i], lonASH[i], 300., datetime=timeA[i])
@@ -231,7 +231,7 @@ Plot RBSP footprints
             textHighlighted((x,y), timeB[i].strftime('%H:%M'), ax=ax1, zorder=6, color=(0,0,.3), fontsize=10)
         if tradBNH: 
             radsBNH.append( tradBNH )
-        writeToDb(timeB[i], latBNH[i], lonBNH[i], 'B', tradBNH)
+        if saveDb: writeToDb(timeB[i], latBNH[i], lonBNH[i], 'B', tradBNH)
 
         apoB_SH += '({}UT, {:4.2f}E, {:4.2f}N) '.format(timeB[i].strftime('%H:%M'), lonBSH[i], latBSH[i])
         tradBSH = rads.getRadarsByPosition(latBSH[i], lonBSH[i], 300., datetime=timeB[i])
@@ -346,7 +346,7 @@ Command-line call
         """ Uncomment this line to (re)generate footpoints from RBSP orbit coordinates (GEO) """
         trace(date=date)
         """ Set this to False if you do not want to update the DB """
-        saveDb = True
+        saveDb = False
         """ Set this to True if you do not want to plot (can still write to DB) """
         noPlot = False
         """ Uncomment this line to (re)generate RBSP footpoints plots """

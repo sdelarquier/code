@@ -30,13 +30,14 @@ def mhoRead( expDate,
 	filePath = os.path.join(dataPath, fileName)
 
 	try:
-		for i in range(1,4):
-			if not os.path.isfile(filePath.format(i)): continue
-			fileExt = i
-			filePath = filePath.format(fileExt)
-			with h5.File(filePath,'r') as f: pass
-			break
 		if not fileExt: 
+			for i in range(1,4):
+				if not os.path.isfile(filePath.format(i)): continue
+				fileExt = i
+				filePath = filePath.format(fileExt)
+				with h5.File(filePath,'r') as f: pass
+				break
+		else:
 			with h5.File(filePath,'r') as f: pass
 	except:
 		dl = getFilesFromMad(expDate, 
@@ -49,7 +50,6 @@ def mhoRead( expDate,
 			fileExt = dl[-1]
 			filePath = dataPath+dl+'.hdf5'
 			try:
-				print filePath
 				with h5.File(filePath,'r') as f: pass
 			except:
 				raise
@@ -115,7 +115,10 @@ def getFilesFromMad(sdate, fdate, dataPath=None):
 	'''Get files from Madrigal database
 	'''
 	import madrigalWeb.madrigalWeb
-	import os
+	import os, h5py
+	import numpy as np
+	from matplotlib.dates import date2num
+	import datetime as dt
 	# constants
 	user_fullname = 'Sebastien de Larquier'
 	user_email = 'sdelarquier@vt.edu'
@@ -146,9 +149,70 @@ def getFilesFromMad(sdate, fdate, dataPath=None):
 		user_fullname, user_email, user_affiliation, 
 		format="hdf5")
 
-	madData.isprint()
+	# Now add some derived data to the hdf5 file
+	res = madData.isprint(thisFilename, 
+		'YEAR,MONTH,DAY,HOUR,MIN,SEC,GDALT,RANGE,POPL,NE,NEL,TE,MDTYP',
+ 		'', user_fullname, user_email, user_affiliation)
 
-	return os.path.split(thisFilename)[1]
+	rows = res.split("\n")
+	moreData = {'dt': [], 
+	            'gdalt': [], 
+	            'range': [],  
+	            'popl': [],  
+	            'ne': [],  
+	            'nel': [],  
+	            'te': [],  }
+	for r in rows:
+	    dat = r.split()
+	    if dat and dat[-1] == '115':
+	        if dat[8] == 'missing': dat[8] = 'nan'
+	        if dat[9] == 'missing': dat[9] = 'nan'
+	        if dat[10] == 'missing': dat[10] = 'nan'
+	        if dat[11] == 'missing': dat[11] = 'nan'
+	        moreData['dt'].append( dt.datetime(int(dat[0]), 
+											   int(dat[1]), 
+											   int(dat[2]), 
+											   int(dat[3]), 
+											   int(dat[4])) )
+	        moreData['gdalt'].append( float(dat[6]) ) 
+	        moreData['range'].append( float(dat[7]) ) 
+	        moreData['popl'].append( float(dat[8]) ) 
+	        moreData['ne'].append( float(dat[9]) )
+	        moreData['nel'].append( float(dat[10]) ) 
+	        moreData['te'].append( float(dat[11]) )
+
+	filePath = os.path.split(thisFilename)[1]
+	with h5.File(filePath,'r+') as f:
+		tDim = f['Data']['Array Layout']['timestamps'].shape[0]
+		rDim = f['Data']['Array Layout']['range'].shape[0]
+		shape2d = (tDim, rDim)
+		gdalt = np.empty(shape2d)
+		gdalt[:] = np.nan
+		ne = np.empty(shape2d)
+		ne[:] = np.nan
+		nel = np.empty(shape2d)
+		nel[:] = np.nan
+		dtime = np.empty(tDim, dtype=datetime64)
+
+		# Iterate through the downloaded data
+		for i in range(len(moreData['dt'])):
+		    # Figure out your range/time index
+		    tind = np.where(data['time'] <= date2num(moreData['dt'][i]))[0]
+		    rind = np.where(data['range'] <= moreData['range'][i])[0]
+		    gdalt[tind[-1],rind[-1]] = moreData['gdalt'][i]
+		    ne[tind[-1],rind[-1]] = moreData['ne'][i]
+		    nel[tind[-1],rind[-1]] = moreData['nel'][i]
+		    dtime[tind[-1]] = moreData['dt'][i]
+
+		parent = f['Data']['Array Layout']['2D Parameters']
+		gdalt_ds = parent.create_dataset('gdalt', data=gdalt)
+		ne_ds = parent.create_dataset('ne', data=ne)
+		nel_ds = parent.create_dataset('nel', data=nel)
+
+		parent = f['Data']['Array Layout']
+		datetime_ds = parent.create_dataset('datetime', data=dtime)
+
+	return filePath
 
 
 #####################################################
