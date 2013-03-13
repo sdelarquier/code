@@ -21,7 +21,6 @@ from mpl_toolkits.basemap import Basemap
 import pylab
 
 
-
 def trace(date=None, fig=True):
     """
 Trace RBSP footprints for a given date (python datetime object)

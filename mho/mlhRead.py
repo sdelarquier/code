@@ -17,28 +17,28 @@ def mhoRead( expDate,
 	try to dowmload from Madrigal.
 	'''
 	import madrigalWeb.madrigalWeb
-	import os
+	import os, glob
 	import datetime as dt
 	import h5py as h5
 	import matplotlib as mp
 	import numpy as np
 	from utils import geoPack as gp
 
-	fileName = 'mlh{}g'.\
-		format( expDate.strftime('%y%m%d') )
-	fileName += '.00{}.hdf5'
+	fileName = 'mlh{:%y%m%d}'.\
+		format( expDate )
+	if not fileExt:
+		dfiles = np.sort(glob.glob(dataPath+fileName+'?.???.hdf5'))
+		if dfiles == []:
+			fileExt = 'g.002'
+		else:
+			fileExt = dfiles[-1][-10:-5]
+	
+	fileName = fileName+fileExt+'.hdf5'
 	filePath = os.path.join(dataPath, fileName)
 
 	try:
-		if not fileExt: 
-			for i in range(1,4):
-				if not os.path.isfile(filePath.format(i)): continue
-				fileExt = i
-				filePath = filePath.format(fileExt)
-				with h5.File(filePath,'r') as f: pass
-				break
-		else:
-			with h5.File(filePath,'r') as f: pass
+		with h5.File(filePath,'r') as f: pass
+		print 'Found local file: '+filePath
 	except:
 		dl = getFilesFromMad(expDate, 
 			expDate+dt.timedelta(days=1),
@@ -53,13 +53,16 @@ def mhoRead( expDate,
 				with h5.File(filePath,'r') as f: pass
 			except:
 				raise
+		print 'Downloaded remote file: '+filePath
 
 	with h5.File(filePath,'r') as f:
 		data = f['Data']['Array Layout']
 		data2D = data['2D Parameters']
 		data1D = data['1D Parameters']
 		params = f['Metadata']['Experiment Parameters']
-		edens = data2D['popl'][:].transpose()
+		nel = data2D['nel'][:].transpose()
+		ne = data2D['ne'][:].transpose()
+		popl = data2D['popl'][:].transpose()
 		ti = data2D['ti'][:].transpose()
 		tr = data2D['tr'][:].transpose()
 		vo = data2D['vo'][:].transpose()
@@ -71,15 +74,22 @@ def mhoRead( expDate,
 			data1D['el2'][:]] ).T
 		mho_azim = np.array( [data1D['az1'][:], 
 			data1D['az2'][:]] ).T
-		mho_scntyp = data1D['scntyp'][:]
+		try:
+			mho_scntyp = data1D['scntyp'][:]
+		except:
+			mho_scntyp = np.zeros(mho_time.shape)
 		vinds = np.where( mho_elev[:,0] >= 85. )
 		if len(vinds[0]) > 0:
 			mho_scntyp[vinds] = 5
-		mho_alti = np.dot( \
-			np.diag( np.sin(np.radians(mho_elev[:,0])) ),\
-			mho_range2.T \
-			).transpose()
-		#mho_alti = mho_range2*mho_elev
+		telev = data1D['el1'][:].reshape((1,len(data1D['el1'])))
+		telev = np.radians(telev)
+		telev = np.sin(telev)
+		tran = data['range'][:].reshape((len(data['range']),1))
+		Re = 6371.
+		mho_alti = np.sqrt(Re**2 + \
+						tran**2 + \
+						2.*Re*tran.dot(telev)) - Re
+		mho_gdalt = data2D['gdalt'][:].transpose()
 		mhoPos = [float(params[7][1]),
 		          float(params[8][1]),
 		          float(params[9][1])]
@@ -92,7 +102,9 @@ def mhoRead( expDate,
 			mho_lat[ir,:] = dd['distLat']
 			mho_lon[ir,:] = dd['distLon']
 
-	return {'edens': edens, 
+	return {'nel': nel, 
+			'ne': nel, 
+			'popl': popl,
 	        'ti': ti, 
 	        'tr': tr, 
 	        'te': te, 
@@ -104,9 +116,11 @@ def mhoRead( expDate,
 	        'azim': mho_azim, 
 	        'scntyp': mho_scntyp,
 	        'alti': mho_alti, 
+	        'gdalt': mho_gdalt, 
 	        'lat': mho_lat, 
 	        'lon': mho_lon,
-	        'pos': mhoPos}
+	        'pos': mhoPos, 
+	        'filename': os.path.split(filePath)[-1]}
 
 	
 #####################################################
@@ -117,7 +131,7 @@ def getFilesFromMad(sdate, fdate, dataPath=None):
 	import madrigalWeb.madrigalWeb
 	import os, h5py
 	import numpy as np
-	from matplotlib.dates import date2num
+	from matplotlib.dates import date2num, epoch2num, num2date
 	import datetime as dt
 	# constants
 	user_fullname = 'Sebastien de Larquier'
@@ -181,10 +195,14 @@ def getFilesFromMad(sdate, fdate, dataPath=None):
 	        moreData['nel'].append( float(dat[10]) ) 
 	        moreData['te'].append( float(dat[11]) )
 
-	filePath = os.path.split(thisFilename)[1]
-	with h5.File(filePath,'r+') as f:
-		tDim = f['Data']['Array Layout']['timestamps'].shape[0]
-		rDim = f['Data']['Array Layout']['range'].shape[0]
+	filePath = os.path.join( dataPath,
+		os.path.split(thisFilename)[1]+'.hdf5' )
+	print 'Downloading '+filePath
+	with h5py.File(filePath,'r+') as f:
+		ftime = epoch2num( f['Data']['Array Layout']['timestamps'] )
+		frange = f['Data']['Array Layout']['range']
+		tDim = ftime.shape[0]
+		rDim = frange.shape[0]
 		shape2d = (tDim, rDim)
 		gdalt = np.empty(shape2d)
 		gdalt[:] = np.nan
@@ -192,17 +210,19 @@ def getFilesFromMad(sdate, fdate, dataPath=None):
 		ne[:] = np.nan
 		nel = np.empty(shape2d)
 		nel[:] = np.nan
-		dtime = np.empty(tDim, dtype=datetime64)
+		dtfmt = '%Y-%m-%d %H:%M:%S'
+		dttype = np.dtype('a{}'.format(len(dtfmt)+2))
+		dtime = np.empty(tDim, dtype=dttype)
 
 		# Iterate through the downloaded data
 		for i in range(len(moreData['dt'])):
 		    # Figure out your range/time index
-		    tind = np.where(data['time'] <= date2num(moreData['dt'][i]))[0]
-		    rind = np.where(data['range'] <= moreData['range'][i])[0]
+		    tind = np.where(ftime[:] <= date2num(moreData['dt'][i]))[0]
+		    rind = np.where(frange[:] <= moreData['range'][i])[0]
 		    gdalt[tind[-1],rind[-1]] = moreData['gdalt'][i]
 		    ne[tind[-1],rind[-1]] = moreData['ne'][i]
 		    nel[tind[-1],rind[-1]] = moreData['nel'][i]
-		    dtime[tind[-1]] = moreData['dt'][i]
+		    dtime[tind[-1]] = moreData['dt'][i].strftime(dtfmt)
 
 		parent = f['Data']['Array Layout']['2D Parameters']
 		gdalt_ds = parent.create_dataset('gdalt', data=gdalt)
@@ -212,7 +232,7 @@ def getFilesFromMad(sdate, fdate, dataPath=None):
 		parent = f['Data']['Array Layout']
 		datetime_ds = parent.create_dataset('datetime', data=dtime)
 
-	return filePath
+	return os.path.split(thisFilename)[1]
 
 
 #####################################################
@@ -227,7 +247,7 @@ def isrFov(myMap, isrName, isrPos, elev,
 	import matplotlib as mp
 
 	if not ax: ax = pylab.gca()
-	fovCol = '.3'
+	fovCol = '.1'
 
 	# ISR location
 	x0, y0 = myMap(isrPos[1], isrPos[0], coords='geo')
@@ -265,7 +285,7 @@ def isrFov(myMap, isrName, isrPos, elev,
 	x3, y3 = myMap(contourLon, contourLat, coords='geo')
 	contour = np.transpose( np.vstack((x3,y3)) )
 	patch = mp.patches.Polygon( contour, color='g', 
-		alpha=.3, zorder=15)
+		alpha=.5, zorder=15)
 	pylab.gca().add_patch(patch)
 
 
