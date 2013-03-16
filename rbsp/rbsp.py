@@ -32,6 +32,7 @@ class rbspFp(object):
 		* **[hemisphere]**: limit FPs loading to a specific hemisphere
 		* **[spacecraft]**: limit FPs loading to a specific spacecraft
 		* **[L_shell_min]**: limit FPs loading to L-shell values greater than this
+		* **[L_shell_max]**: limit FPs loading to L-shell values lesser than this
 		* **[apogees_only]**: record foot-points (usefull if all you want are apogees)
 	**Example**:
 		::
@@ -52,7 +53,8 @@ class rbspFp(object):
 	written by Sebastien de Larquier, 2013-03
 	"""
 
-	def __init__(self, sTime, eTime=None, spacecraft=None, L_shell_min=None,  
+	def __init__(self, sTime, eTime=None, spacecraft=None, 
+		L_shell_min=None, L_shell_max=None,  
 		apogees_only=False):
 		from datetime import datetime, timedelta
 
@@ -67,6 +69,7 @@ class rbspFp(object):
 		self.eTime = eTime if eTime else sTime + timedelta(hours=24)
 		self._spacecraft = spacecraft.lower() if spacecraft else ['a','b']
 		self.L_shell_min = L_shell_min
+		self.L_shell_max = L_shell_max
 		self._apogees_only = apogees_only
 
 		# Connect to DB
@@ -218,6 +221,8 @@ class rbspFp(object):
 			qIn['spacecraft'] = self._spacecraft.upper()
 		if self.L_shell_min:
 			qIn['L'] = {'$gte': self.L_shell_min}
+		if self.L_shell_max:
+			qIn['L'] = {'$lte': self.L_shell_max}
 		if self._apogees_only:
 			qIn['isApogee'] = True
 		# Launch query
@@ -232,6 +237,7 @@ class rbspFp(object):
 		self.times = []
 		self.scraft = []
 		self.apogees = []
+		self.L = []
 		for i, el in enumerate(qRes):
 			self.lonNH.append( el['lonNH'] )
 			self.latNH.append( el['latNH'] )
@@ -239,6 +245,7 @@ class rbspFp(object):
 			self.latSH.append( el['latSH'] )
 			self.times.append( el['time'] )
 			self.scraft.append( el['scraft'] )
+			self.L.append( el['L'] )
 			if el['isApogee']: self.apogees.append( i )
 		self.lonNH = np.array(self.lonNH)
 		self.latNH = np.array(self.latNH)
@@ -247,6 +254,7 @@ class rbspFp(object):
 		self.times = np.array(self.times)
 		self.scraft = np.array(self.scraft)
 		self.apogees = np.array(self.apogees)
+		self.L = np.array(self.L)
 
 		return True
 
