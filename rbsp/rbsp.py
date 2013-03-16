@@ -8,15 +8,21 @@ This module handles RBSP foorpoint calculations and plotting
 
 **Class**:
 	* :class:`rbspFp`: FPs reading (or calculating) and plotting
+**Functions**:
+	* :func:`isrFov`: calculate field-of-view for a given ISR
 
 **Prerequesite**:
 	* `Numpy <http://www.numpy.org/>`
 	* `Matplotlib <http://matplotlib.org/>`
 	* `Basemap <http://matplotlib.org/basemap/>`
+	* `Pymongo <http://api.mongodb.org/python/current/>`
 	* `Tsyganenko <https://github.com/sdelarquier/tsyganenko>` (optional, used only if the requested date is not found in the database)
 
 """
 
+############################################################################
+# Foot Points (FPs) calculation and plotting
+############################################################################
 class rbspFp(object):
 	"""This class reads FPs from the SuperDARN FPs database, or generate them if necessary
 
@@ -25,6 +31,7 @@ class rbspFp(object):
 		* **[eTime]**: end date/time to get FPs (defaulst to 24 hours after `sTime`)
 		* **[hemisphere]**: limit FPs loading to a specific hemisphere
 		* **[spacecraft]**: limit FPs loading to a specific spacecraft
+		* **[L_shell_min]**: limit FPs loading to L-shell values greater than this
 		* **[apogees_only]**: record foot-points (usefull if all you want are apogees)
 	**Example**:
 		::
@@ -45,7 +52,7 @@ class rbspFp(object):
 	written by Sebastien de Larquier, 2013-03
 	"""
 
-	def __init__(self, sTime, eTime=None, spacecraft=None, 
+	def __init__(self, sTime, eTime=None, spacecraft=None, L_shell_min=None,  
 		apogees_only=False):
 		from datetime import datetime, timedelta
 
@@ -59,6 +66,7 @@ class rbspFp(object):
 		self.sTime = sTime
 		self.eTime = eTime if eTime else sTime + timedelta(hours=24)
 		self._spacecraft = spacecraft.lower() if spacecraft else ['a','b']
+		self.L_shell_min = L_shell_min
 		self._apogees_only = apogees_only
 
 		# Connect to DB
@@ -83,6 +91,7 @@ class rbspFp(object):
 			* **[legend]**: to show or not to show the legend
 			* **[date]**: to show or not to show the date
 			* **[apogees]**: to show or not to show the apogees
+			* **[isr]**: a list of ISRs to be plotted (codes include mho, sdt, eiscat, pfisr, risr)
 		**Returns**: 
 			* **myMap**: a mpl_toolkits.basemap.Basemap object
 		**Example**:
@@ -152,6 +161,40 @@ class rbspFp(object):
 		return myMap
 
 
+	def showISR(self, myMap, isr):
+		"""overlay ISR fovs on map
+		
+		**Belongs to**: :class:`rbspFp`
+		
+		**Args**: 
+			* **myMap**: Basemap object
+			* **isr**: a list of ISRs to be plotted (codes include mho, sdt, eiscat, pfisr, risr)
+		"""
+		if isinstance(isr, str): isr = [isr]
+
+		for rad in isr:
+			dbConn = self.__dbConnect('isr')
+			if not dbConn: 
+				print 'Could not access DB'
+				return
+
+			qIn = {'code': rad}
+			qRes = dbConn.info.find(qIn)
+			if qRes.count() == 0: 
+				print 'Radar {} not found in db'.format(rad)
+				print 'Use one or more in {}'.format(dbConn.codes.find_one()['codes'])
+				continue
+
+			for el in qRes:
+				x, y = myMap(el['pos']['lon'], el['pos']['lat'])
+				myMap.scatter(x, y, zorder=6, s=20, facecolors='k')
+				if isinstance(x, list): x, y = x[0], y[0]
+				myMap.ax.text(x*1.04, y*0.96, el['code'].upper())
+				x, y = myMap(el['fov']['lon'], el['fov']['lat'])
+				myMap.plot(x, y, 'g')
+
+
+
 	def __getFpsFromDb(self):
 		"""Get FPs from DB
 		
@@ -164,7 +207,7 @@ class rbspFp(object):
 		"""
 		import numpy as np
 
-		dbConn = self.__dbConnect()
+		dbConn = self.__dbConnect(self._db_name)
 		if not dbConn: return False
 
 		isAp = True if self._apogees_only else None
@@ -173,6 +216,8 @@ class rbspFp(object):
 		qIn = {'time': {'$gte': self.sTime, '$lte': self.eTime}}
 		if not self._spacecraft == ['a', 'b']:
 			qIn['spacecraft'] = self._spacecraft.upper()
+		if self.L_shell_min:
+			qIn['L'] = {'$gte': self.L_shell_min}
 		if self._apogees_only:
 			qIn['isApogee'] = True
 		# Launch query
@@ -206,7 +251,7 @@ class rbspFp(object):
 		return True
 
 
-	def __dbConnect(self):
+	def __dbConnect(self, dbName):
 		"""Try to establish a connection to remote db database
 		
 		**Belongs to**: :class:`rbspFp`
@@ -223,9 +268,9 @@ class rbspFp(object):
 			conn = MongoClient( 'mongodb://{}:{}@{}/{}'.format(self._db_user,
 															self._db_pswd, 
 															self._db_host,
-															self._db_name) )
+															dbName) )
 
-			dba = conn[self._db_name]
+			dba = conn[dbName]
 		except:
 			print 'Could not connect to remote DB: ', sys.exc_info()[0]
 			return False
@@ -392,3 +437,4 @@ class rbspFp(object):
 				frameon=False )
 
 		ax.add_artist(ab)
+############################################################################
