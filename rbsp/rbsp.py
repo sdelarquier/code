@@ -61,7 +61,7 @@ class rbspFp(object):
 		# MongoDB server
 		self._db_user = 'sd_dbread'
 		self._db_pswd = '5d'
-		self._db_host = 'sd-work8.ece.vt.edu'
+		self._db_host = 'sd-work9.ece.vt.edu'
 		self._db_name = 'rbsp'
 
 		# Input
