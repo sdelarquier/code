@@ -220,9 +220,11 @@ class rbspFp(object):
 		if not self._spacecraft == ['a', 'b']:
 			qIn['spacecraft'] = self._spacecraft.upper()
 		if self.L_shell_min:
-			qIn['L'] = {'$gte': self.L_shell_min}
+			if 'L' not in qIn: qIn['L'] = {}
+			qIn['L']['$gte'] = self.L_shell_min
 		if self.L_shell_max:
-			qIn['L'] = {'$lte': self.L_shell_max}
+			if 'L' not in qIn: qIn['L'] = {}
+			qIn['L']['$lte'] = self.L_shell_max
 		if self._apogees_only:
 			qIn['isApogee'] = True
 		# Launch query
