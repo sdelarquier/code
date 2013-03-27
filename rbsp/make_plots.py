@@ -351,36 +351,3 @@ Command-line call
         """ Uncomment this line to (re)generate RBSP footpoints plots """
     	plot(date=date, saveDb=saveDb, noPlot=noPlot)
     	print '{} plotted.'.format(date.date())
-
-
-def isrFov(myMap, isrName, isrPos, elev, dist, azim=[-180.,180.], ax=None):
-    import sys
-    sys.path.append('/davitpy')
-    from utils import geoPack as gp
-    
-    if not ax: ax = gca()
-    fovCol = (0,.3,0)
-    
-    # ISR location
-    #mhpos = [42.6, 288.5]
-    x0, y0 = myMap(isrPos[1], isrPos[0])
-    myMap.scatter(x0, y0, s=20, zorder=5, c='k', ax=ax)
-    ax.text(x0*1.04, y0*0.96, isrName)
-    
-    # MHO fov
-    nazims = 100
-    azims = linspace(azim[0], azim[1], nazims)
-    isrFov = zeros((nazims, 3))
-    Rav = 6370.
-    for iaz, taz in enumerate(azims):
-        dd = gp.calcDistPnt(isrPos[0], isrPos[1], 0., distAlt=500., el=elev, az=taz)
-        isrFov[iaz,0] = dd['distLat']
-        isrFov[iaz,1] = dd['distLon']
-        isrFov[iaz,2] = dd['distAlt']
-    x, y = myMap(isrFov[:,1], isrFov[:,0])
-    myMap.plot(x, y, c=fovCol, ax=ax)
-    if abs(azim[1] - azim[0]) != 360.:
-        myMap.plot([x0,x[0]], [y0,y[0]], c=fovCol, ax=ax)
-        myMap.plot([x0,x[-1]], [y0,y[-1]], c=fovCol, ax=ax)
-    
-    return isrFov

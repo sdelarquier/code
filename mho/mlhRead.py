@@ -1,10 +1,17 @@
+# Copyright (C) 2012  VT SuperDARN Lab
+# Full license can be found in LICENSE.txt
+"""
+*********************
+**Module**: gme.mho
+*********************
+This module handles Millstone Hill ISR data
+
+**Class**:
+	* :class:`mhoData`: Read Millstone Hill data, either locally if it can be found, or directly from Madrigal
+
+"""
 import sys
 sys.path.append('/davitpy')
-
-mhoCipher = {'edens': r'Electron dens. [$\log$(m$^{-3}$)]',
-			 'ti': r'T$_i$ [K]',
-			 'te': r'T$_e$ [K]', 
-			 'tr': r'T$_e$/T$_i$'}
 
 
 #####################################################
@@ -28,8 +35,8 @@ def mhoRead( expDate,
 		format( expDate )
 	if not fileExt:
 		dfiles = np.sort(glob.glob(dataPath+fileName+'?.???.hdf5'))
-		if dfiles == []:
-			fileExt = 'g.002'
+		if not list(dfiles):
+			fileExt = ''
 		else:
 			fileExt = dfiles[-1][-10:-5]
 	
@@ -219,6 +226,7 @@ def getFilesFromMad(sdate, fdate, dataPath=None):
 		    # Figure out your range/time index
 		    tind = np.where(ftime[:] <= date2num(moreData['dt'][i]))[0]
 		    rind = np.where(frange[:] <= moreData['range'][i])[0]
+		    if not list(tind) or not list(rind): continue
 		    gdalt[tind[-1],rind[-1]] = moreData['gdalt'][i]
 		    ne[tind[-1],rind[-1]] = moreData['ne'][i]
 		    nel[tind[-1],rind[-1]] = moreData['nel'][i]
@@ -247,7 +255,7 @@ def isrFov(myMap, isrName, isrPos, elev,
 	import matplotlib as mp
 
 	if not ax: ax = pylab.gca()
-	fovCol = '.1'
+	fovCol = '0'
 
 	# ISR location
 	x0, y0 = myMap(isrPos[1], isrPos[0], coords='geo')
@@ -267,33 +275,33 @@ def isrFov(myMap, isrName, isrPos, elev,
 		isrFov[iaz,0] = dd['distLat']
 		isrFov[iaz,1] = dd['distLon']
 		isrFov[iaz,2] = dd['distAlt']
-	x, y = myMap(isrFov[:,1], isrFov[:,0], coords='geo')
-	myMap.plot(x, y, c=fovCol, ax=ax, zorder=10)
+	# x, y = myMap(isrFov[:,1], isrFov[:,0], coords='geo')
+	# myMap.plot(x, y, c=fovCol, ax=ax, zorder=10)
 	for iaz, taz in enumerate(azims):
 		dd = gp.calcDistPnt(isrPos[0], isrPos[1], 0., 
 			distAlt=250., el=elev, az=taz)
 		isrFov2[iaz,0] = dd['distLat']
 		isrFov2[iaz,1] = dd['distLon']
 		isrFov2[iaz,2] = dd['distAlt']
-	x2, y2 = myMap(isrFov2[:,1], isrFov2[:,0], coords='geo')
-	myMap.plot(x2, y2, c=fovCol, ax=ax, zorder=10)
+	# x2, y2 = myMap(isrFov2[:,1], isrFov2[:,0], coords='geo')
+	# myMap.plot(x2, y2, c=fovCol, ax=ax, zorder=10)
 
 	contourLat = np.concatenate( (isrFov[:,0], 
-								  isrFov2[-1::-1,0]) )
-	contourLon = np.concatenate( (isrFov[:,1], 
-								  isrFov2[-1::-1,1]) )
+								  [isrPos[0]]) )
+	contourLon = np.concatenate( (isrFov[:,1],
+								  [isrPos[1]]) )
 	x3, y3 = myMap(contourLon, contourLat, coords='geo')
 	contour = np.transpose( np.vstack((x3,y3)) )
-	patch = mp.patches.Polygon( contour, color='g', 
-		alpha=.5, zorder=15)
+	patch = mp.patches.Polygon( contour, color='k', 
+		alpha=.8, zorder=15)
 	pylab.gca().add_patch(patch)
 
 
-	if abs(azim[1] - azim[0]) != 360.:
-	    myMap.plot([x0,x[0]], [y0,y[0]], zorder=10,
-	    	c=fovCol, ax=ax, lw=.5)
-	    myMap.plot([x0,x[-1]], [y0,y[-1]], zorder=10,
-	    	c=fovCol, ax=ax, lw=.5)
+	# if abs(azim[1] - azim[0]) != 360.:
+	#     myMap.plot([x0,x[0]], [y0,y[0]], zorder=10,
+	#     	c=fovCol, ax=ax, lw=1)
+	#     myMap.plot([x0,x[-1]], [y0,y[-1]], zorder=10,
+	#     	c=fovCol, ax=ax, lw=1)
 	if misa:
 		dd = gp.calcDistPnt(isrPos[0], isrPos[1], 0., 
 			distAlt=450., el=elev, az=misa)
